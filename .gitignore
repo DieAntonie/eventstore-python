@@ -8,3 +8,9 @@ repositories.config
 [Bb]in/
 [Oo]bj/
 *.csproj.user
+
+# VS Code
+.vscode/*
+
+# Python
+*.pyc
