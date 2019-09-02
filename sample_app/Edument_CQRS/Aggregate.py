@@ -1,7 +1,7 @@
 import uuid
 
 class Aggregate:
-    def __init__(self, id = uuid.UUID(), eventsLoaded = 0):
+    def __init__(self, id = uuid.uuid1(), eventsLoaded = 0):
         self.Id = id
         self.EventsLoaded = eventsLoaded
 

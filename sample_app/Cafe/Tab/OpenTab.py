@@ -6,6 +6,6 @@ class OpenTab:
     """
     Open tab command
     """
-    Id: uuid 
+    Id: uuid
     TableNumber: int
     Waiter: str

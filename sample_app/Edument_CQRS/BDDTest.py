@@ -1,7 +1,9 @@
-import unittest
+from ..Cafe.Tab.TabAggregate import TabAggregate
+from uuid import UUID
 
-class BDDTest(unittest.TestCase):
-    def setUp(self):
+class BDDTest():
+    def __init__(self, testCase):
+        self.testCase = testCase
         self.sut = TabAggregate()
 
     def Test(self, given, when, then):
@@ -24,9 +26,9 @@ class BDDTest(unittest.TestCase):
                 if len(receivedEvents) == len(expectedEvents):
                     for index in range(len(receivedEvents)):
                         if receivedEvents[index].__class__ == expectedEvents[index].__class__:
-                            self.assertEqual(self.Serialize(expectedEvents[index]), self.Serialize(receivedEvents[index]))
+                            self.testCase.assertEqual(self.Serialize(expectedEvents[index]), self.Serialize(receivedEvents[index]))
                         else:
-                            self.fail(f"Incorrect event in results; expected a {expectedEvents[index].__class__.__name__} but got a {receivedEvents[index]}")
+                            self.testCase.fail(f"Incorrect event in results; expected a {expectedEvents[index].__class__.__name__} but got a {receivedEvents[index]}")
                 elif len(receivedEvents) < len(expectedEvents):
                     self.fail(f"Expected event(s) missing: {self.EventDiff(expectedEvents, receivedEvents)}")
                 else:
@@ -71,16 +73,24 @@ class BDDTest(unittest.TestCase):
             A function takes in a custom object and returns a dictionary representation of the object.
             This dict representation includes meta data such as the object's module and class names.
             """
-            #  Populate the dictionary with object meta data 
-            json_obj = {
-                "__class__": model_obj.__class__.__name__,
-                "__module__": model_obj.__module__
-            }
-            #  Populate the dictionary with object properties
-            json_obj.update(model_obj.__dict__)
-            return json_obj
+            # #  Populate the dictionary with object meta data 
+            # json_obj = {
+            #     "__class__": model_obj.__class__.__name__,
+            #     "__module__": model_obj.__module__
+            # }
+            # #  Populate the dictionary with object properties
+            # json_obj.update(model_obj.__dict__)
+
+            return model_obj.__dict__
 
         import json
-        return json.dumps(obj, default = model_to_json)
+        class UUIDEncoder(json.JSONEncoder):
+            def default(self, obj):
+                if isinstance(obj, UUID):
+                    # if the obj is uuid, we simply return the value of uuid
+                    return obj.hex
+                return json.JSONEncoder.default(self, obj)
+
+        return json.dumps(obj.__dict__, cls=UUIDEncoder) #, default = model_to_json)
 
     class CommandHandlerNotDefiendException(Exception) : pass
