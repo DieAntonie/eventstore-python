@@ -140,5 +140,26 @@ class TabTests(unittest.TestCase):
                 )
             )
 
+    def test_cannot_serve_unorderd_drink(self):
+        self.BDDTest.Test(
+            self.BDDTest.Given(
+                TabOpened(
+                    self.testId,
+                    self.testTable,
+                    self.testWaiter),
+                DrinksOrdered(
+                    self.testId,
+                    [self.testDrink1]
+                    )
+                ),
+            self.BDDTest.When(
+                MarkDrinksServed(
+                    self.testId,
+                    [self.testDrink2.MenuNumber]
+                )
+            ),
+            self.BDDTest.ThenFailWith(DrinksNotOutstanding)
+            )
+
 if __name__ == '__main__':
     unittest.main()
