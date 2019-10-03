@@ -47,6 +47,18 @@ class TabTests(unittest.TestCase):
                 )
             )
 
+    def test_cannot_order_with_unopened_tab(self):
+        self.BDDTest.Test(
+            self.BDDTest.Given(),
+            self.BDDTest.When(
+                PlaceOrder(
+                    self.testId,
+                    [self.testDrink1]
+                )
+                ),
+            self.BDDTest.ThenFailWith(TabNotOpen)
+            )
+
     def test_can_place_drinks_order(self):
         self.BDDTest.Test(
             self.BDDTest.Given(TabOpened(
