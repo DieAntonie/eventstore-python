@@ -54,18 +54,14 @@ class BDDTest():
         return event_diff
 
     def ThenFailWith(self, expectedException):
-        def exceptionHandler(receivedException):
-            if receivedException is expectedException:
-                pass
-            elif receivedException is self.CommandHandlerNotDefiendException:
-                self.testCase.fail(receivedException)
-            elif receivedException is Exception:
+        def exceptionHandler(receivedExceptionTuple):
+            with self.testCase.assertRaises(expectedException):
+                receivedException = list(receivedExceptionTuple)
                 self.testCase.fail(f"""
-                Expected exception {expectedException.__class__.__name__}, but got exception 
-                {receivedException.__class__.__name__}
+                Expected exception {expectedException.__class__.__name__}, but got event
+                {receivedException.__class__.__name__} result
                 """)
-            else:
-                self.testCase.fail(f"Expected exception {expectedException.__class__.__name__}, but got event result")
+                
         return exceptionHandler
 
     def DispatchCommand(self, command):
