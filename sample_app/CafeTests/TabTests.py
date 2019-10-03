@@ -80,5 +80,30 @@ class TabTests(unittest.TestCase):
                 )
             )
 
+    def test_can_place_food_and_drink_order(self):
+        self.BDDTest.Test(
+            self.BDDTest.Given(TabOpened(
+                self.testId,
+                self.testTable,
+                self.testWaiter
+            )),
+            self.BDDTest.When(
+                PlaceOrder(
+                    self.testId,
+                    [self.testDrink2, self.testFood1]
+                )
+                ),
+            self.BDDTest.Then(
+                FoodOrdered(
+                    self.testId,
+                    [self.testFood1]
+                    ),
+                DrinksOrdered(
+                    self.testId,
+                    [self.testDrink2]
+                    )
+                )
+            )
+
 if __name__ == '__main__':
     unittest.main()
