@@ -69,29 +69,13 @@ class BDDTest():
         return agg
 
     def Serialize(self, obj):
-        def model_to_json(model_obj):
-            """
-            A function takes in a custom object and returns a dictionary representation of the object.
-            This dict representation includes meta data such as the object's module and class names.
-            """
-            # #  Populate the dictionary with object meta data 
-            # json_obj = {
-            #     "__class__": model_obj.__class__.__name__,
-            #     "__module__": model_obj.__module__
-            # }
-            # #  Populate the dictionary with object properties
-            # json_obj.update(model_obj.__dict__)
-
-            return model_obj.__dict__
-
         import json
         class UUIDEncoder(json.JSONEncoder):
             def default(self, obj):
                 if isinstance(obj, UUID):
                     # if the obj is uuid, we simply return the value of uuid
                     return obj.hex
-                return json.JSONEncoder.default(self, obj)
-
-        return json.dumps(obj.__dict__, cls=UUIDEncoder) #, default = model_to_json)
+                return obj.__dict__
+        return json.dumps(obj.__dict__, cls=UUIDEncoder)
 
     class CommandHandlerNotDefiendException(Exception) : pass
