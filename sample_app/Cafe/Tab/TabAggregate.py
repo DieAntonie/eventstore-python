@@ -41,7 +41,7 @@ class TabAggregate(Aggregate, IHandleCommand, IApplyEvent):
 
     @Handle.register(OpenTab)
     def Handle_OpenTab(self, command):
-        return TabOpened(
+        yield TabOpened(
             command.Id,
             command.TableNumber,
             command.Waiter

@@ -21,14 +21,15 @@ class BDDTest():
         return commandHandler
 
     def Then(self, *expectedEvents):
-        def eventHandler(*receivedEvents):
+        def eventHandler(*receivedTuple):
+            receivedEvents = list(receivedTuple[0])
             if receivedEvents:
                 if len(receivedEvents) == len(expectedEvents):
-                    for index in range(len(receivedEvents)):
-                        if receivedEvents[index].__class__ == expectedEvents[index].__class__:
-                            self.testCase.assertEqual(self.Serialize(expectedEvents[index]), self.Serialize(receivedEvents[index]))
+                    for index, received_event in enumerate(receivedEvents):
+                        if received_event.__class__ == expectedEvents[index].__class__:
+                            self.testCase.assertEqual(self.Serialize(expectedEvents[index]), self.Serialize(received_event))
                         else:
-                            self.testCase.fail(f"Incorrect event in results; expected a {expectedEvents[index].__class__.__name__} but got a {receivedEvents[index]}")
+                            self.testCase.fail(f"Incorrect event in results; expected a {expectedEvents[index].__class__.__name__} but got a {received_event.__class__.__name__}")
                 elif len(receivedEvents) < len(expectedEvents):
                     self.testCase.fail(f"Expected event(s) missing: {self.EventDiff(expectedEvents, receivedEvents)}")
                 else:
