@@ -31,30 +31,30 @@ namespace CafeTests
             {
                 MenuNumber = 4,
                 Description = "Sprite",
-                Price = 1.50M,
-                IsDrink = true
+                IsDrink = true,
+                Price = 1.50M
             };
             testDrink2 = new OrderedItem
             {
                 MenuNumber = 10,
                 Description = "Beer",
-                Price = 2.50M,
-                IsDrink = true
+                IsDrink = true,
+                Price = 2.50M
             };
 
             testFood1 = new OrderedItem
             {
                 MenuNumber = 16,
                 Description = "Beef Noodles",
-                Price = 7.50M,
-                IsDrink = false
+                IsDrink = false,
+                Price = 7.50M
             };
             testFood2 = new OrderedItem
             {
                 MenuNumber = 25,
                 Description = "Vegetable Curry",
-                Price = 6.00M,
-                IsDrink = false
+                IsDrink = false,
+                Price = 6.00M
             };
         }
 
