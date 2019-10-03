@@ -1,7 +1,9 @@
 import unittest
 import uuid
 from ..Cafe.Tab.OpenTab import OpenTab
+from ..Cafe.Tab.PlaceOrder import PlaceOrder
 from ..Events.Tab.TabOpened import TabOpened
+from ..Events.Tab.DrinksOrdered import DrinksOrdered
 from ..Edument_CQRS.BDDTest import BDDTest
 from ..Events.Tab.Shared import OrderedItem
 
@@ -31,6 +33,27 @@ class TabTests(unittest.TestCase):
                     self.testId,
                     self.testTable,
                     self.testWaiter
+                    )
+                )
+            )
+
+    def test_can_place_drinks_order(self):
+        self.BDDTest.Test(
+            self.BDDTest.Given(TabOpened(
+                self.testId,
+                self.testTable,
+                self.testWaiter
+            )),
+            self.BDDTest.When(
+                PlaceOrder(
+                    self.testId,
+                    [self.testDrink1, self.testDrink2]
+                )
+                ),
+            self.BDDTest.Then(
+                DrinksOrdered(
+                    self.testId,
+                    [self.testDrink1, self.testDrink2]
                     )
                 )
             )
