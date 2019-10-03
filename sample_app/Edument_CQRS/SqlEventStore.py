@@ -14,7 +14,7 @@ class SqlEventStore(IEventStore):
             db_cursor = connection.cursor()
             db_cursor.execute(f"""
                 SELECT [Body]
-                FROM [dbo].[Events]
+                FROM [Events]
                 WHERE [AggregateId] = {id}
                 ORDER BY [SequenceNumber]
                 """)
@@ -51,14 +51,14 @@ class SqlEventStore(IEventStore):
         # Query prelude.
         queryText = f"""
             BEGIN TRANSACTION;
-            IF NOT EXISTS(SELECT * FROM [dbo].[Aggregates] WHERE [Id] = {aggregateId})
-                INSERT INTO [dbo].[Aggregates] ([Id]) VALUES ({aggregateId});
+            IF NOT EXISTS(SELECT * FROM [Aggregates] WHERE [Id] = {aggregateId})
+                INSERT INTO [Aggregates] ([Id]) VALUES ({aggregateId});
         """
         # Add saving of the events.
         CommitDateTime = datetime.now()
         for index, e in enumerate(newEvents):
             queryText += f"""
-                INSERT INTO [dbo].[Events] ([AggregateId], [SequenceNumber], [Body], [Timestamp])
+                INSERT INTO [Events] ([AggregateId], [SequenceNumber], [Body], [Timestamp])
                     VALUES('{aggregateId}', {eventsLoaded + index}, '{self.SerializeEvent(e)}', '{CommitDateTime}');
                 """
         # Add commit.
