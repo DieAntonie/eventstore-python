@@ -202,7 +202,7 @@ class TabTests(unittest.TestCase):
             self.BDDTest.ThenFailWith(DrinksNotOutstanding)
             )
 
-    def test_ordered_food_can_be_marked_preparedd(self):
+    def test_ordered_food_can_be_marked_prepared(self):
         self.BDDTest.Test(
             self.BDDTest.Given(
                 TabOpened(
@@ -227,6 +227,28 @@ class TabTests(unittest.TestCase):
                     [self.testFood1.MenuNumber, self.testFood2.MenuNumber]
                 )
             )
+        )
+
+    def test_cannot_mark_unorderd_food_as_prepared(self):
+        self.BDDTest.Test(
+            self.BDDTest.Given(
+                TabOpened(
+                    self.testId,
+                    self.testTable,
+                    self.testWaiter
+                ),
+                FoodOrdered(
+                    self.testId,
+                    [self.testFood1]
+                )
+            ),
+            self.BDDTest.When(
+                MarkFoodPrepared(
+                    self.testId,
+                    [self.testFood2.MenuNumber]
+                )
+            ),
+            self.BDDTest.ThenFailWith(FoodNotOutstanding)
         )
 
 if __name__ == '__main__':
