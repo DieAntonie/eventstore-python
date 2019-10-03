@@ -162,12 +162,38 @@ class TabTests(unittest.TestCase):
                 DrinksOrdered(
                     self.testId,
                     [self.testDrink1]
-                    )
-                ),
+                )
+            ),
             self.BDDTest.When(
                 MarkDrinksServed(
                     self.testId,
                     [self.testDrink2.MenuNumber]
+                )
+            ),
+            self.BDDTest.ThenFailWith(DrinksNotOutstanding)
+            )
+
+    def test_cannot_serve_ordered_drinks_twice(self):
+        self.BDDTest.Test(
+            self.BDDTest.Given(
+                TabOpened(
+                    self.testId,
+                    self.testTable,
+                    self.testWaiter
+                ),
+                DrinksOrdered(
+                    self.testId,
+                    [self.testDrink1]
+                ),
+                DrinksServed(
+                    self.testId,
+                    [self.testDrink1.MenuNumber]
+                )
+            ),
+            self.BDDTest.When(
+                MarkDrinksServed(
+                    self.testId,
+                    [self.testDrink1.MenuNumber]
                 )
             ),
             self.BDDTest.ThenFailWith(DrinksNotOutstanding)
