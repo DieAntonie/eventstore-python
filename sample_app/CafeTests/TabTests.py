@@ -4,6 +4,7 @@ from ..Cafe.Tab.OpenTab import OpenTab
 from ..Cafe.Tab.PlaceOrder import PlaceOrder
 from ..Events.Tab.TabOpened import TabOpened
 from ..Events.Tab.DrinksOrdered import DrinksOrdered
+from ..Events.Tab.FoodOrdered import FoodOrdered
 from ..Edument_CQRS.BDDTest import BDDTest
 from ..Events.Tab.Shared import OrderedItem
 
@@ -54,6 +55,27 @@ class TabTests(unittest.TestCase):
                 DrinksOrdered(
                     self.testId,
                     [self.testDrink1, self.testDrink2]
+                    )
+                )
+            )
+
+    def test_can_place_food_order(self):
+        self.BDDTest.Test(
+            self.BDDTest.Given(TabOpened(
+                self.testId,
+                self.testTable,
+                self.testWaiter
+            )),
+            self.BDDTest.When(
+                PlaceOrder(
+                    self.testId,
+                    [self.testFood1, self.testFood2]
+                )
+                ),
+            self.BDDTest.Then(
+                FoodOrdered(
+                    self.testId,
+                    [self.testFood1, self.testFood2]
                     )
                 )
             )
