@@ -12,11 +12,12 @@ from ..Cafe.Tab.MarkFoodPrepared import MarkFoodPrepared
 from ..Cafe.Tab.MarkFoodServed import MarkFoodServed
 from ..Cafe.Tab.OpenTab import OpenTab
 from ..Cafe.Tab.PlaceOrder import PlaceOrder
-from ..Events.Tab.FoodPrepared import FoodPrepared
-from ..Events.Tab.TabOpened import TabOpened
 from ..Events.Tab.DrinksOrdered import DrinksOrdered
-from ..Events.Tab.FoodOrdered import FoodOrdered
 from ..Events.Tab.DrinksServed import DrinksServed
+from ..Events.Tab.FoodOrdered import FoodOrdered
+from ..Events.Tab.FoodPrepared import FoodPrepared
+from ..Events.Tab.FoodServed import FoodServed
+from ..Events.Tab.TabOpened import TabOpened
 from ..Edument_CQRS.BDDTest import BDDTest
 from ..Events.Tab.Shared import OrderedItem
 
@@ -275,6 +276,37 @@ class TabTests(unittest.TestCase):
                 )
             ),
             self.BDDTest.ThenFailWith(FoodNotOutstanding)
+        )
+
+    def test_can_serve_prepared_food(self):
+        self.BDDTest.Test(
+            self.BDDTest.Given(
+                TabOpened(
+                    self.testId,
+                    self.testTable,
+                    self.testWaiter
+                ),
+                FoodOrdered(
+                    self.testId,
+                    [self.testFood1, self.testFood2]
+                ),
+                FoodPrepared(
+                    self.testId,
+                    [self.testFood1.MenuNumber, self.testFood2.MenuNumber]
+                )
+            ),
+            self.BDDTest.When(
+                MarkFoodServed(
+                    self.testId,
+                    [self.testFood1.MenuNumber, self.testFood2.MenuNumber]
+                )
+            ),
+            self.BDDTest.Then(
+                FoodServed(
+                    self.testId,
+                    [self.testFood1.MenuNumber, self.testFood2.MenuNumber]
+                )
+            )
         )
 
 if __name__ == '__main__':
