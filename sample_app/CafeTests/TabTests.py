@@ -251,5 +251,31 @@ class TabTests(unittest.TestCase):
             self.BDDTest.ThenFailWith(FoodNotOutstanding)
         )
 
+    def test_cannot_mark_food_as_prepared_twice(self):
+        self.BDDTest.Test(
+            self.BDDTest.Given(
+                TabOpened(
+                    self.testId,
+                    self.testTable,
+                    self.testWaiter
+                ),
+                FoodOrdered(
+                    self.testId,
+                    [self.testFood1]
+                ),
+                FoodPrepared(
+                    self.testId,
+                    [self.testFood1.MenuNumber]
+                )
+            ),
+            self.BDDTest.When(
+                MarkFoodPrepared(
+                    self.testId,
+                    [self.testFood1.MenuNumber]
+                )
+            ),
+            self.BDDTest.ThenFailWith(FoodNotOutstanding)
+        )
+
 if __name__ == '__main__':
     unittest.main()
