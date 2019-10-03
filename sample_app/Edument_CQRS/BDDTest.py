@@ -20,16 +20,25 @@ class BDDTest():
                 return e
         return commandHandler
 
-    def Then(self, *expectedEvents):
+    def Then(self, *expectedTuple):
+        expectedEvents = list(expectedTuple)
         def eventHandler(*receivedTuple):
             receivedEvents = list(receivedTuple[0])
             if receivedEvents:
                 if len(receivedEvents) == len(expectedEvents):
-                    for index, received_event in enumerate(receivedEvents):
-                        if received_event.__class__ == expectedEvents[index].__class__:
-                            self.testCase.assertEqual(self.Serialize(expectedEvents[index]), self.Serialize(received_event))
+                    for received_event in receivedEvents:
+                        if received_event.__class__ in [expected_event.__class__ for expected_event in expectedEvents]:
+                            for index, expected_event in enumerate(expectedEvents):
+                                if received_event.__class__ == expected_event.__class__:
+                                    self.testCase.assertEqual(
+                                        self.Serialize(expectedEvents.pop(index)),
+                                        self.Serialize(received_event))
                         else:
-                            self.testCase.fail(f"Incorrect event in results; expected a {expectedEvents[index].__class__.__name__} but got a {received_event.__class__.__name__}")
+                            expected_events = [expected_event.__class__.__name__ for expected_event in expectedEvents]
+                            self.testCase.fail(f"""
+                            Incorrect event in results; expected any of {"; ".join(expected_events)} but got a 
+                            {received_event.__class__.__name__}
+                            """)
                 elif len(receivedEvents) < len(expectedEvents):
                     self.testCase.fail(f"Expected event(s) missing: {self.EventDiff(expectedEvents, receivedEvents)}")
                 else:
@@ -51,7 +60,10 @@ class BDDTest():
             elif receivedException is self.CommandHandlerNotDefiendException:
                 self.testCase.fail(receivedException)
             elif receivedException is Exception:
-                self.testCase.fail(f"Expected exception {expectedException.__class__.__name__}, but got exception {receivedException.__class__.__name__}")
+                self.testCase.fail(f"""
+                Expected exception {expectedException.__class__.__name__}, but got exception 
+                {receivedException.__class__.__name__}
+                """)
             else:
                 self.testCase.fail(f"Expected exception {expectedException.__class__.__name__}, but got event result")
         return exceptionHandler
@@ -59,9 +71,13 @@ class BDDTest():
     def DispatchCommand(self, command):
         handler = getattr(self.sut, 'Handle')
         if handler is None or not callable(handler):
-            return self.CommandHandlerNotDefiendException(f"Aggregate {self.sut.__class__.__name__} does not yet handle commands")
+            return self.CommandHandlerNotDefiendException(f"""
+            Aggregate {self.sut.__class__.__name__} does not yet handle commands
+            """)
         if handler and callable(handler) and command.__class__ not in self.sut.Handle.registry.keys():
-            return self.CommandHandlerNotDefiendException(f"Aggregate {self.sut.__class__.__name__} does not yet handle command {command.__class__.__name__}")
+            return self.CommandHandlerNotDefiendException(f"""
+            Aggregate {self.sut.__class__.__name__} does not yet handle command {command.__class__.__name__}
+            """)
         return handler(command)
 
     def ApplyEvents(self, agg, events):
