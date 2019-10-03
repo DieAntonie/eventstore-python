@@ -28,6 +28,7 @@ def methdispatch(func):
 
 class TabAggregate(Aggregate, IHandleCommand, IApplyEvent):
     def __init__(self):
+        super(TabAggregate, self).__init__()
         self.outstandingDrinks = []
         self.outstandingFood = []
         self.preparedFood = []
