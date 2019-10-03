@@ -1,5 +1,12 @@
 import unittest
 import uuid
+from ..Cafe.Tab.Exceptions import (
+    TabNotOpen,
+    DrinksNotOutstanding,
+    FoodNotOutstanding,
+    FoodNotPrepared,
+    MustPayEnough,
+    TabHasUnservedItems)
 from ..Cafe.Tab.OpenTab import OpenTab
 from ..Cafe.Tab.PlaceOrder import PlaceOrder
 from ..Cafe.Tab.MarkDrinksServed import MarkDrinksServed

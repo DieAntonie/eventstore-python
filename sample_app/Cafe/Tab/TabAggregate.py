@@ -1,5 +1,11 @@
 from functools import singledispatch, update_wrapper
-from .Exceptions import *
+from .Exceptions import (
+    TabNotOpen,
+    DrinksNotOutstanding,
+    FoodNotOutstanding,
+    FoodNotPrepared,
+    MustPayEnough,
+    TabHasUnservedItems)
 from .CloseTab import CloseTab
 from .MarkDrinksServed import MarkDrinksServed
 from .MarkFoodPrepared import MarkFoodPrepared
