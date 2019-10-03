@@ -2,9 +2,11 @@ import unittest
 import uuid
 from ..Cafe.Tab.OpenTab import OpenTab
 from ..Cafe.Tab.PlaceOrder import PlaceOrder
+from ..Cafe.Tab.MarkDrinksServed import MarkDrinksServed
 from ..Events.Tab.TabOpened import TabOpened
 from ..Events.Tab.DrinksOrdered import DrinksOrdered
 from ..Events.Tab.FoodOrdered import FoodOrdered
+from ..Events.Tab.DrinksServed import DrinksServed
 from ..Edument_CQRS.BDDTest import BDDTest
 from ..Events.Tab.Shared import OrderedItem
 
@@ -101,6 +103,32 @@ class TabTests(unittest.TestCase):
                 DrinksOrdered(
                     self.testId,
                     [self.testDrink2]
+                    )
+                )
+            )
+
+    def test_ordered_drinks_can_be_served(self):
+        self.BDDTest.Test(
+            self.BDDTest.Given(
+                TabOpened(
+                    self.testId,
+                    self.testTable,
+                    self.testWaiter),
+                DrinksOrdered(
+                    self.testId,
+                    [self.testDrink1, self.testDrink2]
+                    )
+                ),
+            self.BDDTest.When(
+                MarkDrinksServed(
+                    self.testId,
+                    [self.testDrink1.MenuNumber, self.testDrink2.MenuNumber]
+                )
+            ),
+            self.BDDTest.Then(
+                DrinksServed(
+                    self.testId,
+                    [self.testDrink1.MenuNumber, self.testDrink2.MenuNumber]
                     )
                 )
             )
