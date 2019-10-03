@@ -24,9 +24,9 @@ class TabTests(unittest.TestCase):
         self.testTable = 42
         self.testWaiter = "Derek"
         self.testDrink1 = OrderedItem(4, "Sprite", True, 1.50)
-        self.testDrink2 = OrderedItem(4, "Beer", True, 2.50)
-        self.testFood1 = OrderedItem(4, "Beef Noodles", False, 7.50)
-        self.testFood2 = OrderedItem(4, "Vegetable Curry", False, 6.00)
+        self.testDrink2 = OrderedItem(10, "Beer", True, 2.50)
+        self.testFood1 = OrderedItem(16, "Beef Noodles", False, 7.50)
+        self.testFood2 = OrderedItem(25, "Vegetable Curry", False, 6.00)
 
     def test_can_open_a_new_tab(self):
         self.BDDTest.Test(
