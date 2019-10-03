@@ -30,11 +30,11 @@ class BDDTest():
                         else:
                             self.testCase.fail(f"Incorrect event in results; expected a {expectedEvents[index].__class__.__name__} but got a {receivedEvents[index]}")
                 elif len(receivedEvents) < len(expectedEvents):
-                    self.fail(f"Expected event(s) missing: {self.EventDiff(expectedEvents, receivedEvents)}")
+                    self.testCase.fail(f"Expected event(s) missing: {self.EventDiff(expectedEvents, receivedEvents)}")
                 else:
-                    self.fail(f"Unexpected event(s) emitted: {self.EventDiff(receivedEvents, expectedEvents)}")
+                    self.testCase.fail(f"Unexpected event(s) emitted: {self.EventDiff(receivedEvents, expectedEvents)}")
             else:
-                self.fail(f"Expected events, but got {receivedEvents}")
+                self.testCase.fail(f"Expected events, but got {receivedEvents}")
         return eventHandler
 
     def EventDiff(self, compare, against):
@@ -48,11 +48,11 @@ class BDDTest():
             if receivedException is expectedException:
                 pass
             elif receivedException is self.CommandHandlerNotDefiendException:
-                self.fail(receivedException)
+                self.testCase.fail(receivedException)
             elif receivedException is Exception:
-                self.fail(f"Expected exception {expectedException.__class__.__name__}, but got exception {receivedException.__class__.__name__}")
+                self.testCase.fail(f"Expected exception {expectedException.__class__.__name__}, but got exception {receivedException.__class__.__name__}")
             else:
-                self.fail(f"Expected exception {expectedException.__class__.__name__}, but got event result")
+                self.testCase.fail(f"Expected exception {expectedException.__class__.__name__}, but got event result")
         return exceptionHandler
 
     def DispatchCommand(self, command):
