@@ -7,9 +7,12 @@ from ..Cafe.Tab.Exceptions import (
     FoodNotPrepared,
     MustPayEnough,
     TabHasUnservedItems)
+from ..Cafe.Tab.MarkDrinksServed import MarkDrinksServed
+from ..Cafe.Tab.MarkFoodPrepared import MarkFoodPrepared
+from ..Cafe.Tab.MarkFoodServed import MarkFoodServed
 from ..Cafe.Tab.OpenTab import OpenTab
 from ..Cafe.Tab.PlaceOrder import PlaceOrder
-from ..Cafe.Tab.MarkDrinksServed import MarkDrinksServed
+from ..Events.Tab.FoodPrepared import FoodPrepared
 from ..Events.Tab.TabOpened import TabOpened
 from ..Events.Tab.DrinksOrdered import DrinksOrdered
 from ..Events.Tab.FoodOrdered import FoodOrdered
@@ -198,6 +201,33 @@ class TabTests(unittest.TestCase):
             ),
             self.BDDTest.ThenFailWith(DrinksNotOutstanding)
             )
+
+    def test_ordered_food_can_be_marked_preparedd(self):
+        self.BDDTest.Test(
+            self.BDDTest.Given(
+                TabOpened(
+                    self.testId,
+                    self.testTable,
+                    self.testWaiter
+                ),
+                FoodOrdered(
+                    self.testId,
+                    [self.testFood1, self.testFood2]
+                )
+            ),
+            self.BDDTest.When(
+                MarkFoodPrepared(
+                    self.testId,
+                    [self.testFood1.MenuNumber, self.testFood2.MenuNumber]
+                )
+            ),
+            self.BDDTest.Then(
+                FoodPrepared(
+                    self.testId,
+                    [self.testFood1.MenuNumber, self.testFood2.MenuNumber]
+                )
+            )
+        )
 
 if __name__ == '__main__':
     unittest.main()
