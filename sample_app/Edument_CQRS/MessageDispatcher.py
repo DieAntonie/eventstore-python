@@ -21,9 +21,8 @@ class MessageDispatcher:
                 subscriber(event)
 
     def AddHandlerFor(self, command, aggregate):
-        commandType = command.__class__.__name__
-        if commandType in self.commandHandlers:
-            raise Exception(f"Command handler already registered for {commandType}")
+        if command in self.commandHandlers:
+            raise Exception(f"Command handler already registered for {command}")
 
         def handler(command):
             # Create an empty aggregate.
@@ -43,22 +42,21 @@ class MessageDispatcher:
             for event in resultEvents:
                 self.PublishEvent(event)
         
-        self.commandHandlers[commandType] = handler
+        self.commandHandlers[command] = handler
 
 
     def AddSubscriberFor(self, event, subscriber):
-        eventType = event.__class__.__name__
-        if eventType not in self.eventSubscribers:
-            self.eventSubscribers[eventType] = []
-        self.eventSubscribers[eventType].append( lambda e : subscriber.Handle(e))
+        if event not in self.eventSubscribers:
+            self.eventSubscribers[event] = []
+        self.eventSubscribers[event].append( lambda e : subscriber.Handle(e))
 
     def ScanInstance(self, instance):
         handler = getattr(instance, 'Handle')
         if handler and callable(handler):
             for argType in instance.Handle.registry.keys():
                 # Scan for and register handlers.
-                if issubclass(instance, IHandleCommand):
+                if issubclass(instance.__class__ , IHandleCommand):
                     self.AddHandlerFor(argType, instance)
                 # Scan for and register subscribers.
-                if issubclass(instance, ISubscribeTo):
+                if issubclass(instance.__class__, ISubscribeTo):
                     self.AddSubscriberFor(argType, instance)
