@@ -40,7 +40,12 @@ print(f"-->  Todo List For Chef is: {ChefTodoListQueries.GetTodoList()}")
 
 # We start by opening a tab for table 3, served by Chris.
 print("### Part 1: Open a new Tab on table 3 for waiter Chris")
-open_a_tab = OpenTab(Id=Tab_Key, TableNumber=3, Waiter="Chris")
+open_a_tab = OpenTab(
+    Id=Tab_Key,
+    TableNumber=3,
+    Waiter="Chris"
+    )
+
 Dispatcher.SendCommand(open_a_tab)
 
 # Print State
