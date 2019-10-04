@@ -490,5 +490,41 @@ class TabTests(unittest.TestCase):
             self.BDDTest.ThenFailWith(MustPayEnough)
         )
 
+    def test_cannot_close_tab_twice(self):
+        self.BDDTest.Test(
+            self.BDDTest.Given(
+                TabOpened(
+                    self.testId,
+                    self.testTable,
+                    self.testWaiter
+                ),
+                FoodOrdered(
+                    self.testId,
+                    [self.testFood1, self.testFood2]
+                ),
+                FoodPrepared(
+                    self.testId,
+                    [self.testFood1.MenuNumber, self.testFood2.MenuNumber]
+                ),
+                FoodServed(
+                    self.testId,
+                    [self.testFood1.MenuNumber, self.testFood2.MenuNumber]
+                ),
+                TabClosed(
+                    self.testId,
+                    self.testFood1.Price + self.testFood2.Price + 0.50,
+                    self.testFood1.Price + self.testFood2.Price,
+                    0.50
+                )
+            ),
+            self.BDDTest.When(
+                CloseTab(
+                    self.testId,
+                    self.testFood1.Price + self.testFood2.Price
+                )
+            ),
+            self.BDDTest.ThenFailWith(TabNotOpen)
+        )
+
 if __name__ == '__main__':
     unittest.main()
