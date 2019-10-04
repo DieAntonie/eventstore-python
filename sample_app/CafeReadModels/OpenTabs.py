@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from functools import singledispatch
+from functools import singledispatch, update_wrapper
 from .IOpenTabQueries import IOpenTabQueries
 from ..Edument_CQRS.ISubscribeTo import ISubscribeTo
 from ..Events.Tab.DrinksOrdered import DrinksOrdered
@@ -10,6 +10,15 @@ from ..Events.Tab.FoodServed import FoodServed
 from ..Events.Tab.TabClosed import TabClosed
 from ..Events.Tab.TabOpened import TabOpened
 import uuid
+
+def methdispatch(func):
+    dispatcher = singledispatch(func)
+    def wrapper(*args, **kw):
+        return dispatcher.dispatch(args[1].__class__)(*args, **kw)
+    wrapper.register = dispatcher.register
+    wrapper.registry = dispatcher.registry
+    update_wrapper(wrapper, func)
+    return wrapper
 
 class OpenTabs(IOpenTabQueries, ISubscribeTo):
     def __init__(self):
@@ -96,7 +105,7 @@ class OpenTabs(IOpenTabQueries, ISubscribeTo):
         finally:
             self.lock.release()
 
-    @singledispatch
+    @methdispatch
     def Handle(self, event):
         raise ValueError(f"Subscriber {self.__class__.__name__} does not know how to handle event {event.__class__.__name__}")
 
@@ -104,7 +113,7 @@ class OpenTabs(IOpenTabQueries, ISubscribeTo):
     def Handle_TabOpened(self, event):
         self.lock.acquire()
         try:
-            self.todoByTab[event.Id] = self.Tab(event.TableNumber, event.Waiter)
+            self.todoByTab[event.Id] = self.Tab(event.TableNumber, event.Waiter, [], [], [])
         finally:
             self.lock.release()
 
@@ -120,7 +129,7 @@ class OpenTabs(IOpenTabQueries, ISubscribeTo):
     def Handle_FoodOrdered(self, event):
         self.lock.acquire()
         try:
-            self.todoByTab[event.Id].InPreparation += [self.TabItem(food.MenuNumber, food.Description, food.Price) for food in event.item]
+            self.todoByTab[event.Id].InPreparation += [self.TabItem(food.MenuNumber, food.Description, food.Price) for food in event.Items]
         finally:
             self.lock.release()
 

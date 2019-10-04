@@ -1,10 +1,19 @@
 from dataclasses import dataclass
-from functools import singledispatch
+from functools import singledispatch, update_wrapper
 from .IChefTodoListQueries import IChefTodoListQueries
 from ..Edument_CQRS.ISubscribeTo import ISubscribeTo
 from ..Events.Tab.FoodOrdered import FoodOrdered
 from ..Events.Tab.FoodPrepared import FoodPrepared
 import uuid
+
+def methdispatch(func):
+    dispatcher = singledispatch(func)
+    def wrapper(*args, **kw):
+        return dispatcher.dispatch(args[1].__class__)(*args, **kw)
+    wrapper.register = dispatcher.register
+    wrapper.registry = dispatcher.registry
+    update_wrapper(wrapper, func)
+    return wrapper
 
 class ChefTodoList(IChefTodoListQueries, ISubscribeTo):
     def __init__(self):
@@ -31,13 +40,13 @@ class ChefTodoList(IChefTodoListQueries, ISubscribeTo):
         finally:
             self.lock.release()
 
-    @singledispatch
+    @methdispatch
     def Handle(self, event):
         raise ValueError(f"Subscriber {self.__class__.__name__} does not know how to handle event {event.__class__.__name__}")
 
     @Handle.register(FoodOrdered)
     def Handle_FoodOrdered(self, event):
-        group = self.TodoListGroup(event.Id, [self.TodoListItem(item.MenuNumber, item.Description) for item in event.items])
+        group = self.TodoListGroup(event.Id, [self.TodoListItem(item.MenuNumber, item.Description) for item in event.Items])
         self.lock.acquire()
         try:
             self.todoList.append(group)

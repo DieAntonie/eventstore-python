@@ -8,14 +8,14 @@ class MessageDispatcher:
         self.eventStore = eventStore
 
     def SendCommand(self, command):
-        commandType = command.__class__.__name__
+        commandType = command.__class__
         if commandType in self.commandHandlers:
             self.commandHandlers[commandType](command)
         else:
             raise Exception(f"No command handler registered for {commandType}")
 
     def PublishEvent(self, event):
-        eventType = event.__class__.__name__
+        eventType = event.__class__
         if eventType in self.eventSubscribers:
             for subscriber in self.eventSubscribers[eventType]:
                 subscriber(event)
@@ -37,7 +37,7 @@ class MessageDispatcher:
                 resultEvents.append(event)
             # Store the events in the event store.
             if resultEvents:
-                self.eventStore.SaveEventsFor(agg.Id, agg.EventsLoaded, resultEvents)
+                self.eventStore.SaveEventsFor(agg.Id, agg.__class__.__name__, agg.EventsLoaded, resultEvents)
             # Publish them to all subscribers.
             for event in resultEvents:
                 self.PublishEvent(event)

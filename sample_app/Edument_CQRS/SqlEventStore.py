@@ -1,5 +1,6 @@
 from .IEventStore import IEventStore
 from datetime import datetime
+from uuid import UUID
 
 class SqlEventStore(IEventStore):
     def __init__(self, host = 'localhost', user = 'postgres', password = 'masterkey', dbname = 'postgres'):
@@ -13,10 +14,10 @@ class SqlEventStore(IEventStore):
         with psycopg2.connect(host=self.host, user=self.user, password=self.password, dbname=self.dbname) as connection:
             db_cursor = connection.cursor()
             db_cursor.execute(f"""
-                SELECT [Body]
-                FROM [Events]
-                WHERE [AggregateId] = {id}
-                ORDER BY [SequenceNumber]
+                SELECT "Body"
+                FROM public."Events"
+                WHERE "AggregateId" = '{id}'
+                ORDER BY "SequenceNumber"
                 """)
 
             for data in db_cursor.fetchall() :
@@ -35,7 +36,7 @@ class SqlEventStore(IEventStore):
                 # Get the module name from the dict and import it
                 module_name = json_obj.pop("__module__")
                 # We use the built in __import__ function since the module name is not yet known at runtime
-                module = __import__(module_name)
+                module = __import__(module_name, fromlist=[module_name])
                 # Get the class from the module
                 class_ = getattr(module, class_name)
                 # Use dictionary unpacking to initialize the object
@@ -45,21 +46,27 @@ class SqlEventStore(IEventStore):
             return model_obj
         
         import json
-        return json.loads(data, object_hook = json_to_model)
+        return json.loads(list(data)[0], object_hook = json_to_model) #TODO: This list casting thing doesn't seem like it's going to work forever... 
 
-    def SaveEventsFor(self, aggregateId, eventsLoaded, newEvents):
+    def SaveEventsFor(self, aggregateId, aggregateType, eventsLoaded, newEvents):
         # Query prelude.
         queryText = f"""
             BEGIN TRANSACTION;
-            IF NOT EXISTS(SELECT * FROM [Aggregates] WHERE [Id] = {aggregateId})
-                INSERT INTO [Aggregates] ([Id]) VALUES ({aggregateId});
+            INSERT INTO public."Aggregates"
+                ("Id", "Type")
+            SELECT  '{aggregateId}',
+                    '{aggregateType}'
+            WHERE
+                NOT EXISTS (
+                    SELECT "Id" FROM public."Aggregates" WHERE "Id" = '{aggregateId}'
+                );
         """
         # Add saving of the events.
         CommitDateTime = datetime.now()
-        for index, e in enumerate(newEvents):
+        for index, event in enumerate(newEvents):
             queryText += f"""
-                INSERT INTO [Events] ([AggregateId], [SequenceNumber], [Body], [Timestamp])
-                    VALUES('{aggregateId}', {eventsLoaded + index}, '{self.SerializeEvent(e)}', '{CommitDateTime}');
+                INSERT INTO public."Events" ("AggregateId", "SequenceNumber", "Type", "Body", "Timestamp")
+                    VALUES('{aggregateId}', {eventsLoaded + index}, '{event.__class__.__name__}', '{self.SerializeEvent(event)}', '{CommitDateTime}');
                 """
         # Add commit.
         queryText += "COMMIT;"
@@ -70,6 +77,14 @@ class SqlEventStore(IEventStore):
             db_cursor.execute(queryText)
 
     def SerializeEvent(self, event):
+        import json
+        class UUIDEncoder(json.JSONEncoder):
+            def default(self, obj):
+                if isinstance(obj, UUID):
+                    # if the obj is uuid, we simply return the value of uuid
+                    return obj.hex
+                return obj.__dict__
+
         def model_to_json(model_obj):
             """
             A function takes in a custom object and returns a dictionary representation of the object.
@@ -84,5 +99,4 @@ class SqlEventStore(IEventStore):
             json_obj.update(model_obj.__dict__)
             return json_obj
 
-        import json
-        return json.dumps(event, default = model_to_json)
+        return json.dumps(model_to_json(event), cls=UUIDEncoder)
