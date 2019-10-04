@@ -332,12 +332,12 @@ class TabTests(unittest.TestCase):
                 )
             ),
             self.BDDTest.When(
-                MarkDrinksServed(
+                MarkFoodServed(
                     self.testId,
                     [self.testFood1.MenuNumber]
                 )
             ),
-            self.BDDTest.ThenFailWith(DrinksNotOutstanding)
+            self.BDDTest.ThenFailWith(FoodNotPrepared)
         )
 
 if __name__ == '__main__':
