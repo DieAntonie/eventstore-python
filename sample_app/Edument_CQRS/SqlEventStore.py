@@ -83,7 +83,7 @@ class SqlEventStore(IEventStore):
                 if isinstance(obj, UUID):
                     # if the obj is uuid, we simply return the value of uuid
                     return obj.hex
-                return obj.__dict__
+                return model_to_json(obj)
 
         def model_to_json(model_obj):
             """
@@ -99,4 +99,4 @@ class SqlEventStore(IEventStore):
             json_obj.update(model_obj.__dict__)
             return json_obj
 
-        return json.dumps(model_to_json(event), cls=UUIDEncoder)
+        return json.dumps(event, cls=UUIDEncoder)

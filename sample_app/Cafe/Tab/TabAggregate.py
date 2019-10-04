@@ -109,7 +109,7 @@ class TabAggregate(Aggregate, IHandleCommand, IApplyEvent):
 
     @staticmethod
     def AreAllInList(want, have):
-        curHave = [item['MenuNumber'] for item in have]
+        curHave = [item.MenuNumber for item in have]
         for num in want:
             if num in curHave:
                 curHave.remove(num)
@@ -139,23 +139,23 @@ class TabAggregate(Aggregate, IHandleCommand, IApplyEvent):
     @Apply.register(DrinksServed)
     def Apply_DrinksServed(self, event):
         for num in event.MenuNumbers:
-            item = next(drink for drink in self.outstandingDrinks if drink["MenuNumber"] == num)
+            item = next(drink for drink in self.outstandingDrinks if drink.MenuNumber == num)
             self.outstandingDrinks.remove(item)
-            self.servedItemsValue += item["Price"]
+            self.servedItemsValue += item.Price
 
     @Apply.register(FoodPrepared)
     def Apply_FoodPrepared(self, event):
         for num in event.MenuNumbers:
-            item = next(food for food in self.outstandingFood if food["MenuNumber"] == num)
+            item = next(food for food in self.outstandingFood if food.MenuNumber == num)
             self.outstandingFood.remove(item)
             self.preparedFood.append(item)
 
     @Apply.register(FoodServed)
     def Apply_FoodServed(self, event):
         for num in event.MenuNumbers:
-            item = next(food for food in self.preparedFood if food["MenuNumber"] == num)
+            item = next(food for food in self.preparedFood if food.MenuNumber == num)
             self.preparedFood.remove(item)
-            self.servedItemsValue += item["Price"]
+            self.servedItemsValue += item.Price
 
     @Apply.register(TabClosed)
     def Apply_TabClosed(self, event):
