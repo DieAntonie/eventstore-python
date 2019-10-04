@@ -22,6 +22,7 @@ from ..Edument_CQRS.BDDTest import BDDTest
 from ..Events.Tab.Shared import OrderedItem
 
 class TabTests(unittest.TestCase):
+
     def setUp(self):
         self.BDDTest = BDDTest(self)
         self.testId = uuid.uuid1()
@@ -307,6 +308,36 @@ class TabTests(unittest.TestCase):
                     [self.testFood1.MenuNumber, self.testFood2.MenuNumber]
                 )
             )
+        )
+
+    def test_cannot_serve_prepared_food_twice(self):
+        self.BDDTest.Test(
+            self.BDDTest.Given(
+                TabOpened(
+                    self.testId,
+                    self.testTable,
+                    self.testWaiter
+                ),
+                FoodOrdered(
+                    self.testId,
+                    [self.testFood1]
+                ),
+                FoodPrepared(
+                    self.testId,
+                    [self.testFood1.MenuNumber]
+                ),
+                FoodServed(
+                    self.testId,
+                    [self.testFood1.MenuNumber]
+                )
+            ),
+            self.BDDTest.When(
+                MarkDrinksServed(
+                    self.testId,
+                    [self.testFood1.MenuNumber]
+                )
+            ),
+            self.BDDTest.ThenFailWith(DrinksNotOutstanding)
         )
 
 if __name__ == '__main__':
