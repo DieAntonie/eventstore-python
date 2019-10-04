@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from functools import singledispatch
-from IOpenTabQueries import IOpenTabQueries
+from .IOpenTabQueries import IOpenTabQueries
 from ..Edument_CQRS.ISubscribeTo import ISubscribeTo
 from ..Events.Tab.DrinksOrdered import DrinksOrdered
 from ..Events.Tab.DrinksServed import DrinksServed

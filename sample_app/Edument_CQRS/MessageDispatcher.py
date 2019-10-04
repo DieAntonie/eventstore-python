@@ -1,3 +1,6 @@
+from .IHandleCommand import IHandleCommand
+from .ISubscribeTo import ISubscribeTo
+
 class MessageDispatcher:
     def __init__(self, eventStore):
         self.commandHandlers = {}

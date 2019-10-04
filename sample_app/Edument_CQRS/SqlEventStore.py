@@ -1,4 +1,4 @@
-from IEventStore import IEventStore
+from .IEventStore import IEventStore
 from datetime import datetime
 
 class SqlEventStore(IEventStore):
