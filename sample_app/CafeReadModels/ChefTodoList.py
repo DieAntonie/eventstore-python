@@ -58,10 +58,10 @@ class ChefTodoList(IChefTodoListQueries, ISubscribeTo):
     def Handle_FoodPrepared(self, event):
         self.lock.acquire()
         try:
-            group = next([todo_group for todo_group in self.todoList if todo_group.Tab == event.Id])
+            group = next(iter([todo_group for todo_group in self.todoList if todo_group.Tab == event.Id]))
 
             for menu_number in event.MenuNumbers:
-                group.Items.remove(next([remove_item for remove_item in group.Items if remove_item.MenuNumber == menu_number]))
+                group.Items.remove(next(iter([remove_item for remove_item in group.Items if remove_item.MenuNumber == menu_number])))
             
             if group.Items == []:
                 self.todoList.remove(group)

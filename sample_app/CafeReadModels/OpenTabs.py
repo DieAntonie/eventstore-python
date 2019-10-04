@@ -69,39 +69,39 @@ class OpenTabs(IOpenTabQueries, ISubscribeTo):
         try:
             return [{
                 self.todoByTab[tab].TableNumber : [item for item in self.todoByTab[tab].ToServe]
-                } for tab in self.todoByTab]
+                } for tab in self.todoByTab if self.todoByTab[tab].Waiter == waiter]
         finally:
             self.lock.release()
 
     def TabIdForTable(self, table):
         self.lock.acquire()
         try:
-            return next([tabId for tabId in self.todoByTab if self.todoByTab[tabId].TableNumber == table])
+            return next(iter([tabId for tabId in self.todoByTab if self.todoByTab[tabId].TableNumber == table]), None)
         finally:
             self.lock.release()
 
     def TabForTable(self, table):
         self.lock.acquire()
         try:
-            return next([self.TabStatus(tabId,
+            return next(iter([self.TabStatus(tabId,
                                 self.todoByTab[tabId].TableNumber,
                                 [item_to_serve for item_to_serve in self.todoByTab[tabId].ToServe],
                                 [item_in_prep for item_in_prep in self.todoByTab[tabId].InPreparation],
                                 [item_served for item_served in self.todoByTab[tabId].Served]
-                            ) for tabId in self.todoByTab if self.todoByTab[tabId].TableNumber == table])
+                            ) for tabId in self.todoByTab if self.todoByTab[tabId].TableNumber == table]), None)
         finally:
             self.lock.release()
 
     def InvoiceForTable(self, table):
         self.lock.acquire()
         try:
-            return next([self.TabInvoice(tabId,
+            return next(iter([self.TabInvoice(tabId,
                                 self.todoByTab[tabId].TableNumber,
                                 [item_served for item_served in self.todoByTab[tabId].Served],
                                 sum([item_served.Price for item_served in self.todoByTab[tabId].Served]),
                                 bool([item_to_serve for item_to_serve in self.todoByTab[tabId].ToServe] + 
                                 [item_in_prep for item_in_prep in self.todoByTab[tabId].InPreparation])
-                            ) for tabId in self.todoByTab if self.todoByTab[tabId].TableNumber == table])
+                            ) for tabId in self.todoByTab if self.todoByTab[tabId].TableNumber == table]), None)
         finally:
             self.lock.release()
 
@@ -121,7 +121,7 @@ class OpenTabs(IOpenTabQueries, ISubscribeTo):
     def Handle_DrinksOrdered(self, event):
         self.lock.acquire()
         try:
-            self.todoByTab[event.Id].ToServe += [self.TabItem(drink.MenuNumber, drink.Description, drink.Price) for drink in event.item]
+            self.todoByTab[event.Id].ToServe += [self.TabItem(drink.MenuNumber, drink.Description, drink.Price) for drink in event.Items]
         finally:
             self.lock.release()
 
@@ -160,7 +160,7 @@ class OpenTabs(IOpenTabQueries, ISubscribeTo):
             fromList = from_expression(tab)
             toList = to_expression(tab)
             for menu_num in menuNumbers:
-                tabItem = next([from_item for from_item in fromList if from_item.MenuNumber == menu_num])
+                tabItem = next(iter([from_item for from_item in fromList if from_item.MenuNumber == menu_num]))
                 fromList.remove(tabItem)
                 toList.append(tabItem)
         finally:
