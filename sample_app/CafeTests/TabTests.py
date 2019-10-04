@@ -159,7 +159,7 @@ class TabTests(unittest.TestCase):
                 )
             )
 
-    def test_cannot_serve_unorderd_drink(self):
+    def test_cannot_serve_unordered_drink(self):
         self.BDDTest.Test(
             self.BDDTest.Given(
                 TabOpened(
@@ -233,7 +233,7 @@ class TabTests(unittest.TestCase):
             )
         )
 
-    def test_cannot_prepare_unorderd_food(self):
+    def test_cannot_prepare_unordered_food(self):
         self.BDDTest.Test(
             self.BDDTest.Given(
                 TabOpened(
