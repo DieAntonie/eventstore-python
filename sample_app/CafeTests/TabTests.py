@@ -526,5 +526,31 @@ class TabTests(unittest.TestCase):
             self.BDDTest.ThenFailWith(TabNotOpen)
         )
 
+    def test_cannot_close_tab_unserved_drinks(self):
+        self.BDDTest.Test(
+            self.BDDTest.Given(
+                TabOpened(
+                    self.testId,
+                    self.testTable,
+                    self.testWaiter
+                ),
+                DrinksOrdered(
+                    self.testId,
+                    [self.testDrink1, self.testDrink2]
+                ),
+                DrinksServed(
+                    self.testId,
+                    [self.testDrink2.MenuNumber]
+                )
+            ),
+            self.BDDTest.When(
+                CloseTab(
+                    self.testId,
+                    self.testDrink2.Price
+                )
+            ),
+            self.BDDTest.ThenFailWith(TabHasUnservedItems)
+        )
+
 if __name__ == '__main__':
     unittest.main()
