@@ -1,6 +1,9 @@
 from dataclasses import dataclass
 from functools import singledispatch
 from IChefTodoListQueries import IChefTodoListQueries
+from ..Edument_CQRS.ISubscribeTo import ISubscribeTo
+from ..Events.Tab.FoodOrdered import FoodOrdered
+from ..Events.Tab.FoodPrepared import FoodPrepared
 import uuid
 
 class ChefTodoList(IChefTodoListQueries, ISubscribeTo):

@@ -1,6 +1,14 @@
 from dataclasses import dataclass
 from functools import singledispatch
 from IOpenTabQueries import IOpenTabQueries
+from ..Edument_CQRS.ISubscribeTo import ISubscribeTo
+from ..Events.Tab.DrinksOrdered import DrinksOrdered
+from ..Events.Tab.DrinksServed import DrinksServed
+from ..Events.Tab.FoodOrdered import FoodOrdered
+from ..Events.Tab.FoodPrepared import FoodPrepared
+from ..Events.Tab.FoodServed import FoodServed
+from ..Events.Tab.TabClosed import TabClosed
+from ..Events.Tab.TabOpened import TabOpened
 import uuid
 
 class OpenTabs(IOpenTabQueries, ISubscribeTo):
