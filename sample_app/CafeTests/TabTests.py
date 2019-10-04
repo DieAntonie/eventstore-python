@@ -1,5 +1,6 @@
 import unittest
 import uuid
+from ..Cafe.Tab.CloseTab import CloseTab
 from ..Cafe.Tab.Exceptions import (
     TabNotOpen,
     DrinksNotOutstanding,
@@ -17,6 +18,7 @@ from ..Events.Tab.DrinksServed import DrinksServed
 from ..Events.Tab.FoodOrdered import FoodOrdered
 from ..Events.Tab.FoodPrepared import FoodPrepared
 from ..Events.Tab.FoodServed import FoodServed
+from ..Events.Tab.TabClosed import TabClosed
 from ..Events.Tab.TabOpened import TabOpened
 from ..Edument_CQRS.BDDTest import BDDTest
 from ..Events.Tab.Shared import OrderedItem
@@ -382,6 +384,43 @@ class TabTests(unittest.TestCase):
                 )
             ),
             self.BDDTest.ThenFailWith(FoodNotPrepared)
+        )
+
+    def test_can_close_tab_exact_amount(self):
+        self.BDDTest.Test(
+            self.BDDTest.Given(
+                TabOpened(
+                    self.testId,
+                    self.testTable,
+                    self.testWaiter
+                ),
+                FoodOrdered(
+                    self.testId,
+                    [self.testFood1, self.testFood2]
+                ),
+                FoodPrepared(
+                    self.testId,
+                    [self.testFood1.MenuNumber, self.testFood2.MenuNumber]
+                ),
+                FoodServed(
+                    self.testId,
+                    [self.testFood1.MenuNumber, self.testFood2.MenuNumber]
+                )
+            ),
+            self.BDDTest.When(
+                CloseTab(
+                    self.testId,
+                    self.testFood1.Price + self.testFood2.Price
+                )
+            ),
+            self.BDDTest.Then(
+                TabClosed(
+                    self.testId,
+                    self.testFood1.Price + self.testFood2.Price,
+                    self.testFood1.Price + self.testFood2.Price,
+                    0.0
+                )
+            )
         )
 
 if __name__ == '__main__':
