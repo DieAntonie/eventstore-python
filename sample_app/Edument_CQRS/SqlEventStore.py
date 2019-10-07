@@ -46,7 +46,7 @@ class SqlEventStore(IEventStore):
             return model_obj
         
         import json
-        return json.loads(list(data)[0], object_hook = json_to_model) #TODO: This list casting thing doesn't seem like it's going to work forever... 
+        return json.loads(json.dumps(list(data)[0]), object_hook = json_to_model) #TODO: This list casting thing doesn't seem like it's going to work forever... 
 
     def SaveEventsFor(self, aggregateId, aggregateType, eventsLoaded, newEvents):
         # Query prelude.
