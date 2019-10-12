@@ -1,7 +1,11 @@
 from dataclasses import dataclass
 import uuid
 
+
 @dataclass
 class CloseTab:
-    Id: uuid 
+    """
+    Request to close the Tab with specified `AmountPaid`.
+    """
+    Id: uuid
     AmountPaid: float

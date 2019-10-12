@@ -1,7 +1,11 @@
 from dataclasses import dataclass
 import uuid
 
+
 @dataclass
 class PlaceOrder:
-    Id: uuid 
+    """
+    Request to place and order with the specified `Items : [OrderItem]`.
+    """
+    Id: uuid
     Items: []

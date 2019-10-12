@@ -2,14 +2,18 @@ from .IEventStore import IEventStore
 from datetime import datetime
 from uuid import UUID
 
+
 class SqlEventStore(IEventStore):
-    def __init__(self, host = 'localhost', user = 'postgres', password = 'masterkey', dbname = 'postgres'):
+    def __init__(self, host='localhost', user='postgres', password='masterkey', dbname='postgres'):
         self.host = host
         self.user = user
         self.password = password
         self.dbname = dbname
 
     def LoadEventsFor(self, id):
+        """
+        Loads the collection of events for the specified aggregate key.
+        """
         import psycopg2
         with psycopg2.connect(host=self.host, user=self.user, password=self.password, dbname=self.dbname) as connection:
             db_cursor = connection.cursor()
@@ -20,10 +24,13 @@ class SqlEventStore(IEventStore):
                 ORDER BY "SequenceNumber"
                 """)
 
-            for data in db_cursor.fetchall() :
+            for data in db_cursor.fetchall():
                 yield self.DeserializeEvent(data)
 
     def DeserializeEvent(self, data):
+        """
+        Deserializes the event `data` into an instance of an Event.
+        """
         def json_to_model(json_obj):
             """
             Function that takes in a dict and returns a custom object associated with the dict.
@@ -44,11 +51,15 @@ class SqlEventStore(IEventStore):
             else:
                 model_obj = json_obj
             return model_obj
-        
+
         import json
-        return json.loads(json.dumps(list(data)[0]), object_hook = json_to_model) #TODO: This list casting thing doesn't seem like it's going to work forever... 
+        # TODO: This list casting thing doesn't seem like it's going to work forever...
+        return json.loads(json.dumps(list(data)[0]), object_hook=json_to_model)
 
     def SaveEventsFor(self, aggregateId, aggregateType, eventsLoaded, newEvents):
+        """
+        Stores the collection of appended events for the aggregate key.
+        """
         # Query prelude.
         queryText = f"""
             BEGIN TRANSACTION;
@@ -77,8 +88,16 @@ class SqlEventStore(IEventStore):
             db_cursor.execute(queryText)
 
     def SerializeEvent(self, event):
+        """
+        Serializes the `event` to deserializable JSON state.
+        """
         import json
+
         class UUIDEncoder(json.JSONEncoder):
+            """
+            uuid encoder for correctly casting uuid values.
+            """
+
             def default(self, obj):
                 if isinstance(obj, UUID):
                     # if the obj is uuid, we simply return the value of uuid
@@ -90,7 +109,7 @@ class SqlEventStore(IEventStore):
             A function takes in a custom object and returns a dictionary representation of the object.
             This dict representation includes meta data such as the object's module and class names.
             """
-            #  Populate the dictionary with object meta data 
+            #  Populate the dictionary with object meta data
             json_obj = {
                 "__class__": model_obj.__class__.__name__,
                 "__module__": model_obj.__module__

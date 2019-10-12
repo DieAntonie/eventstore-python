@@ -23,6 +23,7 @@ from ..Events.Tab.TabOpened import TabOpened
 from ..Edument_CQRS.BDDTest import BDDTest
 from ..Events.Tab.Shared import OrderedItem
 
+
 class TabTests(unittest.TestCase):
 
     def setUp(self):
@@ -43,16 +44,16 @@ class TabTests(unittest.TestCase):
                     self.testId,
                     self.testTable,
                     self.testWaiter
-                    )
-                ),
+                )
+            ),
             self.BDDTest.Then(
                 TabOpened(
                     self.testId,
                     self.testTable,
                     self.testWaiter
-                    )
                 )
             )
+        )
 
     def test_cannot_order_unopened_tab(self):
         self.BDDTest.Test(
@@ -62,9 +63,9 @@ class TabTests(unittest.TestCase):
                     self.testId,
                     [self.testDrink1]
                 )
-                ),
+            ),
             self.BDDTest.ThenFailWith(TabNotOpen)
-            )
+        )
 
     def test_can_order_drinks(self):
         self.BDDTest.Test(
@@ -78,14 +79,14 @@ class TabTests(unittest.TestCase):
                     self.testId,
                     [self.testDrink1, self.testDrink2]
                 )
-                ),
+            ),
             self.BDDTest.Then(
                 DrinksOrdered(
                     self.testId,
                     [self.testDrink1, self.testDrink2]
-                    )
                 )
             )
+        )
 
     def test_can_order_food(self):
         self.BDDTest.Test(
@@ -99,14 +100,14 @@ class TabTests(unittest.TestCase):
                     self.testId,
                     [self.testFood1, self.testFood2]
                 )
-                ),
+            ),
             self.BDDTest.Then(
                 FoodOrdered(
                     self.testId,
                     [self.testFood1, self.testFood2]
-                    )
                 )
             )
+        )
 
     def test_can_order_food_and_drinks(self):
         self.BDDTest.Test(
@@ -120,18 +121,18 @@ class TabTests(unittest.TestCase):
                     self.testId,
                     [self.testDrink2, self.testFood1]
                 )
-                ),
+            ),
             self.BDDTest.Then(
                 FoodOrdered(
                     self.testId,
                     [self.testFood1]
-                    ),
+                ),
                 DrinksOrdered(
                     self.testId,
                     [self.testDrink2]
-                    )
                 )
             )
+        )
 
     def test_can_serve_ordered_drinks(self):
         self.BDDTest.Test(
@@ -143,8 +144,8 @@ class TabTests(unittest.TestCase):
                 DrinksOrdered(
                     self.testId,
                     [self.testDrink1, self.testDrink2]
-                    )
-                ),
+                )
+            ),
             self.BDDTest.When(
                 MarkDrinksServed(
                     self.testId,
@@ -155,9 +156,9 @@ class TabTests(unittest.TestCase):
                 DrinksServed(
                     self.testId,
                     [self.testDrink1.MenuNumber, self.testDrink2.MenuNumber]
-                    )
                 )
             )
+        )
 
     def test_cannot_serve_unordered_drink(self):
         self.BDDTest.Test(
@@ -178,7 +179,7 @@ class TabTests(unittest.TestCase):
                 )
             ),
             self.BDDTest.ThenFailWith(DrinksNotOutstanding)
-            )
+        )
 
     def test_cannot_serve_drinks_twice(self):
         self.BDDTest.Test(
@@ -204,7 +205,7 @@ class TabTests(unittest.TestCase):
                 )
             ),
             self.BDDTest.ThenFailWith(DrinksNotOutstanding)
-            )
+        )
 
     def test_can_prepare_ordered_food(self):
         self.BDDTest.Test(
@@ -611,6 +612,7 @@ class TabTests(unittest.TestCase):
             ),
             self.BDDTest.ThenFailWith(TabHasUnservedItems)
         )
+
 
 if __name__ == '__main__':
     unittest.main()
