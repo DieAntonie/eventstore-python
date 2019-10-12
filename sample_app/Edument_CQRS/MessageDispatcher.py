@@ -1,62 +1,59 @@
 from .IHandleCommand import IHandleCommand
-from .ISubscribeTo import ISubscribeTo
+from .IHandleEvent import IHandleEvent
 
 class MessageDispatcher:
     def __init__(self, eventStore):
         self.commandHandlers = {}
-        self.eventSubscribers = {}
+        self.eventHandlers = {}
         self.eventStore = eventStore
 
     def SendCommand(self, command):
         commandType = command.__class__
-        if commandType in self.commandHandlers:
-            self.commandHandlers[commandType](command)
-        else:
+        if commandType not in self.commandHandlers:
             raise Exception(f"No command handler registered for {commandType}")
 
-    def PublishEvent(self, event):
+        self.commandHandlers[commandType](command)
+
+    def Publish(self, event):
         eventType = event.__class__
-        if eventType in self.eventSubscribers:
-            for subscriber in self.eventSubscribers[eventType]:
+        if eventType in self.eventHandlers:
+            for subscriber in self.eventHandlers[eventType]:
                 subscriber(event)
 
-    def AddHandlerFor(self, command, aggregate):
+    def AddHandlerOnCommand(self, command_handler : IHandleCommand, command):
         if command in self.commandHandlers:
             raise Exception(f"Command handler already registered for {command}")
 
         def handler(command):
-            # Create an empty aggregate.
-            agg = aggregate.__class__()
-            # Load the aggregate with events.
-            agg.Id = command.Id
-            agg.ApplyEvents(self.eventStore.LoadEventsFor(agg.Id))
-            # With everything set up, we invoke the command handler, collecting the
-            # events that it produces.
-            resultEvents = []
-            for event in agg.Handle(command):
-                resultEvents.append(event)
-            # Store the events in the event store.
-            if resultEvents:
-                self.eventStore.SaveEventsFor(agg.Id, agg.__class__.__name__, agg.EventsLoaded, resultEvents)
-            # Publish them to all subscribers.
-            for event in resultEvents:
-                self.PublishEvent(event)
+            aggregate = command_handler.__class__()
+            aggregate.Id = command.Id
+            aggregate.ApplyEvents(self.eventStore.LoadEventsFor(aggregate.Id))
+            unpublished_events = []
+            for commanded_event in aggregate.Handle(command):
+                unpublished_events.append(commanded_event)
+            if unpublished_events:
+                self.eventStore.SaveEventsFor(aggregate.Id, aggregate.__class__.__name__, aggregate.EventsLoaded, unpublished_events)
+            for event in unpublished_events:
+                self.Publish(event)
         
         self.commandHandlers[command] = handler
 
 
-    def AddSubscriberFor(self, event, subscriber):
-        if event not in self.eventSubscribers:
-            self.eventSubscribers[event] = []
-        self.eventSubscribers[event].append( lambda e : subscriber.Handle(e))
+    def AddHandlerOnEvent(self, event_handler, event):
+        if event not in self.eventHandlers:
+            self.eventHandlers[event] = []
+        self.eventHandlers[event].append( lambda e : event_handler.Handle(e))
 
-    def ScanInstance(self, instance):
+    def RegisterHandlersOfInstance(self, instance):
+        """
+        `instance` of `IHandleCommand` and/or `IHandleEvent` is scanned and all `Handle()` handlers are registered their respective `@singledispatch` registry key commands and events.
+
+        TODO: `IHandleCommand` command handlers may asof yet only register they handlers on unregistered commands.
+        """
         handler = getattr(instance, 'Handle')
         if handler and callable(handler):
-            for argType in instance.Handle.registry.keys():
-                # Scan for and register handlers.
+            for handleable in instance.Handle.registry.keys():
                 if issubclass(instance.__class__ , IHandleCommand):
-                    self.AddHandlerFor(argType, instance)
-                # Scan for and register subscribers.
-                if issubclass(instance.__class__, ISubscribeTo):
-                    self.AddSubscriberFor(argType, instance)
+                    self.AddHandlerOnCommand(instance, handleable)
+                if issubclass(instance.__class__, IHandleEvent):
+                    self.AddHandlerOnEvent(instance, handleable)
