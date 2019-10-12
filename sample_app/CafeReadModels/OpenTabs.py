@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from functools import singledispatch, update_wrapper
 from .IOpenTabQueries import IOpenTabQueries
-from ..Edument_CQRS.ISubscribeTo import ISubscribeTo
+from ..Edument_CQRS.IHandleEvent import IHandleEvent
 from ..Events.Tab.DrinksOrdered import DrinksOrdered
 from ..Events.Tab.DrinksServed import DrinksServed
 from ..Events.Tab.FoodOrdered import FoodOrdered
@@ -20,7 +20,7 @@ def methdispatch(func):
     update_wrapper(wrapper, func)
     return wrapper
 
-class OpenTabs(IOpenTabQueries, ISubscribeTo):
+class OpenTabs(IOpenTabQueries, IHandleEvent):
     def __init__(self):
         self.todoByTab = {}
         

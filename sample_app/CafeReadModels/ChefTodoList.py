@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from functools import singledispatch, update_wrapper
 from .IChefTodoListQueries import IChefTodoListQueries
-from ..Edument_CQRS.ISubscribeTo import ISubscribeTo
+from ..Edument_CQRS.IHandleEvent import IHandleEvent
 from ..Events.Tab.FoodOrdered import FoodOrdered
 from ..Events.Tab.FoodPrepared import FoodPrepared
 import uuid
@@ -15,7 +15,7 @@ def methdispatch(func):
     update_wrapper(wrapper, func)
     return wrapper
 
-class ChefTodoList(IChefTodoListQueries, ISubscribeTo):
+class ChefTodoList(IChefTodoListQueries, IHandleEvent):
     def __init__(self):
         self.todoList = []
         

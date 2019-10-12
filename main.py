@@ -18,15 +18,15 @@ import uuid
 Dispatcher = MessageDispatcher(SqlEventStore())
 
 # Scan the a Tab Aggregate to register all command handlers.
-Dispatcher.ScanInstance(TabAggregate())
+Dispatcher.RegisterHandlersOfInstance(TabAggregate())
 
 # Scan the OpenTabs read model to register all subscription handlers.
 OpenTabQueries = OpenTabs()
-Dispatcher.ScanInstance(OpenTabQueries)
+Dispatcher.RegisterHandlersOfInstance(OpenTabQueries)
 
 # Scan the ChefTodoList read model to register all subscription handlers.
 ChefTodoListQueries = ChefTodoList()
-Dispatcher.ScanInstance(ChefTodoListQueries)
+Dispatcher.RegisterHandlersOfInstance(ChefTodoListQueries)
 
 # 
 Tab_Key = uuid.uuid1()
