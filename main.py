@@ -1,16 +1,16 @@
 from dataclasses import dataclass
-from sample_app.Edument_CQRS.MessageDispatcher import MessageDispatcher
-from sample_app.Edument_CQRS.SqlEventStore import SqlEventStore
-from sample_app.CafeReadModels.OpenTabs import OpenTabs
-from sample_app.CafeReadModels.ChefTodoList import ChefTodoList
-from sample_app.Cafe.Tab.CloseTab import CloseTab
-from sample_app.Cafe.Tab.MarkDrinksServed import MarkDrinksServed
-from sample_app.Cafe.Tab.MarkFoodPrepared import MarkFoodPrepared
-from sample_app.Cafe.Tab.MarkFoodServed import MarkFoodServed
-from sample_app.Cafe.Tab.OpenTab import OpenTab
-from sample_app.Cafe.Tab.PlaceOrder import PlaceOrder
-from sample_app.Cafe.Tab.TabAggregate import TabAggregate
-from sample_app.Events.Tab.Shared import OrderedItem
+from src.Edument_CQRS.MessageDispatcher import MessageDispatcher
+from src.Edument_CQRS.SqlEventStore import SqlEventStore
+from src.CafeReadModels.OpenTabs import OpenTabs
+from src.CafeReadModels.ChefTodoList import ChefTodoList
+from src.Cafe.Tab.CloseTab import CloseTab
+from src.Cafe.Tab.MarkDrinksServed import MarkDrinksServed
+from src.Cafe.Tab.MarkFoodPrepared import MarkFoodPrepared
+from src.Cafe.Tab.MarkFoodServed import MarkFoodServed
+from src.Cafe.Tab.OpenTab import OpenTab
+from src.Cafe.Tab.PlaceOrder import PlaceOrder
+from src.Cafe.Tab.TabAggregate import TabAggregate
+from src.Events.Tab.Shared import OrderedItem
 import uuid
 
 

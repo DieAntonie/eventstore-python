@@ -2,7 +2,7 @@
 import unittest
 
 # import your test modules
-from sample_app.CafeTests import TabTests
+from src.CafeTests import TabTests
 
 # initialize the test suite
 loader = unittest.TestLoader()
