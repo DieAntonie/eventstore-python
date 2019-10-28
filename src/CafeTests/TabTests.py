@@ -1,4 +1,3 @@
-import unittest
 import uuid
 from ..Cafe.Tab.CloseTab import CloseTab
 from ..Cafe.Tab.Exceptions import (
@@ -7,12 +6,14 @@ from ..Cafe.Tab.Exceptions import (
     FoodNotOutstanding,
     FoodNotPrepared,
     MustPayEnough,
-    TabHasUnservedItems)
+    TabHasUnservedItems
+)
 from ..Cafe.Tab.MarkDrinksServed import MarkDrinksServed
 from ..Cafe.Tab.MarkFoodPrepared import MarkFoodPrepared
 from ..Cafe.Tab.MarkFoodServed import MarkFoodServed
 from ..Cafe.Tab.OpenTab import OpenTab
 from ..Cafe.Tab.PlaceOrder import PlaceOrder
+from ..Cafe.Tab.TabAggregate import TabAggregate
 from ..Events.Tab.DrinksOrdered import DrinksOrdered
 from ..Events.Tab.DrinksServed import DrinksServed
 from ..Events.Tab.FoodOrdered import FoodOrdered
@@ -24,10 +25,10 @@ from ..Edument_CQRS.BDDTest import BDDTest
 from ..Events.Tab.Shared import OrderedItem
 
 
-class TabTests(unittest.TestCase):
+class TabTests(BDDTest):
 
     def setUp(self):
-        self.BDDTest = BDDTest(self)
+        self.sut = TabAggregate()
         self.testId = uuid.uuid1()
         self.testTable = 42
         self.testWaiter = "Derek"
@@ -37,16 +38,16 @@ class TabTests(unittest.TestCase):
         self.testFood2 = OrderedItem(25, "Vegetable Curry", False, 6.00)
 
     def test_can_open_tab(self):
-        self.BDDTest.Test(
-            self.BDDTest.Given(),
-            self.BDDTest.When(
+        self.Test(
+            self.Given(),
+            self.When(
                 OpenTab(
                     self.testId,
                     self.testTable,
                     self.testWaiter
                 )
             ),
-            self.BDDTest.Then(
+            self.Then(
                 TabOpened(
                     self.testId,
                     self.testTable,
@@ -56,31 +57,31 @@ class TabTests(unittest.TestCase):
         )
 
     def test_cannot_order_unopened_tab(self):
-        self.BDDTest.Test(
-            self.BDDTest.Given(),
-            self.BDDTest.When(
+        self.Test(
+            self.Given(),
+            self.When(
                 PlaceOrder(
                     self.testId,
                     [self.testDrink1]
                 )
             ),
-            self.BDDTest.ThenFailWith(TabNotOpen)
+            self.ThenFailWith(TabNotOpen)
         )
 
     def test_can_order_drinks(self):
-        self.BDDTest.Test(
-            self.BDDTest.Given(TabOpened(
+        self.Test(
+            self.Given(TabOpened(
                 self.testId,
                 self.testTable,
                 self.testWaiter
             )),
-            self.BDDTest.When(
+            self.When(
                 PlaceOrder(
                     self.testId,
                     [self.testDrink1, self.testDrink2]
                 )
             ),
-            self.BDDTest.Then(
+            self.Then(
                 DrinksOrdered(
                     self.testId,
                     [self.testDrink1, self.testDrink2]
@@ -89,19 +90,19 @@ class TabTests(unittest.TestCase):
         )
 
     def test_can_order_food(self):
-        self.BDDTest.Test(
-            self.BDDTest.Given(TabOpened(
+        self.Test(
+            self.Given(TabOpened(
                 self.testId,
                 self.testTable,
                 self.testWaiter
             )),
-            self.BDDTest.When(
+            self.When(
                 PlaceOrder(
                     self.testId,
                     [self.testFood1, self.testFood2]
                 )
             ),
-            self.BDDTest.Then(
+            self.Then(
                 FoodOrdered(
                     self.testId,
                     [self.testFood1, self.testFood2]
@@ -110,19 +111,19 @@ class TabTests(unittest.TestCase):
         )
 
     def test_can_order_food_and_drinks(self):
-        self.BDDTest.Test(
-            self.BDDTest.Given(TabOpened(
+        self.Test(
+            self.Given(TabOpened(
                 self.testId,
                 self.testTable,
                 self.testWaiter
             )),
-            self.BDDTest.When(
+            self.When(
                 PlaceOrder(
                     self.testId,
                     [self.testDrink2, self.testFood1]
                 )
             ),
-            self.BDDTest.Then(
+            self.Then(
                 FoodOrdered(
                     self.testId,
                     [self.testFood1]
@@ -135,8 +136,8 @@ class TabTests(unittest.TestCase):
         )
 
     def test_can_serve_ordered_drinks(self):
-        self.BDDTest.Test(
-            self.BDDTest.Given(
+        self.Test(
+            self.Given(
                 TabOpened(
                     self.testId,
                     self.testTable,
@@ -146,13 +147,13 @@ class TabTests(unittest.TestCase):
                     [self.testDrink1, self.testDrink2]
                 )
             ),
-            self.BDDTest.When(
+            self.When(
                 MarkDrinksServed(
                     self.testId,
                     [self.testDrink1.MenuNumber, self.testDrink2.MenuNumber]
                 )
             ),
-            self.BDDTest.Then(
+            self.Then(
                 DrinksServed(
                     self.testId,
                     [self.testDrink1.MenuNumber, self.testDrink2.MenuNumber]
@@ -161,8 +162,8 @@ class TabTests(unittest.TestCase):
         )
 
     def test_cannot_serve_unordered_drink(self):
-        self.BDDTest.Test(
-            self.BDDTest.Given(
+        self.Test(
+            self.Given(
                 TabOpened(
                     self.testId,
                     self.testTable,
@@ -172,18 +173,18 @@ class TabTests(unittest.TestCase):
                     [self.testDrink1]
                 )
             ),
-            self.BDDTest.When(
+            self.When(
                 MarkDrinksServed(
                     self.testId,
                     [self.testDrink2.MenuNumber]
                 )
             ),
-            self.BDDTest.ThenFailWith(DrinksNotOutstanding)
+            self.ThenFailWith(DrinksNotOutstanding)
         )
 
     def test_cannot_serve_drinks_twice(self):
-        self.BDDTest.Test(
-            self.BDDTest.Given(
+        self.Test(
+            self.Given(
                 TabOpened(
                     self.testId,
                     self.testTable,
@@ -198,18 +199,18 @@ class TabTests(unittest.TestCase):
                     [self.testDrink1.MenuNumber]
                 )
             ),
-            self.BDDTest.When(
+            self.When(
                 MarkDrinksServed(
                     self.testId,
                     [self.testDrink1.MenuNumber]
                 )
             ),
-            self.BDDTest.ThenFailWith(DrinksNotOutstanding)
+            self.ThenFailWith(DrinksNotOutstanding)
         )
 
     def test_can_prepare_ordered_food(self):
-        self.BDDTest.Test(
-            self.BDDTest.Given(
+        self.Test(
+            self.Given(
                 TabOpened(
                     self.testId,
                     self.testTable,
@@ -220,13 +221,13 @@ class TabTests(unittest.TestCase):
                     [self.testFood1, self.testFood2]
                 )
             ),
-            self.BDDTest.When(
+            self.When(
                 MarkFoodPrepared(
                     self.testId,
                     [self.testFood1.MenuNumber, self.testFood2.MenuNumber]
                 )
             ),
-            self.BDDTest.Then(
+            self.Then(
                 FoodPrepared(
                     self.testId,
                     [self.testFood1.MenuNumber, self.testFood2.MenuNumber]
@@ -235,8 +236,8 @@ class TabTests(unittest.TestCase):
         )
 
     def test_cannot_prepare_unordered_food(self):
-        self.BDDTest.Test(
-            self.BDDTest.Given(
+        self.Test(
+            self.Given(
                 TabOpened(
                     self.testId,
                     self.testTable,
@@ -247,18 +248,18 @@ class TabTests(unittest.TestCase):
                     [self.testFood1]
                 )
             ),
-            self.BDDTest.When(
+            self.When(
                 MarkFoodPrepared(
                     self.testId,
                     [self.testFood2.MenuNumber]
                 )
             ),
-            self.BDDTest.ThenFailWith(FoodNotOutstanding)
+            self.ThenFailWith(FoodNotOutstanding)
         )
 
     def test_cannot_prepare_food_twice(self):
-        self.BDDTest.Test(
-            self.BDDTest.Given(
+        self.Test(
+            self.Given(
                 TabOpened(
                     self.testId,
                     self.testTable,
@@ -273,18 +274,18 @@ class TabTests(unittest.TestCase):
                     [self.testFood1.MenuNumber]
                 )
             ),
-            self.BDDTest.When(
+            self.When(
                 MarkFoodPrepared(
                     self.testId,
                     [self.testFood1.MenuNumber]
                 )
             ),
-            self.BDDTest.ThenFailWith(FoodNotOutstanding)
+            self.ThenFailWith(FoodNotOutstanding)
         )
 
     def test_can_serve_prepared_food(self):
-        self.BDDTest.Test(
-            self.BDDTest.Given(
+        self.Test(
+            self.Given(
                 TabOpened(
                     self.testId,
                     self.testTable,
@@ -299,13 +300,13 @@ class TabTests(unittest.TestCase):
                     [self.testFood1.MenuNumber, self.testFood2.MenuNumber]
                 )
             ),
-            self.BDDTest.When(
+            self.When(
                 MarkFoodServed(
                     self.testId,
                     [self.testFood1.MenuNumber, self.testFood2.MenuNumber]
                 )
             ),
-            self.BDDTest.Then(
+            self.Then(
                 FoodServed(
                     self.testId,
                     [self.testFood1.MenuNumber, self.testFood2.MenuNumber]
@@ -314,8 +315,8 @@ class TabTests(unittest.TestCase):
         )
 
     def test_cannot_serve_food_twice(self):
-        self.BDDTest.Test(
-            self.BDDTest.Given(
+        self.Test(
+            self.Given(
                 TabOpened(
                     self.testId,
                     self.testTable,
@@ -334,18 +335,18 @@ class TabTests(unittest.TestCase):
                     [self.testFood1.MenuNumber]
                 )
             ),
-            self.BDDTest.When(
+            self.When(
                 MarkFoodServed(
                     self.testId,
                     [self.testFood1.MenuNumber]
                 )
             ),
-            self.BDDTest.ThenFailWith(FoodNotPrepared)
+            self.ThenFailWith(FoodNotPrepared)
         )
 
     def test_cannot_serve_unprepared_food(self):
-        self.BDDTest.Test(
-            self.BDDTest.Given(
+        self.Test(
+            self.Given(
                 TabOpened(
                     self.testId,
                     self.testTable,
@@ -356,18 +357,18 @@ class TabTests(unittest.TestCase):
                     [self.testFood1]
                 )
             ),
-            self.BDDTest.When(
+            self.When(
                 MarkFoodServed(
                     self.testId,
                     [self.testFood1.MenuNumber]
                 )
             ),
-            self.BDDTest.ThenFailWith(FoodNotPrepared)
+            self.ThenFailWith(FoodNotPrepared)
         )
 
     def test_cannot_serve_unordered_food(self):
-        self.BDDTest.Test(
-            self.BDDTest.Given(
+        self.Test(
+            self.Given(
                 TabOpened(
                     self.testId,
                     self.testTable,
@@ -378,18 +379,18 @@ class TabTests(unittest.TestCase):
                     [self.testFood1]
                 )
             ),
-            self.BDDTest.When(
+            self.When(
                 MarkFoodServed(
                     self.testId,
                     [self.testFood2.MenuNumber]
                 )
             ),
-            self.BDDTest.ThenFailWith(FoodNotPrepared)
+            self.ThenFailWith(FoodNotPrepared)
         )
 
     def test_can_close_tab_exact_amount(self):
-        self.BDDTest.Test(
-            self.BDDTest.Given(
+        self.Test(
+            self.Given(
                 TabOpened(
                     self.testId,
                     self.testTable,
@@ -408,13 +409,13 @@ class TabTests(unittest.TestCase):
                     [self.testFood1.MenuNumber, self.testFood2.MenuNumber]
                 )
             ),
-            self.BDDTest.When(
+            self.When(
                 CloseTab(
                     self.testId,
                     self.testFood1.Price + self.testFood2.Price
                 )
             ),
-            self.BDDTest.Then(
+            self.Then(
                 TabClosed(
                     self.testId,
                     self.testFood1.Price + self.testFood2.Price,
@@ -425,8 +426,8 @@ class TabTests(unittest.TestCase):
         )
 
     def test_can_close_tab_with_tip(self):
-        self.BDDTest.Test(
-            self.BDDTest.Given(
+        self.Test(
+            self.Given(
                 TabOpened(
                     self.testId,
                     self.testTable,
@@ -445,13 +446,13 @@ class TabTests(unittest.TestCase):
                     [self.testFood1.MenuNumber, self.testFood2.MenuNumber]
                 )
             ),
-            self.BDDTest.When(
+            self.When(
                 CloseTab(
                     self.testId,
                     self.testFood1.Price + self.testFood2.Price + 0.50
                 )
             ),
-            self.BDDTest.Then(
+            self.Then(
                 TabClosed(
                     self.testId,
                     self.testFood1.Price + self.testFood2.Price + 0.50,
@@ -462,8 +463,8 @@ class TabTests(unittest.TestCase):
         )
 
     def test_cannot_close_tab_with_less(self):
-        self.BDDTest.Test(
-            self.BDDTest.Given(
+        self.Test(
+            self.Given(
                 TabOpened(
                     self.testId,
                     self.testTable,
@@ -482,18 +483,18 @@ class TabTests(unittest.TestCase):
                     [self.testFood1.MenuNumber, self.testFood2.MenuNumber]
                 )
             ),
-            self.BDDTest.When(
+            self.When(
                 CloseTab(
                     self.testId,
                     self.testFood1.Price + self.testFood2.Price - 0.50
                 )
             ),
-            self.BDDTest.ThenFailWith(MustPayEnough)
+            self.ThenFailWith(MustPayEnough)
         )
 
     def test_cannot_close_tab_twice(self):
-        self.BDDTest.Test(
-            self.BDDTest.Given(
+        self.Test(
+            self.Given(
                 TabOpened(
                     self.testId,
                     self.testTable,
@@ -518,18 +519,18 @@ class TabTests(unittest.TestCase):
                     0.50
                 )
             ),
-            self.BDDTest.When(
+            self.When(
                 CloseTab(
                     self.testId,
                     self.testFood1.Price + self.testFood2.Price
                 )
             ),
-            self.BDDTest.ThenFailWith(TabNotOpen)
+            self.ThenFailWith(TabNotOpen)
         )
 
     def test_cannot_close_tab_unserved_drinks(self):
-        self.BDDTest.Test(
-            self.BDDTest.Given(
+        self.Test(
+            self.Given(
                 TabOpened(
                     self.testId,
                     self.testTable,
@@ -544,18 +545,18 @@ class TabTests(unittest.TestCase):
                     [self.testDrink2.MenuNumber]
                 )
             ),
-            self.BDDTest.When(
+            self.When(
                 CloseTab(
                     self.testId,
                     self.testDrink2.Price
                 )
             ),
-            self.BDDTest.ThenFailWith(TabHasUnservedItems)
+            self.ThenFailWith(TabHasUnservedItems)
         )
 
     def test_cannot_close_tab_unprepared_food(self):
-        self.BDDTest.Test(
-            self.BDDTest.Given(
+        self.Test(
+            self.Given(
                 TabOpened(
                     self.testId,
                     self.testTable,
@@ -574,18 +575,18 @@ class TabTests(unittest.TestCase):
                     [self.testFood2.MenuNumber]
                 )
             ),
-            self.BDDTest.When(
+            self.When(
                 CloseTab(
                     self.testId,
                     self.testFood2.Price
                 )
             ),
-            self.BDDTest.ThenFailWith(TabHasUnservedItems)
+            self.ThenFailWith(TabHasUnservedItems)
         )
 
     def test_cannot_close_tab_unserved_food(self):
-        self.BDDTest.Test(
-            self.BDDTest.Given(
+        self.Test(
+            self.Given(
                 TabOpened(
                     self.testId,
                     self.testTable,
@@ -604,13 +605,13 @@ class TabTests(unittest.TestCase):
                     [self.testFood2.MenuNumber]
                 )
             ),
-            self.BDDTest.When(
+            self.When(
                 CloseTab(
                     self.testId,
                     self.testFood2.Price
                 )
             ),
-            self.BDDTest.ThenFailWith(TabHasUnservedItems)
+            self.ThenFailWith(TabHasUnservedItems)
         )
 
 

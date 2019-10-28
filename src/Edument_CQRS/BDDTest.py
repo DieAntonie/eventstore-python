@@ -1,11 +1,8 @@
-from ..Cafe.Tab.TabAggregate import TabAggregate
+import unittest
 from uuid import UUID
 
 
-class BDDTest():
-    def __init__(self, testCase):
-        self.testCase = testCase
-        self.sut = TabAggregate()
+class BDDTest(unittest.TestCase):
 
     def Test(self, given, when, then):
         """
@@ -50,28 +47,29 @@ class BDDTest():
                         if received_event.__class__ in [expected_event.__class__ for expected_event in expectedEvents]:
                             for index, expected_event in enumerate(expectedEvents):
                                 if received_event.__class__ == expected_event.__class__:
-                                    self.testCase.assertEqual(
-                                        self.Serialize(expectedEvents.pop(index)),
+                                    self.assertEqual(
+                                        self.Serialize(
+                                            expectedEvents.pop(index)),
                                         self.Serialize(received_event))
                         else:
                             expected_events = [
                                 expected_event.__class__.__name__
                                 for expected_event in expectedEvents
                             ]
-                            self.testCase.fail(f"""
+                            self.fail(f"""
                             Incorrect event in results; expected any of {"; ".join(expected_events)} but got a 
                             {received_event.__class__.__name__}
                             """)
                 elif len(receivedEvents) < len(expectedEvents):
-                    self.testCase.fail(
+                    self.fail(
                         f"Expected event(s) missing: {self.EventDiff(expectedEvents, receivedEvents)}"
                     )
                 else:
-                    self.testCase.fail(
+                    self.fail(
                         f"Unexpected event(s) emitted: {self.EventDiff(receivedEvents, expectedEvents)}"
                     )
             else:
-                self.testCase.fail(
+                self.fail(
                     f"Expected events, but got {receivedEvents}"
                 )
         return eventHandler
@@ -93,9 +91,9 @@ class BDDTest():
             """
             Handle the received exception and compare against expected exception.
             """
-            with self.testCase.assertRaises(expectedException):
+            with self.assertRaises(expectedException):
                 receivedException = list(receivedExceptionTuple)
-                self.testCase.fail(f"""
+                self.fail(f"""
                 Expected exception {expectedException.__class__.__name__}, but got event
                 {receivedException.__class__.__name__} result
                 """)
