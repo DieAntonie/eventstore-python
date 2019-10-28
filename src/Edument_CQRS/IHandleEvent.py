@@ -1,7 +1,7 @@
-from abc import ABC, abstractmethod
+from abc import ABCMeta, abstractmethod
 
 
-class IHandleEvent(ABC):
+class IHandleEvent(metaclass=ABCMeta):
     """
     Event Handler interface for read models that can be altered by application of events.
     """

@@ -1,7 +1,7 @@
-from abc import ABC, abstractmethod
+from abc import ABCMeta, abstractmethod
 
 
-class IEventStore(ABC):
+class IEventStore(metaclass=ABCMeta):
     """
     Event Store interface for loading and storing aggregate event data 
     """

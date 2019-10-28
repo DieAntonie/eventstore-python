@@ -28,4 +28,4 @@ class EnvironmentAggregate(Aggregate, IHandleCommand, IApplyEvent):
     """
 
     def __init__(self):
-        super(EnvironmentAggregate, self).__init__()
+        super().__init__()

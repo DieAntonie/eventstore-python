@@ -1,7 +1,7 @@
-from abc import ABC, abstractmethod
+from abc import ABCMeta, abstractmethod
 
 
-class IHandleCommand(ABC):
+class IHandleCommand(metaclass=ABCMeta):
     """
     Command Handler interface for `Aggregates` that can emit some events when handling requested commands.
     """

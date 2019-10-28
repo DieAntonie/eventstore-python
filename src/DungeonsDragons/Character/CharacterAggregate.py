@@ -29,7 +29,7 @@ class CharacterAggregate(Aggregate, IHandleCommand, IApplyEvent):
     """
 
     def __init__(self):
-        super(CharacterAggregate, self).__init__()
+        super().__init__()
 
     @methdispatch
     def Handle(self, command):

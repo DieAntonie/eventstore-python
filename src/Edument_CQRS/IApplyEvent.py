@@ -1,7 +1,7 @@
-from abc import ABC, abstractmethod
+from abc import ABCMeta, abstractmethod
 
 
-class IApplyEvent(ABC):
+class IApplyEvent(metaclass=ABCMeta):
     """
     Event Handler interface for `Aggregates` that can be altered by application of events.
     """
