@@ -23,13 +23,13 @@ def methdispatch(func):
     return wrapper
 
 
-class TabAggregate(Aggregate, IHandleCommand, IApplyEvent):
+class CharacterAggregate(Aggregate, IHandleCommand, IApplyEvent):
     """
     An instance of the Tab domain object.
     """
 
     def __init__(self):
-        super(TabAggregate, self).__init__()
+        super(CharacterAggregate, self).__init__()
 
     @methdispatch
     def Handle(self, command):

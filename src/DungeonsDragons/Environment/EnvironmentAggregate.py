@@ -22,10 +22,10 @@ def methdispatch(func):
     return wrapper
 
 
-class TabAggregate(Aggregate, IHandleCommand, IApplyEvent):
+class EnvironmentAggregate(Aggregate, IHandleCommand, IApplyEvent):
     """
     An instance of the Tab domain object.
     """
 
     def __init__(self):
-        super(TabAggregate, self).__init__()
+        super(EnvironmentAggregate, self).__init__()
