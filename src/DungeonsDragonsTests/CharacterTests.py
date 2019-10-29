@@ -1,15 +1,19 @@
 import uuid
 from ..Edument_CQRS.BDDTest import BDDTest
 from ..DungeonsDragons.Character.CharacterAggregate import CharacterAggregate
-from ..DungeonsDragons.Character.CharacterRace import CharacterRace
+from ..DungeonsDragons.Character.CharacterRace import (
+    Dragonborn,
+    Alignment
+)
 
 class CharacterTests(BDDTest):
 
     def setUp(self):
         self.sut = CharacterAggregate()
         self.testId = uuid.uuid1()
-        self.testRace = CharacterRace.Dragonborn
+        self.testRace = Dragonborn.Green
         self.testAge = 50
+        self.testAlignment = Alignment.Neutral
 
     def test_can_set_character_race(self):
         self.Test(
@@ -19,7 +23,6 @@ class CharacterTests(BDDTest):
                     self.testId,
                     self.testRace,
                     self.testAge,
-                    self.testSpeed,
                     self.testAlignment
                 )
             ),
