@@ -21,7 +21,7 @@ from ..Events.Tab.FoodPrepared import FoodPrepared
 from ..Events.Tab.FoodServed import FoodServed
 from ..Events.Tab.TabClosed import TabClosed
 from ..Events.Tab.TabOpened import TabOpened
-from ..Edument_CQRS.BDDTest import BDDTest
+from ..Infrastructure.BDDTest import BDDTest
 from ..Events.Tab.Shared import OrderedItem
 
 

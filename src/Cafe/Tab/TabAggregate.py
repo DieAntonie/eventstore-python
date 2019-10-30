@@ -12,9 +12,9 @@ from .MarkFoodPrepared import MarkFoodPrepared
 from .MarkFoodServed import MarkFoodServed
 from .OpenTab import OpenTab
 from .PlaceOrder import PlaceOrder
-from ...Edument_CQRS.Aggregate import Aggregate
-from ...Edument_CQRS.IApplyEvent import IApplyEvent
-from ...Edument_CQRS.IHandleCommand import IHandleCommand
+from ...Infrastructure.Aggregate import Aggregate
+from ...Infrastructure.IApplyEvent import IApplyEvent
+from ...Infrastructure.IHandleCommand import IHandleCommand
 from ...Events.Tab.DrinksOrdered import DrinksOrdered
 from ...Events.Tab.DrinksServed import DrinksServed
 from ...Events.Tab.FoodOrdered import FoodOrdered

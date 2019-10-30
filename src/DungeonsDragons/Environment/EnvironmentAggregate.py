@@ -1,7 +1,7 @@
 from functools import singledispatch, update_wrapper
-from ...Edument_CQRS.Aggregate import Aggregate
-from ...Edument_CQRS.IApplyEvent import IApplyEvent
-from ...Edument_CQRS.IHandleCommand import IHandleCommand
+from ...Infrastructure.Aggregate import Aggregate
+from ...Infrastructure.IApplyEvent import IApplyEvent
+from ...Infrastructure.IHandleCommand import IHandleCommand
 
 def methdispatch(func):
     """

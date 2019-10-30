@@ -1,5 +1,5 @@
 import uuid
-from ..Edument_CQRS.BDDTest import BDDTest
+from ..Infrastructure.BDDTest import BDDTest
 from ..DungeonsDragons.Character.CharacterAggregate import CharacterAggregate
 from ..DungeonsDragons.Character.CharacterRace import (
     Dragonborn,

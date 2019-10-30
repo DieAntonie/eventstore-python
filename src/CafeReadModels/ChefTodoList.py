@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from functools import singledispatch, update_wrapper
 from .IChefTodoListQueries import IChefTodoListQueries
-from ..Edument_CQRS.IHandleEvent import IHandleEvent
+from ..Infrastructure.IHandleEvent import IHandleEvent
 from ..Events.Tab.FoodOrdered import FoodOrdered
 from ..Events.Tab.FoodPrepared import FoodPrepared
 import uuid
