@@ -1,5 +1,6 @@
 import unittest
 from uuid import UUID
+from enum import Enum
 
 
 class BDDTest(unittest.TestCase):
@@ -133,6 +134,9 @@ class BDDTest(unittest.TestCase):
                 if isinstance(obj, UUID):
                     # if the obj is uuid, we simply return the value of uuid
                     return obj.hex
+                elif isinstance(obj, Enum):
+                    # if the obj is uuid, we simply return the value of uuid
+                    return obj.name
                 return obj.__dict__
         return json.dumps(obj.__dict__, cls=UUIDEncoder)
 

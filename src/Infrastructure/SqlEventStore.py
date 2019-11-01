@@ -1,6 +1,7 @@
 from .IEventStore import IEventStore
 from datetime import datetime
 from uuid import UUID
+from enum import Enum
 
 
 class SqlEventStore(IEventStore):
@@ -102,6 +103,9 @@ class SqlEventStore(IEventStore):
                 if isinstance(obj, UUID):
                     # if the obj is uuid, we simply return the value of uuid
                     return obj.hex
+                elif isinstance(obj, Enum):
+                    # if the obj is uuid, we simply return the value of uuid
+                    return obj.name
                 return model_to_json(obj)
 
         def model_to_json(model_obj):
