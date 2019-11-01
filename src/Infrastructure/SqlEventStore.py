@@ -49,6 +49,17 @@ class SqlEventStore(IEventStore):
                 class_ = getattr(module, class_name)
                 # Use dictionary unpacking to initialize the object
                 model_obj = class_(**json_obj)
+            if "__enum__" in json_obj:
+                # Pop ensures we remove metadata from the dict to leave only the instance arguments
+                enum_name = json_obj.pop("__enum__")
+                # Get the module name from the dict and import it
+                module_name = json_obj.pop("__module__")
+                # We use the built in __import__ function since the module name is not yet known at runtime
+                module = __import__(module_name, fromlist=[module_name])
+                # Get the class from the module
+                enum_ = getattr(module, enum_name)
+                # Use dictionary unpacking to initialize the object
+                model_obj = enum_(**json_obj)
             else:
                 model_obj = json_obj
             return model_obj
@@ -105,8 +116,21 @@ class SqlEventStore(IEventStore):
                     return obj.hex
                 elif isinstance(obj, Enum):
                     # if the obj is uuid, we simply return the value of uuid
-                    return obj.name
+                    return enum_to_json(obj)
                 return model_to_json(obj)
+
+        def enum_to_json(enum_obj):
+            """
+            A function takes in a custom object and returns a dictionary representation of the object.
+            This dict representation includes meta data such as the object's module and class names.
+            """
+            #  Populate the dictionary with object meta data
+            json_obj = {
+                "__enum__": str(enum_obj),
+                "__module__": enum_obj.__module__
+            }
+            #  Populate the dictionary with object properties
+            return json_obj
 
         def model_to_json(model_obj):
             """

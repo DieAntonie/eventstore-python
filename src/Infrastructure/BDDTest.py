@@ -136,7 +136,7 @@ class BDDTest(unittest.TestCase):
                     return obj.hex
                 elif isinstance(obj, Enum):
                     # if the obj is uuid, we simply return the value of uuid
-                    return obj.name
+                    return str(obj)
                 return obj.__dict__
         return json.dumps(obj.__dict__, cls=UUIDEncoder)
 
