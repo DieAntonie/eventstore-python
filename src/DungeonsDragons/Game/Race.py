@@ -10,11 +10,11 @@ from .AreaOfEffect import (
 )
 
 
-class CharacterRace(Enum):
+class Race(Enum):
     pass
 
 
-class Dragonborn(CharacterRace):
+class Dragonborn(Race):
     Black = (DamageType.Acid, Line(5, 30), Ability.Dexterity)
     Blue = (DamageType.Lightning, Line(5, 30), Ability.Dexterity)
     Brass = (DamageType.Fire, Line(5, 30), Ability.Dexterity)
@@ -42,77 +42,77 @@ class Dragonborn(CharacterRace):
         }
 
 
-class Dwarf(CharacterRace):
+class Dwarf(Race):
     pass
 
 
-class Elf(CharacterRace):
+class Elf(Race):
     pass
 
 
-class Halfelf(CharacterRace):
+class Halfelf(Race):
     pass
 
 
-class Halfling(CharacterRace):
+class Halfling(Race):
     pass
 
 
-class Halforc(CharacterRace):
+class Halforc(Race):
     pass
 
 
-class Human(CharacterRace):
+class Human(Race):
     pass
 
 
-class Tiefling(CharacterRace):
+class Tiefling(Race):
     pass
 
 
-class Aasimar(CharacterRace):
+class Aasimar(Race):
     pass
 
 
-class Bugbear(CharacterRace):
+class Bugbear(Race):
     pass
 
 
-class Firbolg(CharacterRace):
+class Firbolg(Race):
     pass
 
 
-class Goblin(CharacterRace):
+class Goblin(Race):
     pass
 
 
-class Hobgoblin(CharacterRace):
+class Hobgoblin(Race):
     pass
 
 
-class Kenku(CharacterRace):
+class Kenku(Race):
     pass
 
 
-class Kobold(CharacterRace):
+class Kobold(Race):
     pass
 
 
-class Lizardfolk(CharacterRace):
+class Lizardfolk(Race):
     pass
 
 
-class Orc(CharacterRace):
+class Orc(Race):
     pass
 
 
-class Tabaxi(CharacterRace):
+class Tabaxi(Race):
     pass
 
 
-class Triton(CharacterRace):
+class Triton(Race):
     pass
 
 
-class Yuanti(CharacterRace):
+class Yuanti(Race):
     pass
