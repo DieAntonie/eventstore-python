@@ -1,6 +1,8 @@
 import uuid
 from ..Infrastructure.BDDTest import BDDTest
 from ..DungeonsDragons.Character.CharacterAggregate import CharacterAggregate
+from ..DungeonsDragons.Character.Commands.SetCharacterRace import SetCharacterRace
+from ..DungeonsDragons.Character.Events.CharacterRaceSet import CharacterRaceSet
 from ..DungeonsDragons.Game.Race import Dragonborn
 from ..DungeonsDragons.Game.Alignment import Alignment
 
@@ -27,8 +29,9 @@ class CharacterTests(BDDTest):
             self.Then(
                 CharacterRaceSet(
                     self.testId,
-                    self.testTable,
-                    self.testWaiter
+                    self.testRace,
+                    self.testAge,
+                    self.testAlignment
                 )
             )
         )

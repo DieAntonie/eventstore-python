@@ -1,4 +1,6 @@
 from functools import singledispatch, update_wrapper
+from .Commands.SetCharacterRace import SetCharacterRace
+from .Events.CharacterRaceSet import CharacterRaceSet
 from ...Infrastructure.Aggregate import Aggregate
 from ...Infrastructure.IApplyEvent import IApplyEvent
 from ...Infrastructure.IHandleCommand import IHandleCommand
@@ -38,6 +40,18 @@ class CharacterAggregate(Aggregate, IHandleCommand, IApplyEvent):
         """
         raise ValueError(
             f"Aggregate {self.__class__.__name__} does not know how to handle command {command.__class__.__name__}")
+
+    @Handle.register(SetCharacterRace)
+    def Handle_SetCharacterRace(self, command: SetCharacterRace):
+        """
+        `OpenTab` command handler that emits a `TabOpened` event upon successfully opening a tab.
+        """
+        yield CharacterRaceSet(
+            command.Id,
+            command.Race,
+            command.Age,
+            command.Alignment
+        )
 
     @methdispatch
     def Apply(self, event):
