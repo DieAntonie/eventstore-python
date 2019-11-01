@@ -3,8 +3,10 @@ from ..Infrastructure.BDDTest import BDDTest
 from ..DungeonsDragons.Character.CharacterAggregate import CharacterAggregate
 from ..DungeonsDragons.Character.Commands.SetCharacterRace import SetCharacterRace
 from ..DungeonsDragons.Character.Events.CharacterRaceSet import CharacterRaceSet
+from ..DungeonsDragons.Character.Exceptions import CharacterRaceAlreadySet
 from ..DungeonsDragons.Game.Race import Dragonborn
 from ..DungeonsDragons.Game.Alignment import Alignment
+
 
 class CharacterTests(BDDTest):
 
@@ -34,6 +36,27 @@ class CharacterTests(BDDTest):
                     self.testAlignment
                 )
             )
+        )
+
+    def test_cannot_set_character_race_more_than_once(self):
+        self.Test(
+            self.Given(
+                CharacterRaceSet(
+                    self.testId,
+                    self.testRace,
+                    self.testAge,
+                    self.testAlignment
+                )
+            ),
+            self.When(
+                SetCharacterRace(
+                    self.testId,
+                    self.testRace,
+                    self.testAge,
+                    self.testAlignment
+                )
+            ),
+            self.ThenFailWith(CharacterRaceAlreadySet)
         )
 
 
