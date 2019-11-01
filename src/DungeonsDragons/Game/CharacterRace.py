@@ -1,98 +1,13 @@
 from enum import Enum
-
-
-class Script(Enum):
-    Celestial = 1
-    Common = 2
-    Draconic = 3
-    Dwarvish = 4
-    Elvish = 5
-    Infernal = 6
-
-
-class Language(Enum):
-    Common = (Script.Common)
-    Dwarvish = (Script.Dwarvish)
-    Elvish = (Script.Elvish)
-    Giant = (Script.Dwarvish)
-    Gnomish = (Script.Dwarvish)
-    Goblin = (Script.Dwarvish)
-    Halfling = (Script.Common)
-    Orc = (Script.Dwarvish)
-    Abyssal = (Script.Infernal)
-    Celestial = (Script.Celestial)
-    Draconic = (Script.Draconic)
-    DeepSpeech = (None)
-    Infernal = (Script.Infernal)
-    Primordial = (Script.Dwarvish)
-    Sylvan = (Script.Elvish)
-    Undercommon = (Script.Elvish)
-
-    def __init__(self, script: Script):
-        self.script = script
-
-
-class Alignment(Enum):
-    LawfulGood = "LG"
-    NeutralGood = "NG"
-    ChaoticGood = "CG"
-    LawfulNeutral = "LN"
-    Neutral = "N"
-    ChaoticNeutral = "CN"
-    LawfulEvil = "LE"
-    NeutralEvil = "NE"
-    ChaoticEvil = "CE"
-
-
-class SizeCategory(Enum):
-    Tiny = (2.5)
-    Small = (5)
-    Medium = (5)
-    Large = (10)
-    Huge = (15)
-    Gargantuan = (20)
-
-    def __init__(self, dimension):
-        self.dimension = dimension
-
-
-class Ability(Enum):
-    Strength = "str"
-    Dexterity = "dex"
-    Constitution = "con"
-    Intelligence = "int"
-    Wisdom = "wis"
-    Charisma = "cha"
-
-
-class DamageType(Enum):
-    Acid = 1
-    Bludgeoning = 2
-    Cold = 3
-    Fire = 4
-    Force = 5
-    Lightning = 6
-    Necrotic = 7
-    Piercing = 8
-    Poison = 9
-    Psychic = 10
-    Radiant = 12
-    Slashing = 13
-    Thunder = 14
-
-
-class AreaOfEffect(object):
-    pass
-
-
-class Line(AreaOfEffect):
-    def __init__(self, width, length):
-        pass
-
-
-class Cone(AreaOfEffect):
-    def __init__(self, length):
-        pass
+from .Language import Language
+from .SizeCategory import SizeCategory
+from .Ability import Ability
+from .DamageType import DamageType
+from .AreaOfEffect import (
+    AreaOfEffect,
+    Cone,
+    Line
+)
 
 
 class CharacterRace(Enum):
