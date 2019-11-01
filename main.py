@@ -1,16 +1,16 @@
 from dataclasses import dataclass
 from src.Infrastructure.MessageDispatcher import MessageDispatcher
 from src.Infrastructure.SqlEventStore import SqlEventStore
-from src.CafeReadModels.OpenTabs import OpenTabs
-from src.CafeReadModels.ChefTodoList import ChefTodoList
-from src.Cafe.Tab.CloseTab import CloseTab
-from src.Cafe.Tab.MarkDrinksServed import MarkDrinksServed
-from src.Cafe.Tab.MarkFoodPrepared import MarkFoodPrepared
-from src.Cafe.Tab.MarkFoodServed import MarkFoodServed
-from src.Cafe.Tab.OpenTab import OpenTab
-from src.Cafe.Tab.PlaceOrder import PlaceOrder
+from src.Cafe.ReadModels.OpenTabs import OpenTabs
+from src.Cafe.ReadModels.ChefTodoList import ChefTodoList
+from src.Cafe.Tab.Commands.CloseTab import CloseTab
+from src.Cafe.Tab.Commands.MarkDrinksServed import MarkDrinksServed
+from src.Cafe.Tab.Commands.MarkFoodPrepared import MarkFoodPrepared
+from src.Cafe.Tab.Commands.MarkFoodServed import MarkFoodServed
+from src.Cafe.Tab.Commands.OpenTab import OpenTab
+from src.Cafe.Tab.Commands.PlaceOrder import PlaceOrder
+from src.Cafe.Tab.Shared import OrderedItem
 from src.Cafe.Tab.TabAggregate import TabAggregate
-from src.Events.Tab.Shared import OrderedItem
 import uuid
 
 

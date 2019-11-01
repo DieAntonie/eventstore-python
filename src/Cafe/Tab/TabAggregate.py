@@ -6,22 +6,22 @@ from .Exceptions import (
     FoodNotPrepared,
     MustPayEnough,
     TabHasUnservedItems)
-from .CloseTab import CloseTab
-from .MarkDrinksServed import MarkDrinksServed
-from .MarkFoodPrepared import MarkFoodPrepared
-from .MarkFoodServed import MarkFoodServed
-from .OpenTab import OpenTab
-from .PlaceOrder import PlaceOrder
+from .Commands.CloseTab import CloseTab
+from .Commands.MarkDrinksServed import MarkDrinksServed
+from .Commands.MarkFoodPrepared import MarkFoodPrepared
+from .Commands.MarkFoodServed import MarkFoodServed
+from .Commands.OpenTab import OpenTab
+from .Commands.PlaceOrder import PlaceOrder
 from ...Infrastructure.Aggregate import Aggregate
 from ...Infrastructure.IApplyEvent import IApplyEvent
 from ...Infrastructure.IHandleCommand import IHandleCommand
-from ...Events.Tab.DrinksOrdered import DrinksOrdered
-from ...Events.Tab.DrinksServed import DrinksServed
-from ...Events.Tab.FoodOrdered import FoodOrdered
-from ...Events.Tab.FoodPrepared import FoodPrepared
-from ...Events.Tab.FoodServed import FoodServed
-from ...Events.Tab.TabOpened import TabOpened
-from ...Events.Tab.TabClosed import TabClosed
+from .Events.DrinksOrdered import DrinksOrdered
+from .Events.DrinksServed import DrinksServed
+from .Events.FoodOrdered import FoodOrdered
+from .Events.FoodPrepared import FoodPrepared
+from .Events.FoodServed import FoodServed
+from .Events.TabOpened import TabOpened
+from .Events.TabClosed import TabClosed
 
 
 def methdispatch(func):

@@ -1,5 +1,17 @@
 import uuid
-from ..Cafe.Tab.CloseTab import CloseTab
+from ..Cafe.Tab.Commands.CloseTab import CloseTab
+from ..Cafe.Tab.Commands.MarkDrinksServed import MarkDrinksServed
+from ..Cafe.Tab.Commands.MarkFoodPrepared import MarkFoodPrepared
+from ..Cafe.Tab.Commands.MarkFoodServed import MarkFoodServed
+from ..Cafe.Tab.Commands.OpenTab import OpenTab
+from ..Cafe.Tab.Commands.PlaceOrder import PlaceOrder
+from ..Cafe.Tab.Events.DrinksOrdered import DrinksOrdered
+from ..Cafe.Tab.Events.DrinksServed import DrinksServed
+from ..Cafe.Tab.Events.FoodOrdered import FoodOrdered
+from ..Cafe.Tab.Events.FoodPrepared import FoodPrepared
+from ..Cafe.Tab.Events.FoodServed import FoodServed
+from ..Cafe.Tab.Events.TabClosed import TabClosed
+from ..Cafe.Tab.Events.TabOpened import TabOpened
 from ..Cafe.Tab.Exceptions import (
     TabNotOpen,
     DrinksNotOutstanding,
@@ -8,21 +20,9 @@ from ..Cafe.Tab.Exceptions import (
     MustPayEnough,
     TabHasUnservedItems
 )
-from ..Cafe.Tab.MarkDrinksServed import MarkDrinksServed
-from ..Cafe.Tab.MarkFoodPrepared import MarkFoodPrepared
-from ..Cafe.Tab.MarkFoodServed import MarkFoodServed
-from ..Cafe.Tab.OpenTab import OpenTab
-from ..Cafe.Tab.PlaceOrder import PlaceOrder
+from ..Cafe.Tab.Shared import OrderedItem
 from ..Cafe.Tab.TabAggregate import TabAggregate
-from ..Events.Tab.DrinksOrdered import DrinksOrdered
-from ..Events.Tab.DrinksServed import DrinksServed
-from ..Events.Tab.FoodOrdered import FoodOrdered
-from ..Events.Tab.FoodPrepared import FoodPrepared
-from ..Events.Tab.FoodServed import FoodServed
-from ..Events.Tab.TabClosed import TabClosed
-from ..Events.Tab.TabOpened import TabOpened
 from ..Infrastructure.BDDTest import BDDTest
-from ..Events.Tab.Shared import OrderedItem
 
 
 class TabTests(BDDTest):

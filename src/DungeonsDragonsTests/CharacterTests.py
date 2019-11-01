@@ -1,7 +1,7 @@
 import uuid
 from ..Infrastructure.BDDTest import BDDTest
 from ..DungeonsDragons.Character.CharacterAggregate import CharacterAggregate
-from ..DungeonsDragons.Character.CharacterRace import (
+from ..DungeonsDragons.Game.CharacterRace import (
     Dragonborn,
     Alignment
 )
