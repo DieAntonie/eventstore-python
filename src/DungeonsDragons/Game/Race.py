@@ -1,13 +1,4 @@
 from enum import Enum
-from .Language import Language
-from .SizeCategory import SizeCategory
-from .Ability import Ability
-from .DamageType import DamageType
-from .AreaOfEffect import (
-    AreaOfEffect,
-    Cone,
-    Line
-)
 
 
 class Race(Enum):
@@ -15,47 +6,45 @@ class Race(Enum):
 
 
 class Dragonborn(Race):
-    Black = (DamageType.Acid, Line(5, 30), Ability.Dexterity)
-    Blue = (DamageType.Lightning, Line(5, 30), Ability.Dexterity)
-    Brass = (DamageType.Fire, Line(5, 30), Ability.Dexterity)
-    Bronze = (DamageType.Lightning, Line(5, 30), Ability.Dexterity)
-    Copper = (DamageType.Acid, Line(5, 30), Ability.Dexterity)
-    Gold = (DamageType.Fire, Cone(30), Ability.Dexterity)
-    Green = (DamageType.Poison, Cone(30), Ability.Constitution)
-    Red = (DamageType.Fire, Cone(30), Ability.Dexterity)
-    Silver = (DamageType.Cold, Cone(30), Ability.Constitution)
-    White = (DamageType.Cold, Cone(30), Ability.Constitution)
-
-    def __init__(self, damage_type: DamageType, area_of_effect: AreaOfEffect, saving_throw: Ability):
-        # Subrace trait variations
-        self.damage_type = damage_type
-        self.area_of_effect = area_of_effect
-        self.saving_throw = saving_throw
-
-        # Parent race traits
-        self.speed = 30
-        self.size = SizeCategory.Medium
-        self.language = [Language.Draconic]
-        self.ability_score_modifier = {
-            Ability.Strength: 2,
-            Ability.Charisma: 1
-        }
+    Black = 1
+    Blue = 2
+    Brass = 3
+    Bronze = 4
+    Copper = 5
+    Gold = 6
+    Green = 7
+    Red = 8
+    Silver = 9
+    White = 10
 
 
 class Dwarf(Race):
-    pass
+    Duergar = 1
+    Hill = 2
+    Mountain = 3
 
 
 class Elf(Race):
-    pass
+    Dark = 1
+    High = 2
+    Wood = 3
+
+
+class Gnome(Race):
+    Deep = 1
+    Forest = 2
+    Rock = 3
 
 
 class Halfelf(Race):
-    pass
+    Dark = 1
+    High = 2
+    Wood = 3
 
 
 class Halfling(Race):
-    pass
+    Lightfoot = 1
+    Stout = 2
 
 
 class Halforc(Race):
@@ -63,7 +52,15 @@ class Halforc(Race):
 
 
 class Human(Race):
-    pass
+    Calishite = 1
+    Chondathan = 2
+    Damaran = 3
+    Illuskan = 4
+    Mulan = 5
+    Rashemi = 6
+    Shou = 7
+    Tethyrian = 8
+    Turami = 9
 
 
 class Tiefling(Race):
