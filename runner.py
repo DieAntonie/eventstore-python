@@ -11,14 +11,15 @@ from src.DungeonsDragonsTests import (
 
 # initialize the test suite
 loader = unittest.TestLoader()
-suite = unittest.TestSuite()
+runner = unittest.TextTestRunner(verbosity=3)
 
 # add tests to the test suite
-suite.addTests(loader.loadTestsFromModule(TabTests))
-suite.addTests(loader.loadTestsFromModule(CharacterTests))
-suite.addTests(loader.loadTestsFromModule(EnvironmentTests))
-suite.addTests(loader.loadTestsFromModule(GameTests))
-
-# initialize a runner, pass it your suite and run it
-runner = unittest.TextTestRunner(verbosity=3)
-result = runner.run(suite)
+print("Running Tab Tests")
+runner.run(loader.loadTestsFromModule(TabTests))
+print("Running Character Tests")
+runner.run(loader.loadTestsFromModule(CharacterTests))
+print("Running Environment Tests")
+runner.run(loader.loadTestsFromModule(EnvironmentTests))
+print("Running Game Tests")
+print("- Race Tests")
+runner.run(loader.loadTestsFromModule(GameTests.RaceTests))
