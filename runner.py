@@ -5,7 +5,8 @@ import unittest
 from src.CafeTests import TabTests
 from src.DungeonsDragonsTests import (
     CharacterTests,
-    EnvironmentTests
+    EnvironmentTests,
+    GameTests
 )
 
 # initialize the test suite
@@ -16,6 +17,7 @@ suite = unittest.TestSuite()
 suite.addTests(loader.loadTestsFromModule(TabTests))
 suite.addTests(loader.loadTestsFromModule(CharacterTests))
 suite.addTests(loader.loadTestsFromModule(EnvironmentTests))
+suite.addTests(loader.loadTestsFromModule(GameTests))
 
 # initialize a runner, pass it your suite and run it
 runner = unittest.TextTestRunner(verbosity=3)
