@@ -4,7 +4,7 @@ from ..DungeonsDragons.Character.CharacterAggregate import CharacterAggregate
 from ..DungeonsDragons.Character.Commands.SetCharacterRace import SetCharacterRace
 from ..DungeonsDragons.Character.Events.CharacterRaceSet import CharacterRaceSet
 from ..DungeonsDragons.Character.Exceptions import CharacterRaceAlreadySet
-from ..DungeonsDragons.Game.Race import Dragonborn
+from ..DungeonsDragons.Game.Race.Race import Dragonborn
 from ..DungeonsDragons.Game.Alignment import Alignment
 
 

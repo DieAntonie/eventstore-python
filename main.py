@@ -8,7 +8,7 @@ from src.Infrastructure.SqlEventStore import SqlEventStore
 # from src.Cafe.Tab.Commands.MarkFoodPrepared import MarkFoodPrepared
 # from src.Cafe.Tab.Commands.MarkFoodServed import MarkFoodServed
 from src.DungeonsDragons.Character.Commands.SetCharacterRace import SetCharacterRace
-from src.DungeonsDragons.Game.Race import Dragonborn
+from src.DungeonsDragons.Game.Race.Race import Dragonborn
 from src.DungeonsDragons.Game.Alignment import Alignment
 # from src.Cafe.Tab.Commands.PlaceOrder import PlaceOrder
 # from src.Cafe.Tab.Shared import OrderedItem
