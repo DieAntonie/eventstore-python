@@ -95,8 +95,8 @@ class BDDTest(unittest.TestCase):
             with self.assertRaises(expectedException):
                 receivedException = list(receivedExceptionTuple)
                 self.fail(f"""
-                Expected exception {expectedException.__class__.__name__}, but got event
-                {receivedException.__class__.__name__} result
+                Expected exception {expectedException.__name__}, but got event(s)
+                {", ".join([event.__class__.__name__ for event in receivedException])} instead.
                 """)
 
         return exceptionHandler
