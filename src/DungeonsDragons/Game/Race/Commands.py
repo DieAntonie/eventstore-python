@@ -17,5 +17,4 @@ class ChangeCharacterRaceName:
     Request to assign a `Race` of a certain `Age` and `Alignment` to a `CharacterAggregate`.
     """
     Id: uuid
-    FromName: str
-    ToName: str
+    Name: str

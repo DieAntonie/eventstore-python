@@ -1,6 +1,6 @@
 import uuid
 from ...Infrastructure.BDDTest import BDDTest
-from ...DungeonsDragons.Game.GameAggregate import GameAggregate
+from ...DungeonsDragons.Game.Race.RaceAggregate import RaceAggregate
 from ...DungeonsDragons.Game.Race.Commands import (
     CreateCharacterRace,
     ChangeCharacterRaceName
@@ -11,19 +11,20 @@ from ...DungeonsDragons.Game.Race.Events import (
 )
 from ...DungeonsDragons.Game.Race.Exceptions import (
     CharacterRaceAlreadyCreated,
-    CharacterRaceDoesNotExist
+    CharacterRaceDoesNotExist,
+    CharacterRaceNameDoesNotDiffer
 )
 
 
 class RaceTests(BDDTest):
 
     def setUp(self):
-        self.sut = GameAggregate()
+        self.sut = RaceAggregate()
         self.testId = uuid.uuid1()
         self.characterRaceName1 = 'Test Race 1'
         self.characterRaceName2 = 'Test Race 2'
 
-    def test_can_add_character_race(self):
+    def test_can_create_character_race(self):
         self.Test(
             self.Given(),
             self.When(
@@ -40,7 +41,7 @@ class RaceTests(BDDTest):
             )
         )
 
-    def test_cannot_add_same_character_race_more_than_once(self):
+    def test_cannot_create_character_race_more_than_once(self):
         self.Test(
             self.Given(
                 CharacterRaceCreated(
@@ -68,7 +69,6 @@ class RaceTests(BDDTest):
             self.When(
                 ChangeCharacterRaceName(
                     self.testId,
-                    self.characterRaceName1,
                     self.characterRaceName2
                 )
             ),
@@ -97,7 +97,6 @@ class RaceTests(BDDTest):
             self.When(
                 ChangeCharacterRaceName(
                     self.testId,
-                    self.characterRaceName2,
                     self.characterRaceName1
                 )
             ),
@@ -110,44 +109,33 @@ class RaceTests(BDDTest):
             )
         )
 
-    def test_cannot_change_unadded_character_race_name(self):
+    def test_cannot_change_uncreated_character_race_name(self):
         self.Test(
-            self.Given(
-                CharacterRaceCreated(
-                    self.testId,
-                    self.characterRaceName1
-                )
-            ),
+            self.Given(),
             self.When(
                 ChangeCharacterRaceName(
                     self.testId,
-                    self.characterRaceName2,
-                    self.characterRaceName2
+                    self.characterRaceName1
                 )
             ),
             self.ThenFailWith(CharacterRaceDoesNotExist)
         )
 
-    def test_cannot_change_character_race_name_to_existing_race_name(self):
+    def test_cannot_change_character_race_name_to_current_race_name(self):
         self.Test(
             self.Given(
                 CharacterRaceCreated(
                     self.testId,
                     self.characterRaceName1
-                ),
-                CharacterRaceCreated(
-                    self.testId,
-                    self.characterRaceName2
-                ),
+                )
             ),
             self.When(
                 ChangeCharacterRaceName(
                     self.testId,
-                    self.characterRaceName1,
-                    self.characterRaceName2
+                    self.characterRaceName1
                 )
             ),
-            self.ThenFailWith(CharacterRaceAlreadyCreated)
+            self.ThenFailWith(CharacterRaceNameDoesNotDiffer)
         )
 
 
