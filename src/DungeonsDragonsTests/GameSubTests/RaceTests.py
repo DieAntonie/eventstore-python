@@ -3,16 +3,20 @@ from ...Infrastructure.BDDTest import BDDTest
 from ...DungeonsDragons.Game.Race.RaceAggregate import RaceAggregate
 from ...DungeonsDragons.Game.Race.Commands import (
     CreateCharacterRace,
-    ChangeCharacterRaceName
+    ChangeCharacterRaceName,
+    AddCharacterSubrace
 )
 from ...DungeonsDragons.Game.Race.Events import (
     CharacterRaceCreated,
-    CharacterRaceNameChanged
+    CharacterRaceNameChanged,
+    CharacterSubraceAdded
 )
 from ...DungeonsDragons.Game.Race.Exceptions import (
     CharacterRaceAlreadyCreated,
     CharacterRaceDoesNotExist,
-    CharacterRaceNameDoesNotDiffer
+    CharacterRaceNameDoesNotDiffer,
+    CharacterSubraceNameDoesNotDifferFromBaseRace,
+    CharacterSubraceAlreadyExists
 )
 
 
@@ -23,6 +27,8 @@ class RaceTests(BDDTest):
         self.testId = uuid.uuid1()
         self.characterRaceName1 = 'Test Race 1'
         self.characterRaceName2 = 'Test Race 2'
+        self.characterSubraceName1 = 'Test Subrace 1'
+        self.characterSubraceName2 = 'Test Subrace 2'
 
     def test_can_create_character_race(self):
         self.Test(
@@ -136,6 +142,40 @@ class RaceTests(BDDTest):
                 )
             ),
             self.ThenFailWith(CharacterRaceNameDoesNotDiffer)
+        )
+
+    def test_can_add_character_subrace(self):
+        self.Test(
+            self.Given(
+                CharacterRaceCreated(
+                    self.testId,
+                    self.characterRaceName1
+                )
+            ),
+            self.When(
+                AddCharacterSubrace(
+                    self.testId,
+                    self.characterSubraceName1
+                )
+            ),
+            self.Then(
+                CharacterSubraceAdded(
+                    self.testId,
+                    self.characterSubraceName1
+                )
+            )
+        )
+
+    def test_cannot_add_character_subrace_to_uncreated_race(self):
+        self.Test(
+            self.Given(),
+            self.When(
+                AddCharacterSubrace(
+                    self.testId,
+                    self.characterSubraceName1
+                )
+            ),
+            self.ThenFailWith(CharacterRaceDoesNotExist)
         )
 
 

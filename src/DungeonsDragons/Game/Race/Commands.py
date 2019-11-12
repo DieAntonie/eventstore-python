@@ -18,3 +18,12 @@ class ChangeCharacterRaceName:
     """
     Id: uuid
     Name: str
+
+
+@dataclass
+class AddCharacterSubrace:
+    """
+    Request to assign a `Race` of a certain `Age` and `Alignment` to a `CharacterAggregate`.
+    """
+    Id: uuid
+    Name: str
