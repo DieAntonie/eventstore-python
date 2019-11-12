@@ -178,6 +178,53 @@ class RaceTests(BDDTest):
             self.ThenFailWith(CharacterRaceDoesNotExist)
         )
 
+    def test_can_add_multiple_character_subraces(self):
+        self.Test(
+            self.Given(
+                CharacterRaceCreated(
+                    self.testId,
+                    self.characterRaceName1
+                ),
+                CharacterSubraceAdded(
+                    self.testId,
+                    self.characterSubraceName1
+                )
+            ),
+            self.When(
+                AddCharacterSubrace(
+                    self.testId,
+                    self.characterSubraceName2
+                )
+            ),
+            self.Then(
+                CharacterSubraceAdded(
+                    self.testId,
+                    self.characterSubraceName2
+                )
+            )
+        )
+
+    def test_cannot_add_same_character_subrace_more_than_once(self):
+        self.Test(
+            self.Given(
+                CharacterRaceCreated(
+                    self.testId,
+                    self.characterRaceName1
+                ),
+                CharacterSubraceAdded(
+                    self.testId,
+                    self.characterSubraceName1
+                )
+            ),
+            self.When(
+                AddCharacterSubrace(
+                    self.testId,
+                    self.characterSubraceName1
+                )
+            ),
+            self.ThenFailWith(CharacterSubraceAlreadyExists)
+        )
+
 
 if __name__ == '__main__':
     unittest.main()
