@@ -2,19 +2,24 @@ from functools import singledispatch, update_wrapper
 from .Commands import (
     CreateCharacterRace,
     ChangeCharacterRaceName,
-    AddCharacterSubrace
+    AddCharacterSubrace,
+    RemoveCharacterSubrace,
+    RenameCharacterSubrace
 )
 from .Events import (
     CharacterRaceCreated,
     CharacterRaceNameChanged,
-    CharacterSubraceAdded
+    CharacterSubraceAdded,
+    CharacterSubraceRemoved,
+    CharacterSubraceRenamed
 )
 from .Exceptions import (
     CharacterRaceAlreadyCreated,
     CharacterRaceDoesNotExist,
     CharacterRaceNameDoesNotDiffer,
     CharacterSubraceNameDoesNotDifferFromBaseRace,
-    CharacterSubraceAlreadyExists
+    CharacterSubraceAlreadyExists,
+    CharacterSubraceDoesNotExists
 )
 from ....Infrastructure.Aggregate import Aggregate
 from ....Infrastructure.IApplyEvent import IApplyEvent
@@ -108,6 +113,39 @@ class RaceAggregate(Aggregate, IHandleCommand, IApplyEvent):
             Name=command.Name
         )
 
+    @Handle.register(RemoveCharacterSubrace)
+    def Handle_RemoveCharacterSubrace(self, command: RemoveCharacterSubrace):
+        """
+        `OpenTab` command handler that emits a `TabOpened` event upon successfully opening a tab.
+        """
+        if not self.created:
+            raise CharacterRaceDoesNotExist
+
+        if command.Name not in [sub_race["Name"] for sub_race in self.sub_races]:
+            raise CharacterSubraceDoesNotExists
+
+        yield CharacterSubraceRemoved(
+            Id=command.Id,
+            Name=command.Name
+        )
+
+    @Handle.register(RenameCharacterSubrace)
+    def Handle_RenameCharacterSubrace(self, command: RenameCharacterSubrace):
+        """
+        `OpenTab` command handler that emits a `TabOpened` event upon successfully opening a tab.
+        """
+        if not self.created:
+            raise CharacterRaceDoesNotExist
+
+        if command.FromName not in [sub_race["Name"] for sub_race in self.sub_races]:
+            raise CharacterSubraceDoesNotExists
+
+        yield CharacterSubraceRenamed(
+            Id=command.Id,
+            FromName=command.FromName,
+            ToName=command.ToName
+        )
+
     @methdispatch
     def Apply(self, event):
         """
@@ -139,3 +177,19 @@ class RaceAggregate(Aggregate, IHandleCommand, IApplyEvent):
         self.sub_races.append({
             "Name": event.Name
         })
+
+    @Apply.register(CharacterSubraceRemoved)
+    def Apply_CharacterSubraceRemoved(self, event: CharacterSubraceRemoved):
+        """
+        `CharacterRaceSet` event handler that opens this `TabAggregate`.
+        """
+        self.sub_races = [sub_race for sub_race in self.sub_races if sub_race["Name"] is not event.Name]
+
+    @Apply.register(CharacterSubraceRenamed)
+    def Apply_CharacterSubraceRenamed(self, event: CharacterSubraceRenamed):
+        """
+        `CharacterRaceSet` event handler that opens this `TabAggregate`.
+        """
+        for sub_race in self.sub_races:
+            if sub_race["Name"] is event.FromName:
+                sub_race["Name"] = event.ToName

@@ -4,19 +4,24 @@ from ...DungeonsDragons.Game.Race.RaceAggregate import RaceAggregate
 from ...DungeonsDragons.Game.Race.Commands import (
     CreateCharacterRace,
     ChangeCharacterRaceName,
-    AddCharacterSubrace
+    AddCharacterSubrace,
+    RemoveCharacterSubrace,
+    RenameCharacterSubrace
 )
 from ...DungeonsDragons.Game.Race.Events import (
     CharacterRaceCreated,
     CharacterRaceNameChanged,
-    CharacterSubraceAdded
+    CharacterSubraceAdded,
+    CharacterSubraceRemoved,
+    CharacterSubraceRenamed
 )
 from ...DungeonsDragons.Game.Race.Exceptions import (
     CharacterRaceAlreadyCreated,
     CharacterRaceDoesNotExist,
     CharacterRaceNameDoesNotDiffer,
     CharacterSubraceNameDoesNotDifferFromBaseRace,
-    CharacterSubraceAlreadyExists
+    CharacterSubraceAlreadyExists,
+    CharacterSubraceDoesNotExists
 )
 
 
@@ -225,6 +230,147 @@ class RaceTests(BDDTest):
             self.ThenFailWith(CharacterSubraceAlreadyExists)
         )
 
+    def test_can_remove_character_subrace(self):
+        self.Test(
+            self.Given(
+                CharacterRaceCreated(
+                    self.testId,
+                    self.characterRaceName1
+                ),
+                CharacterSubraceAdded(
+                    self.testId,
+                    self.characterSubraceName1
+                )
+            ),
+            self.When(
+                RemoveCharacterSubrace(
+                    self.testId,
+                    self.characterSubraceName1
+                )
+            ),
+            self.Then(
+                CharacterSubraceRemoved(
+                    self.testId,
+                    self.characterSubraceName1
+                )
+            )
+        )
+
+    def test_can_add_removed_character_subrace(self):
+        self.Test(
+            self.Given(
+                CharacterRaceCreated(
+                    self.testId,
+                    self.characterRaceName1
+                ),
+                CharacterSubraceAdded(
+                    self.testId,
+                    self.characterSubraceName1
+                ),
+                CharacterSubraceRemoved(
+                    self.testId,
+                    self.characterSubraceName1
+                )
+            ),
+            self.When(
+                AddCharacterSubrace(
+                    self.testId,
+                    self.characterSubraceName1
+                )
+            ),
+            self.Then(
+                CharacterSubraceAdded(
+                    self.testId,
+                    self.characterSubraceName1
+                )
+            )
+        )
+
+    def test_cannot_removed_character_subrace_more_than_once(self):
+        self.Test(
+            self.Given(
+                CharacterRaceCreated(
+                    self.testId,
+                    self.characterRaceName1
+                ),
+                CharacterSubraceAdded(
+                    self.testId,
+                    self.characterSubraceName1
+                ),
+                CharacterSubraceRemoved(
+                    self.testId,
+                    self.characterSubraceName1
+                )
+            ),
+            self.When(
+                RemoveCharacterSubrace(
+                    self.testId,
+                    self.characterSubraceName1
+                )
+            ),
+            self.ThenFailWith(CharacterSubraceDoesNotExists)
+        )
+
+    def test_can_rename_character_subrace(self):
+        self.Test(
+            self.Given(
+                CharacterRaceCreated(
+                    self.testId,
+                    self.characterRaceName1
+                ),
+                CharacterSubraceAdded(
+                    self.testId,
+                    self.characterSubraceName1
+                )
+            ),
+            self.When(
+                RenameCharacterSubrace(
+                    self.testId,
+                    self.characterSubraceName1,
+                    self.characterSubraceName2
+                )
+            ),
+            self.Then(
+                CharacterSubraceRenamed(
+                    self.testId,
+                    self.characterSubraceName1,
+                    self.characterSubraceName2
+                )
+            )
+        )
+
+    def test_can_rename_character_subrace_more_than_once(self):
+        self.Test(
+            self.Given(
+                CharacterRaceCreated(
+                    self.testId,
+                    self.characterRaceName1
+                ),
+                CharacterSubraceAdded(
+                    self.testId,
+                    self.characterSubraceName1
+                ),
+                CharacterSubraceRenamed(
+                    self.testId,
+                    self.characterSubraceName1,
+                    self.characterSubraceName2
+                )
+            ),
+            self.When(
+                RenameCharacterSubrace(
+                    self.testId,
+                    self.characterSubraceName2,
+                    self.characterSubraceName1
+                )
+            ),
+            self.Then(
+                CharacterSubraceRenamed(
+                    self.testId,
+                    self.characterSubraceName2,
+                    self.characterSubraceName1
+                )
+            )
+        )
 
 if __name__ == '__main__':
     unittest.main()

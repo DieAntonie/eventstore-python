@@ -28,3 +28,6 @@ class CharacterSubraceAlreadyExists(Exception):
     Requested command denied because `Race` is already set on `CharacterAggregate`.
     """
     pass
+
+class CharacterSubraceDoesNotExists(Exception):
+    pass
