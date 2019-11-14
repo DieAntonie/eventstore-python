@@ -41,7 +41,10 @@ class BDDTest(unittest.TestCase):
             """
             Handles comparison of expected evenets and recieved events.
             """
-            receivedEvents = list(receivedTuple[0])
+            try:
+                receivedEvents = list(receivedTuple[0])
+            except TypeError as identifier:
+                raise receivedTuple[0]
             if receivedEvents:
                 if len(receivedEvents) == len(expectedEvents):
                     for received_event in receivedEvents:
@@ -113,7 +116,7 @@ class BDDTest(unittest.TestCase):
             return self.CommandHandlerNotDefiendException(f"""
             Aggregate {self.sut.__class__.__name__} does not yet handle commands
             """)
-        if handler and callable(handler) and command.__class__ not in self.sut.Handle.registry.keys():
+        if command.__class__ not in self.sut.Handle.registry.keys():
             return self.CommandHandlerNotDefiendException(f"""
             Aggregate {self.sut.__class__.__name__} does not yet handle command {command.__class__.__name__}
             """)
