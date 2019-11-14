@@ -66,12 +66,7 @@ class RaceAggregate(Aggregate, IHandleCommand, IApplyEvent):
         return test_if_race_exists
 
     @overload
-    def Handle(self, command):
-        """
-        Generic `IHandleCommand` overloaded command handler catch all commands that are not registered to be handled.
-        """
-        raise ValueError(
-            f"Aggregate {self.__class__.__name__} does not know how to handle command {command.__class__.__name__}")
+    def Handle(self, command): super().Handle(command)
 
     @Handle.register(CreateCharacterRace)
     def Handle_CreateCharacterRace(self, command: CreateCharacterRace):
@@ -149,12 +144,7 @@ class RaceAggregate(Aggregate, IHandleCommand, IApplyEvent):
         )
 
     @overload
-    def Apply(self, event):
-        """
-        Generic `IApplyEvent` overloaded event handler catch all events that are not registered to be applied.
-        """
-        raise ValueError(
-            f"Aggregate {self.__class__.__name__} does not know how to apply event {event.__class__.__name__}")
+    def Apply(self, event): super().Apply(event)
 
     @Apply.register(CharacterRaceCreated)
     def Apply_CharacterRaceCreated(self, event: CharacterRaceCreated):
