@@ -93,7 +93,10 @@ class BDDTest(unittest.TestCase):
             Handle the received exception and compare against expected exception.
             """
             with self.assertRaises(expectedException):
-                receivedException = list(receivedExceptionTuple)
+                try:
+                    receivedException = list(receivedExceptionTuple)
+                except TypeError as identifier:
+                    raise receivedExceptionTuple
                 self.fail(f"""
                 Expected exception {expectedException.__name__}, but got event(s)
                 {", ".join([event.__class__.__name__ for event in receivedException])} instead.

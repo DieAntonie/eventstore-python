@@ -1,4 +1,4 @@
-from functools import singledispatch, update_wrapper
+from functools import singledispatch, update_wrapper, wraps
 from .Commands import (
     CreateCharacterRace,
     ChangeCharacterRaceName,
@@ -26,14 +26,14 @@ from ....Infrastructure.IApplyEvent import IApplyEvent
 from ....Infrastructure.IHandleCommand import IHandleCommand
 
 
-def methdispatch(func):
+def overload(func):
     """
     Extended Single-dispatch generic class method decorator.
 
     Transforms a class method into a generic function, which can have different behaviours depending upon the type of its first argument. The decorated class method acts as the default implementation, and additional implementations can be registered using the `register()` attribute of the generic function.
     """
     dispatcher = singledispatch(func)
-
+    @wraps(func)
     def wrapper(*args, **kw):
         """
         Generic class method wrapper.
@@ -41,7 +41,6 @@ def methdispatch(func):
         return dispatcher.dispatch(args[1].__class__)(*args, **kw)
     wrapper.register = dispatcher.register
     wrapper.registry = dispatcher.registry
-    update_wrapper(wrapper, func)
     return wrapper
 
 
@@ -56,7 +55,17 @@ class RaceAggregate(Aggregate, IHandleCommand, IApplyEvent):
         self.name = None
         self.sub_races = []
 
-    @methdispatch
+    def RaceMustExist(handler):
+        @wraps(handler)
+        def test_if_race_exists(self, *arguments, **keyword_arguments):
+            if not getattr(self, "created"):
+                raise CharacterRaceDoesNotExist
+
+            return handler(self, *arguments)
+
+        return test_if_race_exists
+
+    @overload
     def Handle(self, command):
         """
         Generic `IHandleCommand` overloaded command handler catch all commands that are not registered to be handled.
@@ -78,12 +87,11 @@ class RaceAggregate(Aggregate, IHandleCommand, IApplyEvent):
         )
 
     @Handle.register(ChangeCharacterRaceName)
+    @RaceMustExist
     def Handle_ChangeCharacterRaceName(self, command: ChangeCharacterRaceName):
         """
         `OpenTab` command handler that emits a `TabOpened` event upon successfully opening a tab.
         """
-        if not self.created:
-            raise CharacterRaceDoesNotExist
 
         if command.Name is self.name:
             raise CharacterRaceNameDoesNotDiffer
@@ -95,13 +103,11 @@ class RaceAggregate(Aggregate, IHandleCommand, IApplyEvent):
         )
 
     @Handle.register(AddCharacterSubrace)
+    @RaceMustExist
     def Handle_AddCharacterSubrace(self, command: AddCharacterSubrace):
         """
         `OpenTab` command handler that emits a `TabOpened` event upon successfully opening a tab.
         """
-        if not self.created:
-            raise CharacterRaceDoesNotExist
-
         if command.Name is self.name:
             raise CharacterSubraceNameDoesNotDifferFromBaseRace
 
@@ -114,13 +120,11 @@ class RaceAggregate(Aggregate, IHandleCommand, IApplyEvent):
         )
 
     @Handle.register(RemoveCharacterSubrace)
+    @RaceMustExist
     def Handle_RemoveCharacterSubrace(self, command: RemoveCharacterSubrace):
         """
         `OpenTab` command handler that emits a `TabOpened` event upon successfully opening a tab.
         """
-        if not self.created:
-            raise CharacterRaceDoesNotExist
-
         if command.Name not in [sub_race["Name"] for sub_race in self.sub_races]:
             raise CharacterSubraceDoesNotExists
 
@@ -130,13 +134,11 @@ class RaceAggregate(Aggregate, IHandleCommand, IApplyEvent):
         )
 
     @Handle.register(RenameCharacterSubrace)
+    @RaceMustExist
     def Handle_RenameCharacterSubrace(self, command: RenameCharacterSubrace):
         """
         `OpenTab` command handler that emits a `TabOpened` event upon successfully opening a tab.
         """
-        if not self.created:
-            raise CharacterRaceDoesNotExist
-
         if command.FromName not in [sub_race["Name"] for sub_race in self.sub_races]:
             raise CharacterSubraceDoesNotExists
 
@@ -146,7 +148,7 @@ class RaceAggregate(Aggregate, IHandleCommand, IApplyEvent):
             ToName=command.ToName
         )
 
-    @methdispatch
+    @overload
     def Apply(self, event):
         """
         Generic `IApplyEvent` overloaded event handler catch all events that are not registered to be applied.
