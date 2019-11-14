@@ -6,14 +6,16 @@ from ...DungeonsDragons.Game.Race.Commands import (
     ChangeCharacterRaceName,
     AddCharacterSubrace,
     RemoveCharacterSubrace,
-    RenameCharacterSubrace
+    RenameCharacterSubrace,
+    SetCharacterRaceAbilityModifiers
 )
 from ...DungeonsDragons.Game.Race.Events import (
     CharacterRaceCreated,
     CharacterRaceNameChanged,
     CharacterSubraceAdded,
     CharacterSubraceRemoved,
-    CharacterSubraceRenamed
+    CharacterSubraceRenamed,
+    CharacterRaceAbilityModifiersSet
 )
 from ...DungeonsDragons.Game.Race.Exceptions import (
     CharacterRaceAlreadyCreated,
@@ -368,6 +370,46 @@ class RaceTests(BDDTest):
                     self.testId,
                     self.characterSubraceName2,
                     self.characterSubraceName1
+                )
+            )
+        )
+
+    def test_cannot_rename_unadded_character_subrace(self):
+        self.Test(
+            self.Given(
+                CharacterRaceCreated(
+                    self.testId,
+                    self.characterRaceName1
+                )
+            ),
+            self.When(
+                RenameCharacterSubrace(
+                    self.testId,
+                    self.characterSubraceName1,
+                    self.characterSubraceName2
+                )
+            ),
+            self.ThenFailWith(CharacterSubraceDoesNotExists)
+        )
+
+    def test_can_set_race_ability_modifiers(self):
+        self.Test(
+            self.Given(
+                CharacterRaceCreated(
+                    self.testId,
+                    self.characterRaceName1
+                )
+            ),
+            self.When(
+                SetCharacterRaceAbilityModifiers(
+                    self.testId,
+                    []
+                )
+            ),
+            self.Then(
+                CharacterRaceAbilityModifiersSet(
+                    self.testId,
+                    []
                 )
             )
         )

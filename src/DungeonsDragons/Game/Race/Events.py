@@ -47,3 +47,12 @@ class CharacterSubraceRenamed:
     Id: uuid
     FromName: str
     ToName: str
+
+
+@dataclass
+class CharacterRaceAbilityModifiersSet:
+    """
+    Request to assign a `Race` of a certain `Age` and `Alignment` to a `CharacterAggregate`.
+    """
+    Id: uuid
+    Modifiers: []
