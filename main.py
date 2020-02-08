@@ -7,7 +7,7 @@ from src.Infrastructure.SqlEventStore import SqlEventStore
 # from src.Cafe.Tab.Commands.MarkDrinksServed import MarkDrinksServed
 # from src.Cafe.Tab.Commands.MarkFoodPrepared import MarkFoodPrepared
 # from src.Cafe.Tab.Commands.MarkFoodServed import MarkFoodServed
-from src.DungeonsDragons.Character.Commands.SetCharacterRace import SetCharacterRace
+from src.DungeonsDragons.Character.Commands.SetRace import SetRace
 from src.DungeonsDragons.Game.Race.Race import Dragonborn
 from src.DungeonsDragons.Game.Alignment import Alignment
 # from src.Cafe.Tab.Commands.PlaceOrder import PlaceOrder
@@ -42,14 +42,14 @@ Tab_Key = uuid.uuid1()
 
 # # We start by opening a tab for table 3, served by Chris.
 print("### Part 1: Open a new Tab on table 3 for waiter Chris")
-set_character_race = SetCharacterRace(
+set_race = SetRace(
     Id=Tab_Key,
     Race=Dragonborn.Green,
     Age=50,
     Alignment=Alignment.Neutral
 )
 
-Dispatcher.SendCommand(set_character_race)
+Dispatcher.SendCommand(set_race)
 
 # # Print State
 # print(f"-->  Active Tables Numbers are: {OpenTabQueries.ActiveTableNumbers()}")

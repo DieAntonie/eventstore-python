@@ -1,7 +1,7 @@
 from functools import singledispatch, update_wrapper
-from .Commands.SetCharacterRace import SetCharacterRace
-from .Events.CharacterRaceSet import CharacterRaceSet
-from .Exceptions import CharacterRaceAlreadySet
+from .Commands.SetRace import SetRace
+from .Events.RaceSet import RaceSet
+from .Exceptions import RaceAlreadySet
 from ...Infrastructure.Aggregate import Aggregate
 from ...Infrastructure.IApplyEvent import IApplyEvent
 from ...Infrastructure.IHandleCommand import IHandleCommand
@@ -40,15 +40,15 @@ class CharacterAggregate(Aggregate, IHandleCommand, IApplyEvent):
     @methdispatch
     def Handle(self, command): super().Handle(command)
 
-    @Handle.register(SetCharacterRace)
-    def Handle_SetCharacterRace(self, command: SetCharacterRace):
+    @Handle.register(SetRace)
+    def Handle_SetRace(self, command: SetRace):
         """
         `OpenTab` command handler that emits a `TabOpened` event upon successfully opening a tab.
         """
         if self.race is not None:
-            raise CharacterRaceAlreadySet
+            raise RaceAlreadySet
 
-        yield CharacterRaceSet(
+        yield RaceSet(
             command.Id,
             command.Race,
             command.Age,
@@ -58,10 +58,10 @@ class CharacterAggregate(Aggregate, IHandleCommand, IApplyEvent):
     @methdispatch
     def Apply(self, event): super().Apply(event)
 
-    @Apply.register(CharacterRaceSet)
-    def Apply_CharacterRaceSet(self, event: CharacterRaceSet):
+    @Apply.register(RaceSet)
+    def Apply_RaceSet(self, event: RaceSet):
         """
-        `CharacterRaceSet` event handler that opens this `TabAggregate`.
+        `RaceSet` event handler that opens this `TabAggregate`.
         """
         self.race = event.Race
         self.age = event.Age

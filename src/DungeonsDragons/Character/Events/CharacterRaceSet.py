@@ -5,7 +5,7 @@ import uuid
 
 
 @dataclass
-class CharacterRaceSet:
+class RaceSet:
     """
     A fact stating that a `CharacterAggregate` has been assigned a `Race` of a certain `Age` and `Alignment`.
     """

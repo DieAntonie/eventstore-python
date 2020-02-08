@@ -3,7 +3,7 @@ import uuid
 
 
 @dataclass
-class CharacterRaceCreated:
+class RaceCreated:
     """
     Request to assign a `Race` of a certain `Age` and `Alignment` to a `CharacterAggregate`.
     """
@@ -12,7 +12,7 @@ class CharacterRaceCreated:
 
 
 @dataclass
-class CharacterRaceNameChanged:
+class RaceNameChanged:
     """
     Request to assign a `Race` of a certain `Age` and `Alignment` to a `CharacterAggregate`.
     """
@@ -22,7 +22,7 @@ class CharacterRaceNameChanged:
 
 
 @dataclass
-class CharacterSubraceAdded:
+class subraceAdded:
     """
     Request to assign a `Race` of a certain `Age` and `Alignment` to a `CharacterAggregate`.
     """
@@ -31,7 +31,7 @@ class CharacterSubraceAdded:
 
 
 @dataclass
-class CharacterSubraceRemoved:
+class subraceRemoved:
     """
     Request to assign a `Race` of a certain `Age` and `Alignment` to a `CharacterAggregate`.
     """
@@ -40,7 +40,7 @@ class CharacterSubraceRemoved:
 
 
 @dataclass
-class CharacterSubraceRenamed:
+class subraceRenamed:
     """
     Request to assign a `Race` of a certain `Age` and `Alignment` to a `CharacterAggregate`.
     """
@@ -50,7 +50,7 @@ class CharacterSubraceRenamed:
 
 
 @dataclass
-class CharacterRaceAbilityModifiersSet:
+class RaceAbilityModifiersSet:
     """
     Request to assign a `Race` of a certain `Age` and `Alignment` to a `CharacterAggregate`.
     """

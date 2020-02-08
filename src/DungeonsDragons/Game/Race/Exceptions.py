@@ -1,33 +1,33 @@
-class CharacterRaceAlreadyCreated(Exception):
+class RaceAlreadyCreated(Exception):
     """
     Requested command denied because `Race` is already set on `CharacterAggregate`.
     """
     pass
 
 
-class CharacterRaceNameDoesNotDiffer(Exception):
+class RaceNameDoesNotDiffer(Exception):
     """
     Requested command denied because `Race` is already set on `CharacterAggregate`.
     """
     pass
 
-class CharacterRaceDoesNotExist(Exception):
+class RaceDoesNotExist(Exception):
     """
     Requested command denied because `Race` is already set on `CharacterAggregate`.
     """
     pass
 
-class CharacterSubraceNameDoesNotDifferFromBaseRace(Exception):
+class subraceNameDoesNotDifferFromBaseRace(Exception):
     """
     Requested command denied because `Race` is already set on `CharacterAggregate`.
     """
     pass
 
-class CharacterSubraceAlreadyExists(Exception):
+class subraceAlreadyExists(Exception):
     """
     Requested command denied because `Race` is already set on `CharacterAggregate`.
     """
     pass
 
-class CharacterSubraceDoesNotExists(Exception):
+class subraceDoesNotExists(Exception):
     pass

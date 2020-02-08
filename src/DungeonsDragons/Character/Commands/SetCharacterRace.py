@@ -5,7 +5,7 @@ import uuid
 
 
 @dataclass
-class SetCharacterRace:
+class SetRace:
     """
     Request to assign a `Race` of a certain `Age` and `Alignment` to a `CharacterAggregate`.
     """
