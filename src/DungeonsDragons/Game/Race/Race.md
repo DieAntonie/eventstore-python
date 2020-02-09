@@ -1,8 +1,9 @@
 # Race
-(Aggregate, IHandleCommand, IApplyEvent):
-    """
-    An instance of the Tab domain object.
-    """
+
+### Inherits from:
+  - [`Aggregate`](../../../Infrastructure/aggregate.md)
+  - [`IHandleCommand`]
+  - [`IApplyEvent`]
 
     def __init__(self):
         super().__init__()
