@@ -13,8 +13,6 @@ from .Commands.MarkFoodServed import MarkFoodServed
 from .Commands.OpenTab import OpenTab
 from .Commands.PlaceOrder import PlaceOrder
 from ...Infrastructure.Aggregate import Aggregate
-from ...Infrastructure.IApplyEvent import IApplyEvent
-from ...Infrastructure.IHandleCommand import IHandleCommand
 from .Events.DrinksOrdered import DrinksOrdered
 from .Events.DrinksServed import DrinksServed
 from .Events.FoodOrdered import FoodOrdered
@@ -24,26 +22,7 @@ from .Events.TabOpened import TabOpened
 from .Events.TabClosed import TabClosed
 
 
-def methdispatch(func):
-    """
-    Extended Single-dispatch generic class method decorator.
-
-    Transforms a class method into a generic function, which can have different behaviours depending upon the type of its first argument. The decorated class method acts as the default implementation, and additional implementations can be registered using the `register()` attribute of the generic function.
-    """
-    dispatcher = singledispatch(func)
-
-    def wrapper(*args, **kw):
-        """
-        Generic class method wrapper.
-        """
-        return dispatcher.dispatch(args[1].__class__)(*args, **kw)
-    wrapper.register = dispatcher.register
-    wrapper.registry = dispatcher.registry
-    update_wrapper(wrapper, func)
-    return wrapper
-
-
-class TabAggregate(Aggregate, IHandleCommand, IApplyEvent):
+class TabAggregate(Aggregate):
     """
     An instance of the Tab domain object.
     """
@@ -56,15 +35,7 @@ class TabAggregate(Aggregate, IHandleCommand, IApplyEvent):
         self.open = False
         self.servedItemsValue = 0.0
 
-    @methdispatch
-    def Handle(self, command):
-        """
-        Generic `IHandleCommand` overloaded command handler catch all commands that are not registered to be handled.
-        """
-        raise ValueError(
-            f"Aggregate {self.__class__.__name__} does not know how to handle command {command.__class__.__name__}")
-
-    @Handle.register(OpenTab)
+    @Aggregate.Handle.register(OpenTab)
     def Handle_OpenTab(self, command: OpenTab):
         """
         `OpenTab` command handler that emits a `TabOpened` event upon successfully opening a tab.
@@ -75,7 +46,7 @@ class TabAggregate(Aggregate, IHandleCommand, IApplyEvent):
             command.Waiter
         )
 
-    @Handle.register(PlaceOrder)
+    @Aggregate.Handle.register(PlaceOrder)
     def Handle_PlaceOrder(self, command: PlaceOrder):
         """
         `PlaceOrder` command handler that emits `DrinksOrdered` and `FoodOrdered` events upon successfully placing and order.
@@ -91,7 +62,7 @@ class TabAggregate(Aggregate, IHandleCommand, IApplyEvent):
         if food:
             yield FoodOrdered(command.Id, food)
 
-    @Handle.register(MarkDrinksServed)
+    @Aggregate.Handle.register(MarkDrinksServed)
     def Handle_MarkDrinksServed(self, command: MarkDrinksServed):
         """
         `MarkDrinksServed` command handler that emits a `DrinksServed` event upon successfully serving drinks.
@@ -101,7 +72,7 @@ class TabAggregate(Aggregate, IHandleCommand, IApplyEvent):
 
         yield DrinksServed(command.Id, command.MenuNumbers)
 
-    @Handle.register(MarkFoodPrepared)
+    @Aggregate.Handle.register(MarkFoodPrepared)
     def Handle_MarkFoodPrepared(self, command: MarkFoodPrepared):
         """
         `MarkFoodPrepared` command handler that emits a `FoodPrepared` event upon successfully preparing food.
@@ -111,7 +82,7 @@ class TabAggregate(Aggregate, IHandleCommand, IApplyEvent):
 
         yield FoodPrepared(command.Id, command.MenuNumbers)
 
-    @Handle.register(MarkFoodServed)
+    @Aggregate.Handle.register(MarkFoodServed)
     def Handle_MarkFoodServed(self, command: MarkFoodServed):
         """
         `MarkFoodServed` command handler that emits a `FoodServed` event upon successfully serving food.
@@ -121,7 +92,7 @@ class TabAggregate(Aggregate, IHandleCommand, IApplyEvent):
 
         yield FoodServed(command.Id, command.MenuNumbers)
 
-    @Handle.register(CloseTab)
+    @Aggregate.Handle.register(CloseTab)
     def Handle_CloseTab(self, command: CloseTab):
         """
         `CloseTab` command handler that emits a `TabClosed` event upon successfully closing a tab.
@@ -172,36 +143,28 @@ class TabAggregate(Aggregate, IHandleCommand, IApplyEvent):
         """
         return self.outstandingDrinks or self.outstandingFood or self.preparedFood
 
-    @methdispatch
-    def Apply(self, event):
-        """
-        Generic `IApplyEvent` overloaded event handler catch all events that are not registered to be applied.
-        """
-        raise ValueError(
-            f"Aggregate {self.__class__.__name__} does not know how to apply event {event.__class__.__name__}")
-
-    @Apply.register(TabOpened)
+    @Aggregate.Apply.register(TabOpened)
     def Apply_TabOpened(self, event: TabOpened):
         """
         `TabOpened` event handler that opens this `TabAggregate`.
         """
         self.open = True
 
-    @Apply.register(DrinksOrdered)
+    @Aggregate.Apply.register(DrinksOrdered)
     def Apply_DrinksOrdered(self, event: DrinksOrdered):
         """
         `DrinksOrdered` event handler that orders this `TabAggregate`'s drink items.
         """
         self.outstandingDrinks += event.Items
 
-    @Apply.register(FoodOrdered)
+    @Aggregate.Apply.register(FoodOrdered)
     def Apply_FoodOrdered(self, event: FoodOrdered):
         """
         `FoodOrdered` event handler that orders this `TabAggregate`'s food items.
         """
         self.outstandingFood += event.Items
 
-    @Apply.register(DrinksServed)
+    @Aggregate.Apply.register(DrinksServed)
     def Apply_DrinksServed(self, event: DrinksServed):
         """
         `DrinksServed` event handler that serves this `TabAggregate`'s outstanding drinks.
@@ -215,7 +178,7 @@ class TabAggregate(Aggregate, IHandleCommand, IApplyEvent):
             self.outstandingDrinks.remove(item)
             self.servedItemsValue += item.Price
 
-    @Apply.register(FoodPrepared)
+    @Aggregate.Apply.register(FoodPrepared)
     def Apply_FoodPrepared(self, event: FoodPrepared):
         """
         `FoodPrepared` event handler that prepares this `TabAggregate`'s outstanding food.
@@ -228,7 +191,7 @@ class TabAggregate(Aggregate, IHandleCommand, IApplyEvent):
             self.outstandingFood.remove(item)
             self.preparedFood.append(item)
 
-    @Apply.register(FoodServed)
+    @Aggregate.Apply.register(FoodServed)
     def Apply_FoodServed(self, event: FoodServed):
         """
         `FoodServed` event handler that serves this `TabAggregate`'s prepared food.
@@ -241,7 +204,7 @@ class TabAggregate(Aggregate, IHandleCommand, IApplyEvent):
             self.preparedFood.remove(item)
             self.servedItemsValue += item.Price
 
-    @Apply.register(TabClosed)
+    @Aggregate.Apply.register(TabClosed)
     def Apply_TabClosed(self, event: TabClosed):
         """
         `TabClosed` event handler that closes this `TabAggregate`.

@@ -1,4 +1,3 @@
-from functools import singledispatch, update_wrapper, wraps
 from .Commands import (
     CreateRace,
     ChangeRaceName,
@@ -22,29 +21,10 @@ from .Exceptions import (
     subraceDoesNotExists
 )
 from ....Infrastructure.Aggregate import Aggregate
-from ....Infrastructure.IApplyEvent import IApplyEvent
-from ....Infrastructure.IHandleCommand import IHandleCommand
+from functools import wraps
 
 
-def overload(func):
-    """
-    Extended Single-dispatch generic class method decorator.
-
-    Transforms a class method into a generic function, which can have different behaviours depending upon the type of its first argument. The decorated class method acts as the default implementation, and additional implementations can be registered using the `register()` attribute of the generic function.
-    """
-    dispatcher = singledispatch(func)
-    @wraps(func)
-    def wrapper(*args, **kw):
-        """
-        Generic class method wrapper.
-        """
-        return dispatcher.dispatch(args[1].__class__)(*args, **kw)
-    wrapper.register = dispatcher.register
-    wrapper.registry = dispatcher.registry
-    return wrapper
-
-
-class RaceAggregate(Aggregate, IHandleCommand, IApplyEvent):
+class RaceAggregate(Aggregate):
     """
     An instance of the Tab domain object.
     """
@@ -65,10 +45,7 @@ class RaceAggregate(Aggregate, IHandleCommand, IApplyEvent):
 
         return test_if_race_exists
 
-    @overload
-    def Handle(self, command): super().Handle(command)
-
-    @Handle.register(CreateRace)
+    @Aggregate.Handle.register(CreateRace)
     def Handle_CreateRace(self, command: CreateRace):
         """
         `OpenTab` command handler that emits a `TabOpened` event upon successfully opening a tab.
@@ -81,7 +58,7 @@ class RaceAggregate(Aggregate, IHandleCommand, IApplyEvent):
             command.Name
         )
 
-    @Handle.register(ChangeRaceName)
+    @Aggregate.Handle.register(ChangeRaceName)
     @RaceMustExist
     def Handle_ChangeRaceName(self, command: ChangeRaceName):
         """
@@ -97,7 +74,7 @@ class RaceAggregate(Aggregate, IHandleCommand, IApplyEvent):
             ToName=command.Name
         )
 
-    @Handle.register(Addsubrace)
+    @Aggregate.Handle.register(Addsubrace)
     @RaceMustExist
     def Handle_Addsubrace(self, command: Addsubrace):
         """
@@ -114,7 +91,7 @@ class RaceAggregate(Aggregate, IHandleCommand, IApplyEvent):
             Name=command.Name
         )
 
-    @Handle.register(Removesubrace)
+    @Aggregate.Handle.register(Removesubrace)
     @RaceMustExist
     def Handle_Removesubrace(self, command: Removesubrace):
         """
@@ -128,7 +105,7 @@ class RaceAggregate(Aggregate, IHandleCommand, IApplyEvent):
             Name=command.Name
         )
 
-    @Handle.register(Renamesubrace)
+    @Aggregate.Handle.register(Renamesubrace)
     @RaceMustExist
     def Handle_Renamesubrace(self, command: Renamesubrace):
         """
@@ -143,10 +120,7 @@ class RaceAggregate(Aggregate, IHandleCommand, IApplyEvent):
             ToName=command.ToName
         )
 
-    @overload
-    def Apply(self, event): super().Apply(event)
-
-    @Apply.register(RaceCreated)
+    @Aggregate.Apply.register(RaceCreated)
     def Apply_RaceCreated(self, event: RaceCreated):
         """
         `RaceSet` event handler that opens this `TabAggregate`.
@@ -154,14 +128,14 @@ class RaceAggregate(Aggregate, IHandleCommand, IApplyEvent):
         self.created = True
         self.name = event.Name
 
-    @Apply.register(RaceNameChanged)
+    @Aggregate.Apply.register(RaceNameChanged)
     def Apply_RaceNameChanged(self, event: RaceNameChanged):
         """
         `RaceSet` event handler that opens this `TabAggregate`.
         """
         self.name = event.ToName
 
-    @Apply.register(subraceAdded)
+    @Aggregate.Apply.register(subraceAdded)
     def Apply_subraceAdded(self, event: subraceAdded):
         """
         `RaceSet` event handler that opens this `TabAggregate`.
@@ -170,14 +144,15 @@ class RaceAggregate(Aggregate, IHandleCommand, IApplyEvent):
             "Name": event.Name
         })
 
-    @Apply.register(subraceRemoved)
+    @Aggregate.Apply.register(subraceRemoved)
     def Apply_subraceRemoved(self, event: subraceRemoved):
         """
         `RaceSet` event handler that opens this `TabAggregate`.
         """
-        self.sub_races = [sub_race for sub_race in self.sub_races if sub_race["Name"] is not event.Name]
+        self.sub_races = [
+            sub_race for sub_race in self.sub_races if sub_race["Name"] is not event.Name]
 
-    @Apply.register(subraceRenamed)
+    @Aggregate.Apply.register(subraceRenamed)
     def Apply_subraceRenamed(self, event: subraceRenamed):
         """
         `RaceSet` event handler that opens this `TabAggregate`.
