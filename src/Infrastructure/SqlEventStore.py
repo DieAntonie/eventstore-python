@@ -1,7 +1,9 @@
+from .IEvent import IEvent
 from .IEventStore import IEventStore
 from datetime import datetime
-from uuid import UUID
 from enum import Enum
+from typing import Sequence
+from uuid import UUID
 
 
 class SqlEventStore(IEventStore):
@@ -11,7 +13,7 @@ class SqlEventStore(IEventStore):
         self.password = password
         self.dbname = dbname
 
-    def LoadEventsFor(self, id):
+    def LoadEventsFor(self, id: UUID) -> Sequence[IEvent]:
         """
         Loads the collection of events for the specified aggregate key.
         """
@@ -28,11 +30,11 @@ class SqlEventStore(IEventStore):
             for data in db_cursor.fetchall():
                 yield self.DeserializeEvent(data)
 
-    def DeserializeEvent(self, data):
+    def DeserializeEvent(self, data) -> IEvent:
         """
         Deserializes the event `data` into an instance of an Event.
         """
-        def json_to_model(json_obj):
+        def json_to_model(json_obj: dict) -> IEvent:
             """
             Function that takes in a dict and returns a custom object associated with the dict.
             This function makes use of the "__module__" and "__class__" metadata in the dictionary
@@ -68,29 +70,34 @@ class SqlEventStore(IEventStore):
         # TODO: This list casting thing doesn't seem like it's going to work forever...
         return json.loads(json.dumps(list(data)[0]), object_hook=json_to_model)
 
-    def SaveEventsFor(self, aggregateId, aggregateType, eventsLoaded, newEvents):
+    def SaveEvents(self, aggregateType: str, eventsLoaded: int, newEvents: Sequence[IEvent]) -> None:
         """
         Stores the collection of appended events for the aggregate key.
         """
         # Query prelude.
-        queryText = f"""
-            BEGIN TRANSACTION;
-            INSERT INTO public."Aggregates"
-                ("Id", "Type")
-            SELECT  '{aggregateId}',
-                    '{aggregateType}'
-            WHERE
-                NOT EXISTS (
-                    SELECT "Id" FROM public."Aggregates" WHERE "Id" = '{aggregateId}'
-                );
-        """
         # Add saving of the events.
-        CommitDateTime = datetime.now()
-        for index, event in enumerate(newEvents):
-            queryText += f"""
+        index = 0 
+        for event in newEvents:
+            queryText = f"""
+                BEGIN TRANSACTION;
+                INSERT INTO public."Aggregates" ("Id", "Type")
+                SELECT
+                    '{event.Id}',
+                    '{aggregateType}'
+                WHERE
+                    NOT EXISTS (
+                        SELECT "Id" FROM public."Aggregates" WHERE "Id" = '{event.Id}'
+                    );
+                    
                 INSERT INTO public."Events" ("AggregateId", "SequenceNumber", "Type", "Body", "Timestamp")
-                    VALUES('{aggregateId}', {eventsLoaded + index}, '{event.__class__.__name__}', '{self.SerializeEvent(event)}', '{CommitDateTime}');
+                    VALUES(
+                        '{event.Id}',
+                        {eventsLoaded + index},
+                        '{event.__class__.__name__}',
+                        '{self.SerializeEvent(event)}',
+                        '{datetime.now()}');
                 """
+            index += 1
         # Add commit.
         queryText += "COMMIT;"
         # Execute the update.
@@ -99,7 +106,7 @@ class SqlEventStore(IEventStore):
             db_cursor = connection.cursor()
             db_cursor.execute(queryText)
 
-    def SerializeEvent(self, event):
+    def SerializeEvent(self, event: IEvent) -> str:
         """
         Serializes the `event` to deserializable JSON state.
         """
@@ -110,7 +117,7 @@ class SqlEventStore(IEventStore):
             uuid encoder for correctly casting uuid values.
             """
 
-            def default(self, obj):
+            def default(self, obj) -> dict:
                 if isinstance(obj, UUID):
                     # if the obj is uuid, we simply return the value of uuid
                     return obj.hex
@@ -119,7 +126,7 @@ class SqlEventStore(IEventStore):
                     return enum_to_json(obj)
                 return model_to_json(obj)
 
-        def enum_to_json(enum_obj):
+        def enum_to_json(enum_obj) -> dict:
             """
             A function takes in a custom object and returns a dictionary representation of the object.
             This dict representation includes meta data such as the object's module and class names.
@@ -132,7 +139,7 @@ class SqlEventStore(IEventStore):
             #  Populate the dictionary with object properties
             return json_obj
 
-        def model_to_json(model_obj):
+        def model_to_json(model_obj) -> dict:
             """
             A function takes in a custom object and returns a dictionary representation of the object.
             This dict representation includes meta data such as the object's module and class names.

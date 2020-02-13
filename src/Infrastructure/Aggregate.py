@@ -1,6 +1,9 @@
 from .IApplyEvent import IApplyEvent
+from .ICommand import ICommand
+from .IEvent import IEvent
 from .IHandleCommand import IHandleCommand
 from functools import singledispatch, wraps
+from typing import Sequence
 import uuid
 
 
@@ -32,27 +35,16 @@ class Aggregate(IHandleCommand, IApplyEvent):
 
     @overload
     @staticmethod
-    def Handle(self, command): super().Handle(command)
+    def Handle(self, command: ICommand) -> Sequence[IEvent]: super().Handle(command)
 
     @overload
     @staticmethod
-    def Apply(self, event): super().Apply(event)
+    def Apply(self, event: IEvent) -> None: super().Apply(event)
 
-    def ApplyEvents(self, events):
+    def ApplyEvents(self, events: Sequence[IEvent]) -> None:
         """
         Sequentially apply the collection of `events`.
         """
         for event in events:
-            getattr(self, 'ApplyOneEvent')(event)
-
-    def ApplyOneEvent(self, event):
-        """
-        Apply `event` to Aggregate.
-        """
-        applier = getattr(self, 'Apply')
-        if applier is None or not callable(applier):
-            raise TypeError(
-                f"Aggregate {self.__class__.__name__} must be based of IApplyEvent class"
-            )
-        applier(event)
-        self.EventsLoaded += 1
+            self.Apply(event)
+            self.EventsLoaded += 1

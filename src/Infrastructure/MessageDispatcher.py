@@ -1,3 +1,7 @@
+from .Aggregate import Aggregate
+from .ICommand import ICommand
+from .IEvent import IEvent
+from .IEventStore import IEventStore
 from .IHandleCommand import IHandleCommand
 from .IHandleEvent import IHandleEvent
 
@@ -7,12 +11,12 @@ class MessageDispatcher:
     Event- and Command handler and subscription message dispatcher.
     """
 
-    def __init__(self, eventStore):
+    def __init__(self, eventStore: IEventStore):
         self.commandHandlers = {}
         self.eventHandlers = {}
         self.eventStore = eventStore
 
-    def SendCommand(self, command):
+    def SendCommand(self, command: ICommand) -> None:
         """
         Publishes the `command` to the scanned `IHandleCommand` command handler class.
         """
@@ -22,7 +26,7 @@ class MessageDispatcher:
 
         self.commandHandlers[commandType](command)
 
-    def Publish(self, event):
+    def Publish(self, event: IEvent) -> None:
         """
         Publishes the `event` to all registered `IHandleEvent` event handler classes.
         """
@@ -31,7 +35,7 @@ class MessageDispatcher:
             for subscriber in self.eventHandlers[eventType]:
                 subscriber(event)
 
-    def AddHandlerOnCommand(self, command_handler: IHandleCommand, command):
+    def AddHandlerOnCommand(self, command_handler: Aggregate, command: ICommand) -> None:
         """
         The `command_handler` is registered to `IHandleCommand.Handle(command)` an unallocated `command`.
 
@@ -43,28 +47,25 @@ class MessageDispatcher:
                 f"Command handler already registered for {command}"
             )
 
-        def handler(command):
+        def handler(command: ICommand) -> None:
             """
             An aggregate of `command_handler` is hydrated for the `command` to `IHandleCommand.Handle(command)`.
 
             The resulting events are then appended to the `command_handler` aggregate and published to all `IHandleEvent` event handlers.
             """
             aggregate = command_handler.__class__()
-            aggregate.Id = command.Id
-            aggregate.ApplyEvents(self.eventStore.LoadEventsFor(aggregate.Id))
+            aggregate.ApplyEvents(self.eventStore.LoadEventsFor(command.Id))
             unpublished_events = []
             for commanded_event in aggregate.Handle(command):
                 unpublished_events.append(commanded_event)
             if unpublished_events:
-                self.eventStore.SaveEventsFor(
-                    aggregate.Id, aggregate.__class__.__name__, aggregate.EventsLoaded, unpublished_events
-                )
+                self.eventStore.SaveEvents(aggregate.__class__.__name__, aggregate.EventsLoaded, unpublished_events)
             for event in unpublished_events:
                 self.Publish(event)
 
         self.commandHandlers[command] = handler
 
-    def AddHandlerOnEvent(self, event_handler, event):
+    def AddHandlerOnEvent(self, event_handler: IHandleEvent, event: IEvent) -> None:
         """
         `event_handler` is registered to `IHandleEvent.Handle(event)` any events of __class__ `event` 
         """
@@ -72,7 +73,7 @@ class MessageDispatcher:
             self.eventHandlers[event] = []
         self.eventHandlers[event].append(lambda e: event_handler.Handle(e))
 
-    def RegisterHandlersOfInstance(self, instance):
+    def RegisterHandlersOfInstance(self, instance) -> None:
         """
         `instance` of `IHandleCommand` and/or `IHandleEvent` is scanned and all `Handle()` handlers are registered their respective `@singledispatch` registry key commands and events.
 
