@@ -1,9 +1,9 @@
 import uuid
 from ..Infrastructure.BDDTest import BDDTest
 from ..DungeonsDragons.Character.CharacterAggregate import CharacterAggregate
-from ..DungeonsDragons.Character.Commands.SetRace import SetRace
-from ..DungeonsDragons.Character.Events.RaceSet import RaceSet
-from ..DungeonsDragons.Character.Exceptions import RaceAlreadySet
+from ..DungeonsDragons.Character.Commands.SetCharacterRace import SetCharacterRace
+from ..DungeonsDragons.Character.Events.CharacterRaceSet import CharacterRaceSet
+from ..DungeonsDragons.Character.Exceptions import CharacterRaceAlreadySet
 from ..DungeonsDragons.Game.Race.Race import Dragonborn
 from ..DungeonsDragons.Game.Alignment import Alignment
 
@@ -21,7 +21,7 @@ class CharacterTests(BDDTest):
         self.Test(
             self.Given(),
             self.When(
-                SetRace(
+                SetCharacterRace(
                     self.testId,
                     self.testRace,
                     self.testAge,
@@ -29,7 +29,7 @@ class CharacterTests(BDDTest):
                 )
             ),
             self.Then(
-                RaceSet(
+                CharacterRaceSet(
                     self.testId,
                     self.testRace,
                     self.testAge,
@@ -41,7 +41,7 @@ class CharacterTests(BDDTest):
     def test_cannot_set_race_more_than_once(self):
         self.Test(
             self.Given(
-                RaceSet(
+                CharacterRaceSet(
                     self.testId,
                     self.testRace,
                     self.testAge,
@@ -49,14 +49,14 @@ class CharacterTests(BDDTest):
                 )
             ),
             self.When(
-                SetRace(
+                SetCharacterRace(
                     self.testId,
                     self.testRace,
                     self.testAge,
                     self.testAlignment
                 )
             ),
-            self.ThenFailWith(RaceAlreadySet)
+            self.ThenFailWith(CharacterRaceAlreadySet)
         )
 
 
