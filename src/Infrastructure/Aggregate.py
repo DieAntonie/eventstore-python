@@ -11,8 +11,8 @@ class Aggregate(IHandleCommand, IApplyEvent):
     """
     Aggregate domain object that is composed of sequential application of events.
     """
-    
-    def overload(func):
+
+    def Overload(func):
         """
         Extended Single-dispatch generic class method decorator.
 
@@ -20,24 +20,43 @@ class Aggregate(IHandleCommand, IApplyEvent):
         """
         dispatcher = singledispatch(func)
         @wraps(func)
-        def wrapper(*args, **kw):
+        def dispatch_wrapper(*args, **kw):
             """
-            Generic class method wrapper.
+            Class method dispatch wrapper.
             """
             return dispatcher.dispatch(args[1].__class__)(*args, **kw)
-        wrapper.register = dispatcher.register
-        wrapper.registry = dispatcher.registry
-        return wrapper
+        dispatch_wrapper.register = dispatcher.register
+        dispatch_wrapper.registry = dispatcher.registry
+        return dispatch_wrapper
 
-    def __init__(self, id=uuid.uuid1(), eventsLoaded=0):
+    def TargetValidation(func):
+        """
+        Validate incoming `Command` \ `Event` is addressed to current Aggregate.
+        """
+        @wraps(func)
+        def test_id_match(self, *arguments, **keyword_arguments):
+            """
+            Test if `Aggregate.Id` matches incoming `Command.Id` \ `Event.Id` 
+            """
+            if self.Id is not None and self.Id != getattr(arguments[0], "Id"):
+                raise Exception("Jisiis daar's grooooot kak!!!!")
+
+            return func(self, *arguments)
+
+        return test_id_match
+
+    def __init__(self, id=None, eventsLoaded=0):
         self.Id = id
         self.EventsLoaded = eventsLoaded
 
-    @overload
+    @TargetValidation
+    @Overload
     @staticmethod
-    def Handle(self, command: ICommand) -> Sequence[IEvent]: super().Handle(command)
+    def Handle(
+        self, command: ICommand) -> Sequence[IEvent]: super().Handle(command)
 
-    @overload
+    @TargetValidation
+    @Overload
     @staticmethod
     def Apply(self, event: IEvent) -> None: super().Apply(event)
 
