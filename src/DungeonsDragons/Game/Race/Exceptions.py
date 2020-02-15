@@ -5,6 +5,12 @@ class RaceAlreadyCreated(Exception):
     pass
 
 
+class RaceCannotBeBasedOnSelf(Exception):
+    """
+    Requested command denied because `Race` is already set on `CharacterAggregate`.
+    """
+    pass
+
 class RaceNameDoesNotDiffer(Exception):
     """
     Requested command denied because `Race` is already set on `CharacterAggregate`.

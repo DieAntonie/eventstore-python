@@ -14,6 +14,7 @@ from .Events import (
 )
 from .Exceptions import (
     RaceAlreadyCreated,
+    RaceCannotBeBasedOnSelf,
     RaceDoesNotExist,
     RaceNameDoesNotDiffer,
     subraceNameDoesNotDifferFromBaseRace,
@@ -29,33 +30,38 @@ class RaceAggregate(Aggregate):
     An instance of the Tab domain object.
     """
 
-    def __init__(self):
-        super().__init__()
-        self.created = False
-        self.name = None
-        self.sub_races = []
-
-    def RaceMustExist(handler):
-        @wraps(handler)
-        def test_if_race_exists(self, *arguments, **keyword_arguments):
-            if not getattr(self, "created"):
+    def RaceMustExist(self):
+        """
+        Test if race is created
+        """
+        @wraps(self)
+        def test_if_race_exists(*arguments, **keyword_arguments):
+            if not getattr(arguments[0], "Id"):
                 raise RaceDoesNotExist
 
-            return handler(self, *arguments)
+            return self(*arguments)
 
         return test_if_race_exists
+
+    def __init__(self):
+        super().__init__()
+        self.name = None
+        self.base_race = None
+        self.sub_races = []
 
     @Aggregate.Handle.register(CreateRace)
     def Handle_CreateRace(self, command: CreateRace):
         """
-        `OpenTab` command handler that emits a `TabOpened` event upon successfully opening a tab.
+        `CreateRace` command handler that emits a `RaceCreated` event upon successfully creating a race.
         """
-        if self.created:
+        if self.Id:
             raise RaceAlreadyCreated
+        if command.Id == command.BaseRaceId:
+            raise RaceCannotBeBasedOnSelf
 
         yield RaceCreated(
             command.Id,
-            command.Name
+            command.BaseRaceId
         )
 
     @Aggregate.Handle.register(ChangeRaceName)
@@ -125,8 +131,8 @@ class RaceAggregate(Aggregate):
         """
         `RaceSet` event handler that opens this `TabAggregate`.
         """
-        self.created = True
-        self.name = event.Name
+        self.Id = event.Id
+        self.base_race = event.BaseRaceId
 
     @Aggregate.Apply.register(RaceNameChanged)
     def Apply_RaceNameChanged(self, event: RaceNameChanged):
