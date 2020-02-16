@@ -1,13 +1,14 @@
 from .Commands import (
     CreateRace,
-    ChangeRaceName,
+    SetRaceDetails,
     Addsubrace,
     Removesubrace,
     Renamesubrace
 )
 from .Events import (
     RaceCreated,
-    RaceNameChanged,
+    RaceNameSet,
+    RaceDescriptionSet,
     subraceAdded,
     subraceRemoved,
     subraceRenamed
@@ -38,7 +39,6 @@ class RaceAggregate(Aggregate):
         def test_if_race_exists(*arguments, **keyword_arguments):
             if not getattr(arguments[0], "Id"):
                 raise RaceDoesNotExist
-
             return self(*arguments)
 
         return test_if_race_exists
@@ -46,6 +46,7 @@ class RaceAggregate(Aggregate):
     def __init__(self):
         super().__init__()
         self.name = None
+        self.description = None
         self.base_race = None
         self.sub_races = []
 
@@ -64,19 +65,23 @@ class RaceAggregate(Aggregate):
             command.BaseRaceId
         )
 
-    @Aggregate.Handle.register(ChangeRaceName)
-    def Handle_ChangeRaceName(self, command: ChangeRaceName):
+    @Aggregate.Handle.register(SetRaceDetails)
+    @RaceMustExist
+    def Handle_SetRaceDetails(self, command: SetRaceDetails):
         """
         `OpenTab` command handler that emits a `TabOpened` event upon successfully opening a tab.
         """
-        # if command.Name is self.name:
-        #     return None
+        if command.Name != self.name:
+            yield RaceNameSet(
+                Id=self.Id,
+                Name=command.Name
+            )
 
-        # yield RaceNameChanged(
-        #     Id=command.Id,
-        #     FromName=self.name,
-        #     ToName=command.Name
-        # )
+        if command.Description != self.description:
+            yield RaceDescriptionSet(
+                Id=self.Id,
+                Description=command.Description
+            )
 
     @Aggregate.Handle.register(Addsubrace)
     def Handle_Addsubrace(self, command: Addsubrace):
@@ -129,12 +134,19 @@ class RaceAggregate(Aggregate):
         self.Id = event.Id
         self.base_race = event.BaseRaceId
 
-    @Aggregate.Apply.register(RaceNameChanged)
-    def Apply_RaceNameChanged(self, event: RaceNameChanged):
+    @Aggregate.Apply.register(RaceNameSet)
+    def Apply_RaceNameSet(self, event: RaceNameSet):
         """
         `RaceSet` event handler that opens this `TabAggregate`.
         """
-        # self.name = event.ToName
+        self.name = event.Name
+
+    @Aggregate.Apply.register(RaceDescriptionSet)
+    def Apply_RaceDescriptionSet(self, event: RaceDescriptionSet):
+        """
+        `RaceSet` event handler that opens this `TabAggregate`.
+        """
+        self.description = event.Description
 
     @Aggregate.Apply.register(subraceAdded)
     def Apply_subraceAdded(self, event: subraceAdded):

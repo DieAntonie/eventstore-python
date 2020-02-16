@@ -2,7 +2,7 @@ from ...Infrastructure.BDDTest import BDDTest
 from ...DungeonsDragons.Game.Race.RaceAggregate import RaceAggregate
 from ...DungeonsDragons.Game.Race.Commands import (
     CreateRace,
-    ChangeRaceName,
+    SetRaceDetails,
     Addsubrace,
     Removesubrace,
     Renamesubrace,
@@ -10,7 +10,8 @@ from ...DungeonsDragons.Game.Race.Commands import (
 )
 from ...DungeonsDragons.Game.Race.Events import (
     RaceCreated,
-    RaceNameChanged,
+    RaceNameSet,
+    RaceDescriptionSet,
     subraceAdded,
     subraceRemoved,
     subraceRenamed,
@@ -37,6 +38,8 @@ class RaceTests(BDDTest):
         self.SubraceId = uuid.uuid1()
         self.RaceName1 = 'Test Race 1'
         self.RaceName2 = 'Test Race 2'
+        self.RaceDescription1 = 'This is a description and background of Race 1'
+        self.RaceDescription2 = 'This is a description and background of Race 2'
         self.SubraceName1 = 'Test Subrace 1'
         self.SubraceName2 = 'Test Subrace 2'
 
@@ -81,7 +84,6 @@ class RaceTests(BDDTest):
                 CreateRace(
                     Id=self.SubraceId,
                     BaseRaceId=self.RaceId,
-
                 )
             ),
             self.Then(
@@ -99,74 +101,112 @@ class RaceTests(BDDTest):
                 CreateRace(
                     Id=self.RaceId,
                     BaseRaceId=self.RaceId,
-
                 )
             ),
             self.ThenFailWith(RaceCannotBeBasedOnSelf)
         )
 
-    # def test_can_change_race_name(self):
-    #     self.Test(
-    #         self.Given(
-    #             RaceCreated(
-    #                 self.RaceId,
-    #                 self.RaceName1
-    #             )
-    #         ),
-    #         self.When(
-    #             ChangeRaceName(
-    #                 self.RaceId,
-    #                 self.RaceName2
-    #             )
-    #         ),
-    #         self.Then(
-    #             RaceNameChanged(
-    #                 self.RaceId,
-    #                 self.RaceName1,
-    #                 self.RaceName2
-    #             )
-    #         )
-    #     )
+    def test_can_set_race_details(self):
+        self.Test(
+            self.Given(
+                RaceCreated(
+                    Id=self.RaceId,
+                    BaseRaceId=None
+                )
+            ),
+            self.When(
+                SetRaceDetails(
+                    Id=self.RaceId,
+                    Name=self.RaceName1,
+                    Description=self.RaceDescription1
+                )
+            ),
+            self.Then(
+                RaceNameSet(
+                    Id=self.RaceId,
+                    Name=self.RaceName1
+                ),
+                RaceDescriptionSet(
+                    Id=self.RaceId,
+                    Description=self.RaceDescription1
+                )
+            )
+        )
 
-    # def test_can_change_race_name_more_than_once(self):
-    #     self.Test(
-    #         self.Given(
-    #             RaceCreated(
-    #                 self.RaceId,
-    #                 self.RaceName1
-    #             ),
-    #             RaceNameChanged(
-    #                 self.RaceId,
-    #                 self.RaceName1,
-    #                 self.RaceName2
-    #             )
-    #         ),
-    #         self.When(
-    #             ChangeRaceName(
-    #                 self.RaceId,
-    #                 self.RaceName1
-    #             )
-    #         ),
-    #         self.Then(
-    #             RaceNameChanged(
-    #                 self.RaceId,
-    #                 self.RaceName2,
-    #                 self.RaceName1
-    #             )
-    #         )
-    #     )
+    def test_can_set_race_details_with_same_name(self):
+        self.Test(
+            self.Given(
+                RaceCreated(
+                    Id=self.RaceId,
+                    BaseRaceId=None
+                ),
+                RaceNameSet(
+                    Id=self.RaceId,
+                    Name=self.RaceName1
+                ),
+                RaceDescriptionSet(
+                    Id=self.RaceId,
+                    Description=self.RaceDescription1
+                )
+            ),
+            self.When(
+                SetRaceDetails(
+                    Id=self.RaceId,
+                    Name=self.RaceName1,
+                    Description=self.RaceDescription2
+                )
+            ),
+            self.Then(
+                RaceDescriptionSet(
+                    Id=self.RaceId,
+                    Description=self.RaceDescription2
+                )
+            )
+        )
 
-    # def test_cannot_change_uncreated_race_name(self):
-    #     self.Test(
-    #         self.Given(),
-    #         self.When(
-    #             ChangeRaceName(
-    #                 self.RaceId,
-    #                 self.RaceName1
-    #             )
-    #         ),
-    #         self.ThenFailWith(RaceDoesNotExist)
-    #     )
+    def test_can_set_race_details_with_same_description(self):
+        self.Test(
+            self.Given(
+                RaceCreated(
+                    Id=self.RaceId,
+                    BaseRaceId=None
+                ),
+                RaceNameSet(
+                    Id=self.RaceId,
+                    Name=self.RaceName1
+                ),
+                RaceDescriptionSet(
+                    Id=self.RaceId,
+                    Description=self.RaceDescription1
+                )
+            ),
+            self.When(
+                SetRaceDetails(
+                    Id=self.RaceId,
+                    Name=self.RaceName2,
+                    Description=self.RaceDescription1
+                )
+            ),
+            self.Then(
+                RaceNameSet(
+                    Id=self.RaceId,
+                    Name=self.RaceName2
+                )
+            )
+        )
+
+    def test_cannot_set_uncreated_race_details(self):
+        self.Test(
+            self.Given(),
+            self.When(
+                SetRaceDetails(
+                    Id=self.RaceId,
+                    Name=self.RaceName1,
+                    Description=self.RaceDescription1
+                )
+            ),
+            self.ThenFailWith(RaceDoesNotExist)
+        )
 
     # def test_cannot_change_race_name_to_current_race_name(self):
     #     self.Test(

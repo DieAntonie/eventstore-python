@@ -12,12 +12,13 @@ class CreateRace:
 
 
 @dataclass
-class ChangeRaceName:
+class SetRaceDetails:
     """
     Request to assign a `Race` of a certain `Age` and `Alignment` to a `CharacterAggregate`.
     """
     Id: uuid
     Name: str
+    Description: str
 
 
 @dataclass

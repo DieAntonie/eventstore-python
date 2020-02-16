@@ -12,13 +12,21 @@ class RaceCreated:
 
 
 @dataclass
-class RaceNameChanged:
+class RaceNameSet:
     """
     Request to assign a `Race` of a certain `Age` and `Alignment` to a `CharacterAggregate`.
     """
     Id: uuid
-    FromName: str
-    ToName: str
+    Name: str
+
+
+@dataclass
+class RaceDescriptionSet:
+    """
+    Request to assign a `Race` of a certain `Age` and `Alignment` to a `CharacterAggregate`.
+    """
+    Id: uuid
+    Description: str
 
 
 @dataclass
