@@ -8,3 +8,5 @@ class Ability(Enum):
     Intelligence = "int"
     Wisdom = "wis"
     Charisma = "cha"
+    Any = "*"
+    Other = "!"
