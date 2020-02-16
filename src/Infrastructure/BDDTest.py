@@ -72,10 +72,12 @@ class BDDTest(unittest.TestCase):
                     self.fail(
                         f"Unexpected event(s) emitted: {self.EventDiff(receivedEvents, expectedEvents)}"
                     )
-            else:
+            elif receivedEvents != expectedEvents:
                 self.fail(
-                    f"Expected events, but got {receivedEvents}"
+                    f"Expected events {expectedEvents}, but recieved none."
                 )
+            else:
+                self.assertEqual(expectedEvents, receivedEvents)
         return eventHandler
 
     def EventDiff(self, compare, against):
