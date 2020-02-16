@@ -6,23 +6,28 @@ A suite of tests verifies the behavioural functionality of the [`RaceAggregate`]
 1. [Setup](#setup)
 2. [Race Creation](#race-creation)
 3. [Race Details](#race-details)
+4. [Race Ability Score Increase](#race-ability-score-increase)
 
 ## Setup
 ### The set of values used in determining whether expected outcomes are achieved.
 
-Alias                   |   Value           |
-------------------------|-------------------|
-**`RaceId`**            | '_uuid.UUID_'     |
-**`SubraceId`**         | '_uuid.UUID_'     |
-**`RaceName1`**         | '_Test Race 1_'   |
-**`RaceName2`**         | '_Test Race 2_'   |
-**`RaceDescription1`**  | '_Description 1_' |
-**`RaceDescription2`**  | '_Description 2_' |
-**`SubraceName1`**      | '_Test Subrace 1_'|
-**`SubraceName2`**      | '_Test Subrace 2_'|
+Alias                                           |   Value                                                           |
+------------------------------------------------|-------------------------------------------------------------------|
+**`RaceId`**                                    | '_uuid.UUID_'                                                     |
+**`SubraceId`**                                 | '_uuid.UUID_'                                                     |
+**`RaceName1`**                                 | '_Race 1_'                                                        |
+**`RaceName2`**                                 | '_Race 2_'                                                        |
+**`RaceDescription1`**                          | '_Description 1_'                                                 |
+**`RaceDescription2`**                          | '_Description 2_'                                                 |
+**`ValidAbilityScoreIncrease`**                 | '_[{`str`:2}, {`int`:1}, {`*`:1}, {`!`:1}]_'                      |
+**`InvalidAbilityScoreIncrease`**               | '_[{`str`:2}, {`int`:1}, {`con`:1}, {`!`:1}, {`!`:1}, {`!`:1}]_'  |
+**`InvalidAbilityScoreIncreaseTokenStructure`** | '_[{`str`:2, `int`:1}]_'                                          |
+**`InvalidAbilityScoreIncreaseToken`**          | '_[{`value`:2}]_'                                                 |
+**`RaceDescription2`**                          | '_Description 2_'                                                 |
+**`SubraceName1`**                              | '_Subrace 1_'                                                     |
+**`SubraceName2`**                              | '_Subrace 2_'                                                     |
 
 ## Race Creation
-
 ### Can create Race
 1. Given event(s):
     - None
@@ -70,7 +75,6 @@ Alias                   |   Value           |
     - `RaceCannotBeBasedOnSelf`
 
 ## Race Details
-
 ### Can set Race details
 1. Given event(s):
     - `RaceCreated` with 
@@ -83,11 +87,30 @@ Alias                   |   Value           |
         - `Description = RaceDescription1`
 3. Then expect event(s):
     - `RaceNameSet` with
-        - `Id = SubraceId`
+        - `Id = RaceId`
         - `Name = RaceName1`
     - `RaceDescriptionSet` with
-        - `Id = SubraceId`
+        - `Id = RaceId`
         - `Description = RaceDescription1`
+
+### Can set Race details unchanged
+1. Given event(s):
+    - `RaceCreated` with 
+        - `Id = RaceId`
+        - `BaseRaceId = None`
+    - `RaceNameSet` with
+        - `Id = RaceId`
+        - `Name = RaceName1`
+    - `RaceDescriptionSet` with
+        - `Id = RaceId`
+        - `Description = RaceDescription1`
+2. When command:
+    - `SetRaceDetails` is issued with
+        - `Id = RaceId`
+        - `Name = RaceName1`
+        - `Description = RaceDescription1`
+3. Then expect event(s):
+    - None
 
 ### Can set Race details with same name
 1. Given event(s):
@@ -95,10 +118,10 @@ Alias                   |   Value           |
         - `Id = RaceId`
         - `BaseRaceId = None`
     - `RaceNameSet` with
-        - `Id = SubraceId`
+        - `Id = RaceId`
         - `Name = RaceName1`
     - `RaceDescriptionSet` with
-        - `Id = SubraceId`
+        - `Id = RaceId`
         - `Description = RaceDescription1`
 2. When command:
     - `SetRaceDetails` is issued with
@@ -107,7 +130,7 @@ Alias                   |   Value           |
         - `Description = RaceDescription2`
 3. Then expect event(s):
     - `RaceDescriptionSet` with
-        - `Id = SubraceId`
+        - `Id = RaceId`
         - `Description = RaceDescription2`
 
 ### Can set Race details with same description
@@ -116,10 +139,10 @@ Alias                   |   Value           |
         - `Id = RaceId`
         - `BaseRaceId = None`
     - `RaceNameSet` with
-        - `Id = SubraceId`
+        - `Id = RaceId`
         - `Name = RaceName1`
     - `RaceDescriptionSet` with
-        - `Id = SubraceId`
+        - `Id = RaceId`
         - `Description = RaceDescription1`
 2. When command:
     - `SetRaceDetails` is issued with
@@ -128,7 +151,7 @@ Alias                   |   Value           |
         - `Description = RaceDescription1`
 3. Then expect event(s):
     - `RaceNameSet` with
-        - `Id = SubraceId`
+        - `Id = RaceId`
         - `Name = RaceName2`
 
 ### Cannot set uncreated Race details
@@ -140,4 +163,81 @@ Alias                   |   Value           |
         - `Name = RaceName1`
         - `Description = RaceDescription1`
 3. Then expect exception:
-    - `RaceCannotBeBasedOnSelf`
+    - `RaceDoesNotExist`
+
+## Race Ability Score Increase
+### Can set Race ability score increase
+1. Given event(s):
+    - `RaceCreated` with 
+        - `Id = RaceId`
+        - `BaseRaceId = None`
+2. When command:
+    - `SetRaceAbilityScoreIncrease` is issued with
+        - `Id = RaceId`
+        - `AbilityScoreIncrease = ValidAbilityScoreIncrease`
+3. Then expect event(s):
+    - `RaceAbilityScoreIncreaseSet` with
+        - `Id = RaceId`
+        - `AbilityScoreIncrease = ValidAbilityScoreIncrease`
+        
+### Can set Race ability score increase unchanged
+1. Given event(s):
+    - `RaceCreated` with 
+        - `Id = RaceId`
+        - `BaseRaceId = None`
+    - `RaceAbilityScoreIncreaseSet` with
+        - `Id = RaceId`
+        - `AbilityScoreIncrease = ValidAbilityScoreIncrease`
+2. When command:
+    - `SetRaceAbilityScoreIncrease` is issued with
+        - `Id = RaceId`
+        - `AbilityScoreIncrease = ValidAbilityScoreIncrease`
+3. Then expect event(s):
+    - None
+
+### Cannot set Race ability score increase with `Other` tokens equal to or more than available abilities
+1. Given event(s):
+    - `RaceCreated` with 
+        - `Id = RaceId`
+        - `BaseRaceId = None`
+2. When command:
+    - `SetRaceAbilityScoreIncrease` is issued with
+        - `Id = RaceId`
+        - `AbilityScoreIncrease = InvalidAbilityScoreIncrease`
+3. Then expect exception:
+    - `TooManyOtherAbilityScoreIncreaseTokens`
+
+### Cannot set Race ability score increase with invalid token structure
+1. Given event(s):
+    - `RaceCreated` with 
+        - `Id = RaceId`
+        - `BaseRaceId = None`
+2. When command:
+    - `SetRaceAbilityScoreIncrease` is issued with
+        - `Id = RaceId`
+        - `AbilityScoreIncrease = InvalidAbilityScoreIncreaseTokenStructure`
+3. Then expect exception:
+    - `InvalidAbilityScoreIncreaseTokenStructure`
+
+### Cannot set Race ability score increase with invalid token
+1. Given event(s):
+    - `RaceCreated` with 
+        - `Id = RaceId`
+        - `BaseRaceId = None`
+2. When command:
+    - `SetRaceAbilityScoreIncrease` is issued with
+        - `Id = RaceId`
+        - `AbilityScoreIncrease = InvalidAbilityScoreIncreaseToken`
+3. Then expect exception:
+    - `InvalidAbilityScoreIncreaseToken`
+
+### Cannot set uncreated Race ability score increase
+1. Given event(s):
+    - None
+2. When command:
+    - `SetRaceAbilityScoreIncrease` is issued with
+        - `Id = RaceId`
+        - `AbilityScoreIncrease = ValidAbilityScoreIncrease`
+3. Then expect exception:
+    - `RaceDoesNotExist`
+

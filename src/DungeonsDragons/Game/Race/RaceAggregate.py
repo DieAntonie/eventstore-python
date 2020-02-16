@@ -1,19 +1,26 @@
 from .Commands import (
     CreateRace,
-    SetRaceDetails
+    SetRaceDetails,
+    SetRaceAbilityScoreIncrease
 )
 from .Events import (
     RaceCreated,
     RaceNameSet,
-    RaceDescriptionSet
+    RaceDescriptionSet,
+    RaceAbilityScoreIncreaseSet
 )
 from .Exceptions import (
     RaceAlreadyCreated,
     RaceCannotBeBasedOnSelf,
-    RaceDoesNotExist
+    RaceDoesNotExist,
+    TooManyOtherAbilityScoreIncreaseTokens,
+    InvalidAbilityScoreIncreaseTokenStructure,
+    InvalidAbilityScoreIncreaseToken
 )
+from ..Ability import Ability
 from ....Infrastructure.Aggregate import Aggregate
 from functools import wraps
+from typing import Sequence
 
 
 class RaceAggregate(Aggregate):
@@ -38,6 +45,7 @@ class RaceAggregate(Aggregate):
         self.name = None
         self.description = None
         self.base_race = None
+        self.ability_score_increase = []
         self.sub_races = []
 
     @Aggregate.Handle.register(CreateRace)
@@ -73,6 +81,45 @@ class RaceAggregate(Aggregate):
                 Description=command.Description
             )
 
+    @Aggregate.Handle.register(SetRaceAbilityScoreIncrease)
+    @RaceMustExist
+    def Handle_SetRaceAbilityScoreIncrease(self, command: SetRaceAbilityScoreIncrease):
+        """
+        `SetRaceAbilityScoreIncrease` command handler that emits a `RaceAbilityScoreIncreaseSet` upon successful validation.
+        """
+        self.ValidAbilityScoreIncrease(command.AbilityScoreIncrease)
+        if command.AbilityScoreIncrease != self.ability_score_increase:
+            yield RaceAbilityScoreIncreaseSet(
+                Id=self.Id,
+                AbilityScoreIncrease=command.AbilityScoreIncrease
+            )
+
+    @staticmethod
+    def ValidAbilityScoreIncrease(ability_score_increase: Sequence[dict]):
+        abilities = {
+            Ability.Strength.value: 0,
+            Ability.Dexterity.value: 0,
+            Ability.Constitution.value: 0,
+            Ability.Intelligence.value: 0,
+            Ability.Wisdom.value: 0,
+            Ability.Charisma.value: 0,
+        }
+        others = 0
+        for token in ability_score_increase:
+            if not len(token.keys()) == 1:
+                raise InvalidAbilityScoreIncreaseTokenStructure
+
+            token_key = list(token.keys())[0]
+            if token_key not in [ability.value for ability in Ability]:
+                raise InvalidAbilityScoreIncreaseToken
+            elif token_key == Ability.Other.value:
+                others += 1
+            elif token_key in abilities:
+                abilities[token_key] += 1
+
+        if len([ability for ability, count in abilities.items() if count == 0]) <= others:
+            raise TooManyOtherAbilityScoreIncreaseTokens
+
     @Aggregate.Apply.register(RaceCreated)
     def Apply_RaceCreated(self, event: RaceCreated):
         """
@@ -94,3 +141,10 @@ class RaceAggregate(Aggregate):
         `RaceSet` event handler that opens this `TabAggregate`.
         """
         self.description = event.Description
+
+    @Aggregate.Apply.register(RaceAbilityScoreIncreaseSet)
+    def Apply_RaceAbilityScoreIncreaseSet(self, event: RaceAbilityScoreIncreaseSet):
+        """
+        `RaceSet` event handler that opens this `TabAggregate`.
+        """
+        self.ability_score_increase = event.AbilityScoreIncrease

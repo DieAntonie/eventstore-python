@@ -27,3 +27,12 @@ class RaceDescriptionSet:
     """
     Id: uuid
     Description: str
+
+
+@dataclass
+class RaceAbilityScoreIncreaseSet:
+    """
+    An `IEvent` assigning `AbilityScoreIncrease` to `RaceAggregate`.
+    """
+    Id: uuid
+    AbilityScoreIncrease: []

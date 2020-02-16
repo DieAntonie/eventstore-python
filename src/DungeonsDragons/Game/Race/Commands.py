@@ -19,3 +19,12 @@ class SetRaceDetails:
     Id: uuid
     Name: str
     Description: str
+
+
+@dataclass
+class SetRaceAbilityScoreIncrease:
+    """
+    An `ICommand` to assign `AbilityScoreIncrease` to `RaceAggregte`.
+    """
+    Id: uuid
+    AbilityScoreIncrease: []
