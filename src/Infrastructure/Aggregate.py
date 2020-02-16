@@ -51,13 +51,10 @@ class Aggregate(IHandleCommand, IApplyEvent):
 
     @TargetValidation
     @Overload
-    @staticmethod
-    def Handle(
-        self, command: ICommand) -> Sequence[IEvent]: super().Handle(command)
+    def Handle(self, command: ICommand) -> Sequence[IEvent]: super().Handle(command)
 
     @TargetValidation
     @Overload
-    @staticmethod
     def Apply(self, event: IEvent) -> None: super().Apply(event)
 
     def ApplyEvents(self, events: Sequence[IEvent]) -> None:
