@@ -38,3 +38,18 @@ class InvalidAbilityScoreIncreaseToken(Exception):
     Deny invalid command because of unrecognized token used.  
     """
     pass
+
+
+class RaceMaturityAgeExceedsLifeExpectency(Exception):
+    """
+    Deny invalid command because maturity age exceeds life expectency.  
+    """
+    pass
+
+
+class RaceMaturityAgeTooSmall(Exception):
+    """
+    Deny invalid command because maturity age is too small.  
+    """
+    pass
+

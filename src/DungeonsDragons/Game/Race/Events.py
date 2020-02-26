@@ -36,3 +36,21 @@ class RaceAbilityScoreIncreaseSet:
     """
     Id: uuid
     AbilityScoreIncrease: []
+
+
+@dataclass
+class RaceMaturityAgeSet:
+    """
+    An `IEvent` assigning `MaturityAg` to `RaceAggregate`.
+    """
+    Id: uuid
+    MaturityAge: int
+
+
+@dataclass
+class RaceLifeExpectancySet:
+    """
+    An `IEvent` assigning `LifeExpectency` to `RaceAggregate`.
+    """
+    Id: uuid
+    LifeExpectency: int

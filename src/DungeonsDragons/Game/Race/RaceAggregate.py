@@ -1,13 +1,16 @@
 from .Commands import (
     CreateRace,
     SetRaceDetails,
-    SetRaceAbilityScoreIncrease
+    SetRaceAbilityScoreIncrease,
+    SetRaceAge
 )
 from .Events import (
     RaceCreated,
     RaceNameSet,
     RaceDescriptionSet,
-    RaceAbilityScoreIncreaseSet
+    RaceAbilityScoreIncreaseSet,
+    RaceMaturityAgeSet,
+    RaceLifeExpectancySet
 )
 from .Exceptions import (
     RaceAlreadyCreated,
@@ -15,7 +18,9 @@ from .Exceptions import (
     RaceDoesNotExist,
     TooManyOtherAbilityScoreIncreaseTokens,
     InvalidAbilityScoreIncreaseTokenStructure,
-    InvalidAbilityScoreIncreaseToken
+    InvalidAbilityScoreIncreaseToken,
+    RaceMaturityAgeExceedsLifeExpectency,
+    RaceMaturityAgeTooSmall
 )
 from ..Ability import Ability
 from ....Infrastructure.Aggregate import Aggregate
@@ -47,6 +52,8 @@ class RaceAggregate(Aggregate):
         self.base_race = None
         self.ability_score_increase = []
         self.sub_races = []
+        self.maturity_age = None
+        self.life_expectency = None
 
     @Aggregate.Handle.register(CreateRace)
     def Handle_CreateRace(self, command: CreateRace):
@@ -92,6 +99,29 @@ class RaceAggregate(Aggregate):
             yield RaceAbilityScoreIncreaseSet(
                 Id=self.Id,
                 AbilityScoreIncrease=command.AbilityScoreIncrease
+            )
+
+    @Aggregate.Handle.register(SetRaceAge)
+    @RaceMustExist
+    def Handle_SetRaceAge(self, command: SetRaceAge):
+        """
+        `SetRaceAge` command handler that emits `RaceMaturityAgeSet` and `RaceLifeExpectancySet` upon successful validation.
+        """
+        if command.MaturityAge >= command.LifeExpectency:
+            raise RaceMaturityAgeExceedsLifeExpectency
+
+        if command.MaturityAge <= 0:
+            raise RaceMaturityAgeTooSmall
+
+        if command.MaturityAge != self.maturity_age:
+            yield RaceMaturityAgeSet(
+                Id=self.Id,
+                MaturityAge=command.MaturityAge
+            )
+        if command.LifeExpectency != self.life_expectency:
+            yield RaceLifeExpectancySet(
+                Id=self.Id,
+                LifeExpectency=command.LifeExpectency
             )
 
     @staticmethod
@@ -148,3 +178,17 @@ class RaceAggregate(Aggregate):
         `RaceSet` event handler that opens this `TabAggregate`.
         """
         self.ability_score_increase = event.AbilityScoreIncrease
+
+    @Aggregate.Apply.register(RaceMaturityAgeSet)
+    def Apply_RaceMaturityAgeSet(self, event: RaceMaturityAgeSet):
+        """
+        `RaceMaturityAgeSet` event handler that sets this `RaceAggregate.maturity_age`.
+        """
+        self.maturity_age = event.MaturityAge
+
+    @Aggregate.Apply.register(RaceLifeExpectancySet)
+    def Apply_RaceLifeExpectancySet(self, event: RaceLifeExpectancySet):
+        """
+        `RaceLifeExpectancySet` event handler that sets this `RaceAggregate.life_expectency`.
+        """
+        self.life_expectency = event.LifeExpectency

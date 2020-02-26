@@ -5,19 +5,19 @@
 
 ## Properties
 ### Public
-- Abilities ( `Ability[]` )
+- Name ( `String` )
+- Description ( `String` )
 - Ability Score Increase ( `Object[]` )
-- Active ( `Boolean` )
 - Age ( `Number[2]` )
 - Alignment ( `Number[2]` )
-- Description ( `String` )
-- Languages ( `Enum[]` )
-- Name ( `String` )
 - Size ( `Enum` )
 - Speed ( `Number` )
+- Languages ( `Enum[]` )
 - Subraces ( `Object[]` )
+- Spells ( `Ability[]` )
 
 ### Private
+- Active ( `Boolean` )
 - Base Race ( `Race` )
 
 ## Command Handlers

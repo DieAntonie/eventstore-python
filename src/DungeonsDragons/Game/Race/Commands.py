@@ -24,7 +24,17 @@ class SetRaceDetails:
 @dataclass
 class SetRaceAbilityScoreIncrease:
     """
-    An `ICommand` to assign `AbilityScoreIncrease` to `RaceAggregte`.
+    An `ICommand` to assign `AbilityScoreIncrease` to the `RaceAggregte`.
     """
     Id: uuid
     AbilityScoreIncrease: []
+
+
+@dataclass
+class SetRaceAge:
+    """
+    An `ICommand` to assign the `MaturityAge` and `LifeExpectency` to the `RaceAggregte`.
+    """
+    Id: uuid
+    MaturityAge: int
+    LifeExpectency: int

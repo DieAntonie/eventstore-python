@@ -4,13 +4,16 @@ from ...DungeonsDragons.Game.Ability import Ability
 from ...DungeonsDragons.Game.Race.Commands import (
     CreateRace,
     SetRaceDetails,
-    SetRaceAbilityScoreIncrease
+    SetRaceAbilityScoreIncrease,
+    SetRaceAge
 )
 from ...DungeonsDragons.Game.Race.Events import (
     RaceCreated,
     RaceNameSet,
     RaceDescriptionSet,
-    RaceAbilityScoreIncreaseSet
+    RaceAbilityScoreIncreaseSet,
+    RaceMaturityAgeSet,
+    RaceLifeExpectancySet
 )
 from ...DungeonsDragons.Game.Race.Exceptions import (
     RaceAlreadyCreated,
@@ -18,7 +21,9 @@ from ...DungeonsDragons.Game.Race.Exceptions import (
     RaceDoesNotExist,
     TooManyOtherAbilityScoreIncreaseTokens,
     InvalidAbilityScoreIncreaseTokenStructure,
-    InvalidAbilityScoreIncreaseToken
+    InvalidAbilityScoreIncreaseToken,
+    RaceMaturityAgeExceedsLifeExpectency,
+    RaceMaturityAgeTooSmall
 )
 import uuid
 import unittest
@@ -59,8 +64,11 @@ class RaceTests(BDDTest):
             {Ability.Strength.value: 2},
             {'value': 1}
         ]
-        self.SubraceName1 = 'Subrace 1'
-        self.SubraceName2 = 'Subrace 2'
+        self.MaturityAge1 = 19
+        self.MaturityAge2 = 75
+        self.LifeExpectencyAge1 = 100
+        self.LifeExpectencyAge2 = 50
+        self.ZeroAge = 0
 
     def test_can_create_race(self):
         self.Test(
@@ -354,6 +362,170 @@ class RaceTests(BDDTest):
                 SetRaceAbilityScoreIncrease(
                     Id=self.RaceId,
                     AbilityScoreIncrease=self.ValidAbilityScoreIncrease
+                )
+            ),
+            self.ThenFailWith(RaceDoesNotExist)
+        )
+
+    def test_can_set_race_age(self):
+        self.Test(
+            self.Given(
+                RaceCreated(
+                    Id=self.RaceId,
+                    BaseRaceId=None
+                )
+            ),
+            self.When(
+                SetRaceAge(
+                    Id=self.RaceId,
+                    MaturityAge=self.MaturityAge1,
+                    LifeExpectency=self.LifeExpectencyAge1
+                )
+            ),
+            self.Then(
+                RaceMaturityAgeSet(
+                    Id=self.RaceId,
+                    MaturityAge=self.MaturityAge1
+                ),
+                RaceLifeExpectancySet(
+                    Id=self.RaceId,
+                    LifeExpectency=self.LifeExpectencyAge1
+                )
+            )
+        )
+
+    def test_can_set_race_age_unchanged(self):
+        self.Test(
+            self.Given(
+                RaceCreated(
+                    Id=self.RaceId,
+                    BaseRaceId=None
+                ),
+                RaceMaturityAgeSet(
+                    Id=self.RaceId,
+                    MaturityAge=self.MaturityAge1
+                ),
+                RaceLifeExpectancySet(
+                    Id=self.RaceId,
+                    LifeExpectency=self.LifeExpectencyAge1
+                )
+            ),
+            self.When(
+                SetRaceAge(
+                    Id=self.RaceId,
+                    MaturityAge=self.MaturityAge1,
+                    LifeExpectency=self.LifeExpectencyAge1
+                )
+            ),
+            self.Then()
+        )
+
+    def test_can_set_race_age_same_life_expectency(self):
+        self.Test(
+            self.Given(
+                RaceCreated(
+                    Id=self.RaceId,
+                    BaseRaceId=None
+                ),
+                RaceMaturityAgeSet(
+                    Id=self.RaceId,
+                    MaturityAge=self.MaturityAge1
+                ),
+                RaceLifeExpectancySet(
+                    Id=self.RaceId,
+                    LifeExpectency=self.LifeExpectencyAge1
+                )
+            ),
+            self.When(
+                SetRaceAge(
+                    Id=self.RaceId,
+                    MaturityAge=self.MaturityAge2,
+                    LifeExpectency=self.LifeExpectencyAge1
+                )
+            ),
+            self.Then(
+                RaceMaturityAgeSet(
+                    Id=self.RaceId,
+                    MaturityAge=self.MaturityAge2
+                )
+            )
+        )
+
+    def test_can_set_race_age_same_maturity_age(self):
+        self.Test(
+            self.Given(
+                RaceCreated(
+                    Id=self.RaceId,
+                    BaseRaceId=None
+                ),
+                RaceMaturityAgeSet(
+                    Id=self.RaceId,
+                    MaturityAge=self.MaturityAge1
+                ),
+                RaceLifeExpectancySet(
+                    Id=self.RaceId,
+                    LifeExpectency=self.LifeExpectencyAge1
+                )
+            ),
+            self.When(
+                SetRaceAge(
+                    Id=self.RaceId,
+                    MaturityAge=self.MaturityAge1,
+                    LifeExpectency=self.LifeExpectencyAge2
+                )
+            ),
+            self.Then(
+                RaceLifeExpectancySet(
+                    Id=self.RaceId,
+                    LifeExpectency=self.LifeExpectencyAge2
+                )
+            )
+        )
+
+    def test_cannot_set_race_with_maturity_age_equal_or_greater_than_life_expectency(self):
+        self.Test(
+            self.Given(
+                RaceCreated(
+                    Id=self.RaceId,
+                    BaseRaceId=None
+                )
+            ),
+            self.When(
+                SetRaceAge(
+                    Id=self.RaceId,
+                    MaturityAge=self.MaturityAge2,
+                    LifeExpectency=self.LifeExpectencyAge2
+                )
+            ),
+            self.ThenFailWith(RaceMaturityAgeExceedsLifeExpectency)
+        )
+
+    def test_cannot_set_race_with_maturity_age_less_then_one(self):
+        self.Test(
+            self.Given(
+                RaceCreated(
+                    Id=self.RaceId,
+                    BaseRaceId=None
+                )
+            ),
+            self.When(
+                SetRaceAge(
+                    Id=self.RaceId,
+                    MaturityAge=self.ZeroAge,
+                    LifeExpectency=self.LifeExpectencyAge1
+                )
+            ),
+            self.ThenFailWith(RaceMaturityAgeTooSmall)
+        )
+
+    def test_cannot_set_race_with_maturity_age_less_then_one(self):
+        self.Test(
+            self.Given(),
+            self.When(
+                SetRaceAge(
+                    Id=self.RaceId,
+                    MaturityAge=self.MaturityAge1,
+                    LifeExpectency=self.LifeExpectencyAge1
                 )
             ),
             self.ThenFailWith(RaceDoesNotExist)

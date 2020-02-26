@@ -1,12 +1,13 @@
 # Race Test
 
-A suite of tests verifies the behavioural functionality of the [`RaceAggregate`]()
+A suite of tests verifies the behavioural functionality of the [`RaceAggregate`](../../DungeonsDragons/Game/Race/Race.md)
 
 ## Index
 1. [Setup](#setup)
 2. [Race Creation](#race-creation)
 3. [Race Details](#race-details)
 4. [Race Ability Score Increase](#race-ability-score-increase)
+5. [Race Age](#race-age)
 
 ## Setup
 ### The set of values used in determining whether expected outcomes are achieved.
@@ -23,9 +24,11 @@ Alias                                           |   Value                       
 **`InvalidAbilityScoreIncrease`**               | '_[{`str`:2}, {`int`:1}, {`con`:1}, {`!`:1}, {`!`:1}, {`!`:1}]_'  |
 **`InvalidAbilityScoreIncreaseTokenStructure`** | '_[{`str`:2, `int`:1}]_'                                          |
 **`InvalidAbilityScoreIncreaseToken`**          | '_[{`value`:2}]_'                                                 |
-**`RaceDescription2`**                          | '_Description 2_'                                                 |
-**`SubraceName1`**                              | '_Subrace 1_'                                                     |
-**`SubraceName2`**                              | '_Subrace 2_'                                                     |
+**`MaturityAge1`**                              | '_19_'                                                            |
+**`MaturityAge2`**                              | '_75_'                                                            |
+**`LifeExpectencyAge1`**                        | '_100_'                                                           |
+**`LifeExpectencyAge2`**                        | '_50_'                                                            |
+**`ZeroAge`**                                   | '_0_'                                                             |
 
 ## Race Creation
 ### Can create Race
@@ -241,3 +244,119 @@ Alias                                           |   Value                       
 3. Then expect exception:
     - `RaceDoesNotExist`
 
+## Race Age
+### Can set Race age
+1. Given event(s):
+    - `RaceCreated` with 
+        - `Id = RaceId`
+        - `BaseRaceId = None`
+2. When command:
+    - `SetRaceAge` is issued with
+        - `Id = RaceId`
+        - `MaturityAge = MaturityAge1`
+        - `LifeExpectency = LifeExpectencyAge1`
+3. Then expect event(s):
+    - `RaceMaturityAgeSet` with
+        - `Id = RaceId`
+        - `MaturityAge = MaturityAge1`
+    - `RaceLifeExpectancySet` with
+        - `Id = RaceId`
+        - `LifeExpectency = LifeExpectencyAge1`
+
+### Can set Race age unchanged
+1. Given event(s):
+    - `RaceCreated` with 
+        - `Id = RaceId`
+        - `BaseRaceId = None`
+    - `RaceMaturityAgeSet` with
+        - `Id = RaceId`
+        - `MaturityAge = MaturityAge1`
+    - `RaceLifeExpectancySet` with
+        - `Id = RaceId`
+        - `LifeExpectency = LifeExpectencyAge1`
+2. When command:
+    - `SetRaceAge` is issued with
+        - `Id = RaceId`
+        - `MaturityAge = MaturityAge1`
+        - `LifeExpectency = LifeExpectencyAge1`
+3. Then expect event(s):
+    - None
+
+### Can set Race with same life expectency
+1. Given event(s):
+    - `RaceCreated` with 
+        - `Id = RaceId`
+        - `BaseRaceId = None`
+    - `RaceMaturityAgeSet` with
+        - `Id = RaceId`
+        - `MaturityAge = MaturityAge1`
+    - `RaceLifeExpectancySet` with
+        - `Id = RaceId`
+        - `LifeExpectency = LifeExpectencyAge1`
+2. When command:
+    - `SetRaceAge` is issued with
+        - `Id = RaceId`
+        - `MaturityAge = MaturityAge2`
+        - `LifeExpectency = LifeExpectencyAge1`
+3. Then expect event(s):
+    - `RaceMaturityAgeSet` with
+        - `Id = RaceId`
+        - `MaturityAge = MaturityAge2`
+
+### Can set Race with same maturity age
+1. Given event(s):
+    - `RaceCreated` with 
+        - `Id = RaceId`
+        - `BaseRaceId = None`
+    - `RaceMaturityAgeSet` with
+        - `Id = RaceId`
+        - `MaturityAge = MaturityAge1`
+    - `RaceLifeExpectancySet` with
+        - `Id = RaceId`
+        - `LifeExpectency = LifeExpectencyAge1`
+2. When command:
+    - `SetRaceAge` is issued with
+        - `Id = RaceId`
+        - `MaturityAge = MaturityAge1`
+        - `LifeExpectency = LifeExpectencyAge2`
+3. Then expect event(s):
+    - `RaceLifeExpectancySet` with
+        - `Id = RaceId`
+        - `LifeExpectency = LifeExpectencyAge2`
+
+### Cannot set Race with maturity age equal or greater than life expectency
+1. Given event(s):
+    - `RaceCreated` with 
+        - `Id = RaceId`
+        - `BaseRaceId = None`
+2. When command:
+    - `SetRaceAge` is issued with
+        - `Id = RaceId`
+        - `MaturityAge = MaturityAge2`
+        - `LifeExpectency = LifeExpectencyAge2`
+3. Then expect exception:
+    - `RaceMaturityAgeExceedsLifeExpectency`
+
+### Cannot set Race maturity age less than one
+1. Given event(s):
+    - `RaceCreated` with 
+        - `Id = RaceId`
+        - `BaseRaceId = None`
+2. When command:
+    - `SetRaceAge` is issued with
+        - `Id = RaceId`
+        - `MaturityAge = ZeroAge`
+        - `LifeExpectency = LifeExpectencyAge1`
+3. Then expect exception:
+    - `RaceMaturityAgeExceedsLifeExpectency`
+
+### Cannot set uncreated Race age
+1. Given event(s):
+    - None
+2. When command:
+    - `SetRaceAge` is issued with
+        - `Id = RaceId`
+        - `MaturityAge = MaturityAge2`
+        - `LifeExpectency = LifeExpectencyAge2`
+3. Then expect exception:
+    - `RaceDoesNotExist`
