@@ -38,3 +38,13 @@ class SetRaceAge:
     Id: uuid
     MaturityAge: int
     LifeExpectency: int
+
+
+@dataclass
+class SetRaceAlignment:
+    """
+    An `ICommand` to set the `Orthodoxy` and `Morality` of the `RaceAggregte`.
+    """
+    Id: uuid
+    Orthodoxy: int
+    Morality: int

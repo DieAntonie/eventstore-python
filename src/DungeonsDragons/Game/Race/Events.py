@@ -54,3 +54,21 @@ class RaceLifeExpectancySet:
     """
     Id: uuid
     LifeExpectency: int
+
+
+@dataclass
+class RaceOrthodoxySet:
+    """
+    An `IEvent` assigning `Orthodoxy` to `RaceAggregate`.
+    """
+    Id: uuid
+    Orthodoxy: int
+
+
+@dataclass
+class RaceMoralitySet:
+    """
+    An `IEvent` assigning `Morality` to `RaceAggregate`.
+    """
+    Id: uuid
+    Morality: int

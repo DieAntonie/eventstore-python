@@ -5,7 +5,8 @@ from ...DungeonsDragons.Game.Race.Commands import (
     CreateRace,
     SetRaceDetails,
     SetRaceAbilityScoreIncrease,
-    SetRaceAge
+    SetRaceAge,
+    SetRaceAlignment
 )
 from ...DungeonsDragons.Game.Race.Events import (
     RaceCreated,
@@ -13,7 +14,9 @@ from ...DungeonsDragons.Game.Race.Events import (
     RaceDescriptionSet,
     RaceAbilityScoreIncreaseSet,
     RaceMaturityAgeSet,
-    RaceLifeExpectancySet
+    RaceLifeExpectancySet,
+    RaceOrthodoxySet,
+    RaceMoralitySet
 )
 from ...DungeonsDragons.Game.Race.Exceptions import (
     RaceAlreadyCreated,
@@ -23,7 +26,9 @@ from ...DungeonsDragons.Game.Race.Exceptions import (
     InvalidAbilityScoreIncreaseTokenStructure,
     InvalidAbilityScoreIncreaseToken,
     RaceMaturityAgeExceedsLifeExpectency,
-    RaceMaturityAgeTooSmall
+    RaceMaturityAgeTooSmall,
+    RaceOrthodoxyOutsideAllowedSpectrum,
+    RaceMoralityOutsideAllowedSpectrum
 )
 import uuid
 import unittest
@@ -69,6 +74,10 @@ class RaceTests(BDDTest):
         self.LifeExpectencyAge1 = 100
         self.LifeExpectencyAge2 = 50
         self.ZeroAge = 0
+        self.Lawful = self.Good = 1
+        self.Chaotic = self.Evil = -1
+        self.OverlyChaotic = self.OverlyEvil = -1.1
+        self.OverlyLawful = self.OverlyGood = 1.1
 
     def test_can_create_race(self):
         self.Test(
@@ -526,6 +535,215 @@ class RaceTests(BDDTest):
                     Id=self.RaceId,
                     MaturityAge=self.MaturityAge1,
                     LifeExpectency=self.LifeExpectencyAge1
+                )
+            ),
+            self.ThenFailWith(RaceDoesNotExist)
+        )
+
+    def test_cannot_set_uncreated_race_age(self):
+        self.Test(
+            self.Given(),
+            self.When(
+                SetRaceAge(
+                    Id=self.RaceId,
+                    MaturityAge=self.MaturityAge1,
+                    LifeExpectency=self.LifeExpectencyAge1
+                )
+            ),
+            self.ThenFailWith(RaceDoesNotExist)
+        )
+
+    def test_can_set_race_alignment(self):
+        self.Test(
+            self.Given(
+                RaceCreated(
+                    Id=self.RaceId,
+                    BaseRaceId=None
+                )
+            ),
+            self.When(
+                SetRaceAlignment(
+                    Id=self.RaceId,
+                    Orthodoxy=self.Lawful,
+                    Morality=self.Good
+                )
+            ),
+            self.Then(
+                RaceOrthodoxySet(
+                    Id=self.RaceId,
+                    Orthodoxy=self.Lawful
+                ),
+                RaceMoralitySet(
+                    Id=self.RaceId,
+                    Morality=self.Good
+                )
+            )
+        )
+
+    def test_can_set_race_alignment_unchanged(self):
+        self.Test(
+            self.Given(
+                RaceCreated(
+                    Id=self.RaceId,
+                    BaseRaceId=None
+                ),
+                RaceOrthodoxySet(
+                    Id=self.RaceId,
+                    Orthodoxy=self.Lawful
+                ),
+                RaceMoralitySet(
+                    Id=self.RaceId,
+                    Morality=self.Good
+                )
+            ),
+            self.When(
+                SetRaceAlignment(
+                    Id=self.RaceId,
+                    Orthodoxy=self.Lawful,
+                    Morality=self.Good
+                )
+            ),
+            self.Then()
+        )
+
+    def test_can_set_race_alignment_with_same_morality(self):
+        self.Test(
+            self.Given(
+                RaceCreated(
+                    Id=self.RaceId,
+                    BaseRaceId=None
+                ),
+                RaceOrthodoxySet(
+                    Id=self.RaceId,
+                    Orthodoxy=self.Lawful
+                ),
+                RaceMoralitySet(
+                    Id=self.RaceId,
+                    Morality=self.Good
+                )
+            ),
+            self.When(
+                SetRaceAlignment(
+                    Id=self.RaceId,
+                    Orthodoxy=self.Chaotic,
+                    Morality=self.Good
+                )
+            ),
+            self.Then(
+                RaceOrthodoxySet(
+                    Id=self.RaceId,
+                    Orthodoxy=self.Chaotic
+                )
+            )
+        )
+
+    def test_can_set_race_alignment_with_same_orthodoxy(self):
+        self.Test(
+            self.Given(
+                RaceCreated(
+                    Id=self.RaceId,
+                    BaseRaceId=None
+                ),
+                RaceOrthodoxySet(
+                    Id=self.RaceId,
+                    Orthodoxy=self.Lawful
+                ),
+                RaceMoralitySet(
+                    Id=self.RaceId,
+                    Morality=self.Good
+                )
+            ),
+            self.When(
+                SetRaceAlignment(
+                    Id=self.RaceId,
+                    Orthodoxy=self.Lawful,
+                    Morality=self.Evil
+                )
+            ),
+            self.Then(
+                RaceMoralitySet(
+                    Id=self.RaceId,
+                    Morality=self.Evil
+                )
+            )
+        )
+
+    def test_cannot_set_race_alignment_with_outer_spectrum_orthodoxy(self):
+        self.Test(
+            self.Given(
+                RaceCreated(
+                    Id=self.RaceId,
+                    BaseRaceId=None
+                )
+            ),
+            self.When(
+                SetRaceAlignment(
+                    Id=self.RaceId,
+                    Orthodoxy=self.OverlyChaotic,
+                    Morality=self.Good
+                )
+            ),
+            self.ThenFailWith(RaceOrthodoxyOutsideAllowedSpectrum)
+        )
+        self.Test(
+            self.Given(
+                RaceCreated(
+                    Id=self.RaceId,
+                    BaseRaceId=None
+                )
+            ),
+            self.When(
+                SetRaceAlignment(
+                    Id=self.RaceId,
+                    Orthodoxy=self.OverlyLawful,
+                    Morality=self.Good
+                )
+            ),
+            self.ThenFailWith(RaceOrthodoxyOutsideAllowedSpectrum)
+        )
+
+    def test_cannot_set_race_alignment_with_outer_spectrum_morality(self):
+        self.Test(
+            self.Given(
+                RaceCreated(
+                    Id=self.RaceId,
+                    BaseRaceId=None
+                )
+            ),
+            self.When(
+                SetRaceAlignment(
+                    Id=self.RaceId,
+                    Orthodoxy=self.Lawful,
+                    Morality=self.OverlyGood
+                )
+            ),
+            self.ThenFailWith(RaceMoralityOutsideAllowedSpectrum)
+        )
+        self.Test(
+            self.Given(
+                RaceCreated(
+                    Id=self.RaceId,
+                    BaseRaceId=None
+                )
+            ),
+            self.When(
+                SetRaceAlignment(
+                    Id=self.RaceId,
+                    Orthodoxy=self.Lawful,
+                    Morality=self.OverlyEvil
+                )
+            ),
+            self.ThenFailWith(RaceMoralityOutsideAllowedSpectrum)
+        )
+
+    def test_cannot_set_uncreated_race_alignment(self):
+        self.Test(
+            self.Given(),
+            self.When(
+                SetRaceAlignment(
+                    Id=self.RaceId,
+                    Orthodoxy=self.Lawful,
+                    Morality=self.Good
                 )
             ),
             self.ThenFailWith(RaceDoesNotExist)

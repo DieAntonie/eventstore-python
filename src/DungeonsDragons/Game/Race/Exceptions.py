@@ -53,3 +53,16 @@ class RaceMaturityAgeTooSmall(Exception):
     """
     pass
 
+
+class RaceOrthodoxyOutsideAllowedSpectrum(Exception):
+    """
+    Deny invalid command because orthodoxy value falls outside allowed spectrum.  
+    """
+    pass
+
+
+class RaceMoralityOutsideAllowedSpectrum(Exception):
+    """
+    Deny invalid command because morality value falls outside allowed spectrum.  
+    """
+    pass

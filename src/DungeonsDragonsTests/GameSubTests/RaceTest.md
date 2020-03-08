@@ -8,6 +8,7 @@ A suite of tests verifies the behavioural functionality of the [`RaceAggregate`]
 3. [Race Details](#race-details)
 4. [Race Ability Score Increase](#race-ability-score-increase)
 5. [Race Age](#race-age)
+6. [Race Alignment](#race-alignment)
 
 ## Setup
 ### The set of values used in determining whether expected outcomes are achieved.
@@ -29,6 +30,14 @@ Alias                                           |   Value                       
 **`LifeExpectencyAge1`**                        | '_100_'                                                           |
 **`LifeExpectencyAge2`**                        | '_50_'                                                            |
 **`ZeroAge`**                                   | '_0_'                                                             |
+**`Lawful`**                                    | '_1_'                                                             |
+**`Good`**                                      | '_1_'                                                             |
+**`Chaotic`**                                   | '_-1_'                                                            |
+**`Evil`**                                      | '_-1_'                                                            |
+**`OverlyLawful`**                              | '_1.1_'                                                           |
+**`OverlyGood`**                                | '_1.1_'                                                           |
+**`OverlyChaotic`**                             | '_-1.1_'                                                          |
+**`OverlyEvil`**                                | '_-1.1_'                                                          |
 
 ## Race Creation
 ### Can create Race
@@ -348,7 +357,7 @@ Alias                                           |   Value                       
         - `MaturityAge = ZeroAge`
         - `LifeExpectency = LifeExpectencyAge1`
 3. Then expect exception:
-    - `RaceMaturityAgeExceedsLifeExpectency`
+    - `RaceMaturityAgeTooSmall`
 
 ### Cannot set uncreated Race age
 1. Given event(s):
@@ -358,5 +367,147 @@ Alias                                           |   Value                       
         - `Id = RaceId`
         - `MaturityAge = MaturityAge2`
         - `LifeExpectency = LifeExpectencyAge2`
+3. Then expect exception:
+    - `RaceDoesNotExist`
+
+## Race Alignment
+### Can set Race alignment
+1. Given event(s):
+    - `RaceCreated` with 
+        - `Id = RaceId`
+        - `BaseRaceId = None`
+2. When command:
+    - `SetRaceAlignment` is issued with
+        - `Id = RaceId`
+        - `Orthodoxy = Lawful`
+        - `Morality = Good`
+3. Then expect event(s):
+    - `RaceOrthodoxySet` with
+        - `Id = RaceId`
+        - `Orthodoxy = Lawful`
+    - `RaceMoralitySet` with
+        - `Id = RaceId`
+        - `Morality = Good`
+
+### Can set Race alignment unchanged
+1. Given event(s):
+    - `RaceCreated` with 
+        - `Id = RaceId`
+        - `BaseRaceId = None`
+    - `RaceOrthodoxySet` with
+        - `Id = RaceId`
+        - `Orthodoxy = Lawful`
+    - `RaceMoralitySet` with
+        - `Id = RaceId`
+        - `Morality = Good`
+2. When command:
+    - `SetRaceAlignment` is issued with
+        - `Id = RaceId`
+        - `Orthodoxy = Lawful`
+        - `Morality = Good`
+3. Then expect event(s):
+    - None
+
+### Can set Race alignment with same morality
+1. Given event(s):
+    - `RaceCreated` with 
+        - `Id = RaceId`
+        - `BaseRaceId = None`
+    - `RaceOrthodoxySet` with
+        - `Id = RaceId`
+        - `Orthodoxy = Lawful`
+    - `RaceMoralitySet` with
+        - `Id = RaceId`
+        - `Morality = Good`
+2. When command:
+    - `SetRaceAlignment` is issued with
+        - `Id = RaceId`
+        - `Orthodoxy = Chaotic`
+        - `Morality = Good`
+3. Then expect event(s):
+    - `RaceOrthodoxySet` with
+        - `Id = RaceId`
+        - `Orthodoxy = Chaotic`
+
+### Can set Race alignment with same orthodoxy
+1. Given event(s):
+    - `RaceCreated` with 
+        - `Id = RaceId`
+        - `BaseRaceId = None`
+    - `RaceOrthodoxySet` with
+        - `Id = RaceId`
+        - `Orthodoxy = Lawful`
+    - `RaceMoralitySet` with
+        - `Id = RaceId`
+        - `Morality = Good`
+2. When command:
+    - `SetRaceAlignment` is issued with
+        - `Id = RaceId`
+        - `Orthodoxy = Lawful`
+        - `Morality = Evil`
+3. Then expect event(s):
+    - `RaceMoralitySet` with
+        - `Id = RaceId`
+        - `Morality = Evil`
+
+
+### Cannot set Race alignment with outer spectrum orthodoxy
+1. Given event(s):
+    - `RaceCreated` with 
+        - `Id = RaceId`
+        - `BaseRaceId = None`
+2. When command:
+    - `SetRaceAlignment` is issued with
+        - `Id = RaceId`
+        - `Orthodoxy = OverlyLawful`
+        - `Morality = Good`
+3. Then expect exception:
+    - `RaceOrthodoxyOutsideAllowedSpectrum`
+
+1. Given event(s):
+    - `RaceCreated` with 
+        - `Id = RaceId`
+        - `BaseRaceId = None`
+2. When command:
+    - `SetRaceAlignment` is issued with
+        - `Id = RaceId`
+        - `Orthodoxy = OverlyChaotic`
+        - `Morality = Good`
+3. Then expect exception:
+    - `RaceOrthodoxyOutsideAllowedSpectrum`
+
+### Cannot set Race alignment with outer spectrum morality
+1. Given event(s):
+    - `RaceCreated` with 
+        - `Id = RaceId`
+        - `BaseRaceId = None`
+2. When command:
+    - `SetRaceAlignment` is issued with
+        - `Id = RaceId`
+        - `Orthodoxy = Lawful`
+        - `Morality = OverlyGood`
+3. Then expect exception:
+    - `RaceOrthodoxyOutsideAllowedSpectrum`
+
+1. Given event(s):
+    - `RaceCreated` with 
+        - `Id = RaceId`
+        - `BaseRaceId = None`
+2. When command:
+    - `SetRaceAlignment` is issued with
+        - `Id = RaceId`
+        - `Orthodoxy = Lawful`
+        - `Morality = OverlyEvil`
+3. Then expect exception:
+    - `RaceOrthodoxyOutsideAllowedSpectrum`
+
+### Cannot set uncreated Race age
+1. Given event(s):
+    - None
+2. When command:
+    - `SetRaceAlignment` is issued with
+        - `Id = RaceId`
+        - `Orthodoxy = Lawful`
+        - `Morality = Good`
 3. Then expect exception:
     - `RaceDoesNotExist`

@@ -2,7 +2,8 @@ from .Commands import (
     CreateRace,
     SetRaceDetails,
     SetRaceAbilityScoreIncrease,
-    SetRaceAge
+    SetRaceAge,
+    SetRaceAlignment
 )
 from .Events import (
     RaceCreated,
@@ -10,7 +11,9 @@ from .Events import (
     RaceDescriptionSet,
     RaceAbilityScoreIncreaseSet,
     RaceMaturityAgeSet,
-    RaceLifeExpectancySet
+    RaceLifeExpectancySet,
+    RaceOrthodoxySet,
+    RaceMoralitySet
 )
 from .Exceptions import (
     RaceAlreadyCreated,
@@ -20,7 +23,9 @@ from .Exceptions import (
     InvalidAbilityScoreIncreaseTokenStructure,
     InvalidAbilityScoreIncreaseToken,
     RaceMaturityAgeExceedsLifeExpectency,
-    RaceMaturityAgeTooSmall
+    RaceMaturityAgeTooSmall,
+    RaceOrthodoxyOutsideAllowedSpectrum,
+    RaceMoralityOutsideAllowedSpectrum
 )
 from ..Ability import Ability
 from ....Infrastructure.Aggregate import Aggregate
@@ -54,6 +59,8 @@ class RaceAggregate(Aggregate):
         self.sub_races = []
         self.maturity_age = None
         self.life_expectency = None
+        self.orthodoxy = None
+        self.morality = None
 
     @Aggregate.Handle.register(CreateRace)
     def Handle_CreateRace(self, command: CreateRace):
@@ -124,6 +131,30 @@ class RaceAggregate(Aggregate):
                 LifeExpectency=command.LifeExpectency
             )
 
+    @Aggregate.Handle.register(SetRaceAlignment)
+    @RaceMustExist
+    def Handle_SetRaceAlignment(self, command: SetRaceAlignment):
+        """
+        `SetRaceAlignment` command handler that emits `RaceOrthodoxySet` and `RaceMoralitySet` upon successful validation.
+        """
+        if not (-1 <= command.Orthodoxy <= 1):
+            raise RaceOrthodoxyOutsideAllowedSpectrum
+        
+        if not (-1 <= command.Morality <= 1):
+            raise RaceMoralityOutsideAllowedSpectrum
+
+        if self.orthodoxy != command.Orthodoxy:
+            yield RaceOrthodoxySet(
+                Id=self.Id,
+                Orthodoxy=command.Orthodoxy
+            )
+
+        if self.morality != command.Morality:
+            yield RaceMoralitySet(
+                Id=self.Id,
+                Morality=command.Morality
+            )
+
     @staticmethod
     def ValidAbilityScoreIncrease(ability_score_increase: Sequence[dict]):
         abilities = {
@@ -192,3 +223,17 @@ class RaceAggregate(Aggregate):
         `RaceLifeExpectancySet` event handler that sets this `RaceAggregate.life_expectency`.
         """
         self.life_expectency = event.LifeExpectency
+
+    @Aggregate.Apply.register(RaceOrthodoxySet)
+    def Apply_RaceOrthodoxySet(self, event: RaceOrthodoxySet):
+        """
+        `RaceOrthodoxySet` event handler that sets this `RaceAggregate.orthodoxy`.
+        """
+        self.orthodoxy = event.Orthodoxy
+
+    @Aggregate.Apply.register(RaceMoralitySet)
+    def Apply_RaceMoralitySet(self, event: RaceMoralitySet):
+        """
+        `RaceMoralitySet` event handler that sets this `RaceAggregate.morality`.
+        """
+        self.morality = event.Morality
