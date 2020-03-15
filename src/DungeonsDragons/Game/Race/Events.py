@@ -1,4 +1,7 @@
 from dataclasses import dataclass
+from ..DiceRoll import DiceRoll
+from ..Length import Foot
+from ..SizeCategory import SizeCategory
 import uuid
 
 
@@ -72,3 +75,48 @@ class RaceMoralitySet:
     """
     Id: uuid
     Morality: int
+
+
+@dataclass
+class RaceSizeCategorySet:
+    """
+    An `IEvent` assigning `SizeCategory` to `RaceAggregate`.
+    """
+    Id: uuid
+    SizeCategory: SizeCategory
+
+
+@dataclass
+class RaceBaseWeightSet:
+    """
+    An `IEvent` assigning `Weight` to `RaceAggregate`.
+    """
+    Id: uuid
+    BaseWeight: int
+
+
+@dataclass
+class RaceWeightModifierSet:
+    """
+    An `IEvent` assigning `Weight` to `RaceAggregate`.
+    """
+    Id: uuid
+    WeightModifier: DiceRoll
+
+
+@dataclass
+class RaceBaseHeightSet:
+    """
+    An `IEvent` assigning `Weight` to `RaceAggregate`.
+    """
+    Id: uuid
+    BaseHeight: Foot
+
+
+@dataclass
+class RaceHeightModifierSet:
+    """
+    An `IEvent` assigning `Weight` to `RaceAggregate`.
+    """
+    Id: uuid
+    HeightModifier: DiceRoll

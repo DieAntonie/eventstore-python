@@ -3,7 +3,8 @@ from .Commands import (
     SetRaceDetails,
     SetRaceAbilityScoreIncrease,
     SetRaceAge,
-    SetRaceAlignment
+    SetRaceAlignment,
+    SetRaceSize
 )
 from .Events import (
     RaceCreated,
@@ -13,7 +14,12 @@ from .Events import (
     RaceMaturityAgeSet,
     RaceLifeExpectancySet,
     RaceOrthodoxySet,
-    RaceMoralitySet
+    RaceMoralitySet,
+    RaceSizeCategorySet,
+    RaceBaseHeightSet,
+    RaceHeightModifierSet,
+    RaceBaseWeightSet,
+    RaceWeightModifierSet
 )
 from .Exceptions import (
     RaceAlreadyCreated,
@@ -61,6 +67,11 @@ class RaceAggregate(Aggregate):
         self.life_expectency = None
         self.orthodoxy = None
         self.morality = None
+        self.size_category = None
+        self.base_height = None
+        self.height_modifier = None
+        self.base_weight = None
+        self.weight_modifier = None
 
     @Aggregate.Handle.register(CreateRace)
     def Handle_CreateRace(self, command: CreateRace):
@@ -155,6 +166,43 @@ class RaceAggregate(Aggregate):
                 Morality=command.Morality
             )
 
+    @Aggregate.Handle.register(SetRaceSize)
+    @RaceMustExist
+    def Handle_SetRaceSize(self, command: SetRaceSize):
+        """
+        `SetRaceSize` command handler that emits `RaceSizeCategorySet`, `RaceBaseHeightSet`, `RaceHeightModifierSet`,
+        `RaceBaseWeightSet`, and `RaceWeightModifierSet` upon successful validation.
+        """
+        if self.size_category != command.SizeCategory:
+            yield RaceSizeCategorySet(
+                Id=self.Id,
+                SizeCategory=command.SizeCategory
+            )
+        
+        if self.base_height != command.BaseHeight:
+            yield RaceBaseHeightSet(
+                Id=self.Id,
+                BaseHeight=command.BaseHeight
+            )
+
+        if self.height_modifier != command.HeightModifier:
+            yield RaceHeightModifierSet(
+                Id=self.Id,
+                HeightModifier=command.HeightModifier
+            )
+
+        if self.base_weight != command.BaseWeight:
+            yield RaceBaseWeightSet(
+                Id=self.Id,
+                BaseWeight=command.BaseWeight
+            )
+
+        if self.weight_modifier != command.WeightModifier:
+            yield RaceWeightModifierSet(
+                Id=self.Id,
+                WeightModifier=command.WeightModifier
+            )
+
     @staticmethod
     def ValidAbilityScoreIncrease(ability_score_increase: Sequence[dict]):
         abilities = {
@@ -237,3 +285,38 @@ class RaceAggregate(Aggregate):
         `RaceMoralitySet` event handler that sets this `RaceAggregate.morality`.
         """
         self.morality = event.Morality
+
+    @Aggregate.Apply.register(RaceSizeCategorySet)
+    def Apply_RaceSizeCategorySet(self, event: RaceSizeCategorySet):
+        """
+        `RaceSizeCategorySet` event handler that sets this `RaceAggregate.size_category`.
+        """
+        self.size_category = event.SizeCategory
+
+    @Aggregate.Apply.register(RaceBaseHeightSet)
+    def Apply_RaceBaseHeightSet(self, event: RaceBaseHeightSet):
+        """
+        `RaceBaseHeightSet` event handler that sets this `RaceAggregate.base_height`.
+        """
+        self.base_height = event.BaseHeight
+
+    @Aggregate.Apply.register(RaceHeightModifierSet)
+    def Apply_RaceHeightModifierSet(self, event: RaceHeightModifierSet):
+        """
+        `RaceHeightModifierSet` event handler that sets this `RaceAggregate.height_modifier`.
+        """
+        self.height_modifier = event.HeightModifier
+
+    @Aggregate.Apply.register(RaceBaseWeightSet)
+    def Apply_RaceBaseWeightSet(self, event: RaceBaseWeightSet):
+        """
+        `RaceBaseWeightSet` event handler that sets this `RaceAggregate.base_weight`.
+        """
+        self.base_weight = event.BaseWeight
+
+    @Aggregate.Apply.register(RaceWeightModifierSet)
+    def Apply_RaceWeightModifierSet(self, event: RaceWeightModifierSet):
+        """
+        `RaceWeightModifierSet` event handler that sets this `RaceAggregate.weight_modifier`.
+        """
+        self.weight_modifier = event.WeightModifier

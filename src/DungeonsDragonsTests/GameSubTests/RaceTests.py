@@ -1,12 +1,12 @@
 from ...Infrastructure.BDDTest import BDDTest
 from ...DungeonsDragons.Game.Race.RaceAggregate import RaceAggregate
-from ...DungeonsDragons.Game.Ability import Ability
 from ...DungeonsDragons.Game.Race.Commands import (
     CreateRace,
     SetRaceDetails,
     SetRaceAbilityScoreIncrease,
     SetRaceAge,
-    SetRaceAlignment
+    SetRaceAlignment,
+    SetRaceSize
 )
 from ...DungeonsDragons.Game.Race.Events import (
     RaceCreated,
@@ -16,7 +16,12 @@ from ...DungeonsDragons.Game.Race.Events import (
     RaceMaturityAgeSet,
     RaceLifeExpectancySet,
     RaceOrthodoxySet,
-    RaceMoralitySet
+    RaceMoralitySet,
+    RaceSizeCategorySet,
+    RaceBaseHeightSet,
+    RaceHeightModifierSet,
+    RaceBaseWeightSet,
+    RaceWeightModifierSet
 )
 from ...DungeonsDragons.Game.Race.Exceptions import (
     RaceAlreadyCreated,
@@ -30,6 +35,13 @@ from ...DungeonsDragons.Game.Race.Exceptions import (
     RaceOrthodoxyOutsideAllowedSpectrum,
     RaceMoralityOutsideAllowedSpectrum
 )
+from ...DungeonsDragons.Game.Ability import Ability
+from ...DungeonsDragons.Game.DiceRoll import (
+    Dice,
+    DiceRoll
+)
+from ...DungeonsDragons.Game.Length import Foot
+from ...DungeonsDragons.Game.SizeCategory import SizeCategory
 import uuid
 import unittest
 
@@ -78,6 +90,14 @@ class RaceTests(BDDTest):
         self.Chaotic = self.Evil = -1
         self.OverlyChaotic = self.OverlyEvil = -1.1
         self.OverlyLawful = self.OverlyGood = 1.1
+        self.MediumSize = SizeCategory.Medium
+        self.LargeSize = SizeCategory.Large
+        self.FourFootEight = Foot(4, 8)
+        self.ThreeFootSeven = Foot(3, 7)
+        self.TwoTenSidedDie = DiceRoll(2, Dice.TenSidedDie)
+        self.ThreeFourSidedDie = DiceRoll(3, Dice.FourSidedDie)
+        self.HundredAndTenPounds = 110
+        self.SeventyFivePounds = 75
 
     def test_can_create_race(self):
         self.Test(
@@ -527,19 +547,6 @@ class RaceTests(BDDTest):
             self.ThenFailWith(RaceMaturityAgeTooSmall)
         )
 
-    def test_cannot_set_race_with_maturity_age_less_then_one(self):
-        self.Test(
-            self.Given(),
-            self.When(
-                SetRaceAge(
-                    Id=self.RaceId,
-                    MaturityAge=self.MaturityAge1,
-                    LifeExpectency=self.LifeExpectencyAge1
-                )
-            ),
-            self.ThenFailWith(RaceDoesNotExist)
-        )
-
     def test_cannot_set_uncreated_race_age(self):
         self.Test(
             self.Given(),
@@ -744,6 +751,330 @@ class RaceTests(BDDTest):
                     Id=self.RaceId,
                     Orthodoxy=self.Lawful,
                     Morality=self.Good
+                )
+            ),
+            self.ThenFailWith(RaceDoesNotExist)
+        )
+
+    def test_can_set_race_size(self):
+        self.Test(
+            self.Given(
+                RaceCreated(
+                    Id=self.RaceId,
+                    BaseRaceId=None
+                )
+            ),
+            self.When(
+                SetRaceSize(
+                    Id=self.RaceId,
+                    SizeCategory=self.MediumSize,
+                    BaseHeight=self.FourFootEight,
+                    HeightModifier=self.TwoTenSidedDie,
+                    BaseWeight=self.HundredAndTenPounds,
+                    WeightModifier=self.ThreeFourSidedDie
+                )
+            ),
+            self.Then(
+                RaceSizeCategorySet(
+                    Id=self.RaceId,
+                    SizeCategory=self.MediumSize
+                ),
+                RaceBaseHeightSet(
+                    Id=self.RaceId,
+                    BaseHeight=self.FourFootEight
+                ),
+                RaceHeightModifierSet(
+                    Id=self.RaceId,
+                    HeightModifier=self.TwoTenSidedDie
+                ),
+                RaceBaseWeightSet(
+                    Id=self.RaceId,
+                    BaseWeight=self.HundredAndTenPounds
+                ),
+                RaceWeightModifierSet(
+                    Id=self.RaceId,
+                    WeightModifier=self.ThreeFourSidedDie
+                )
+            )
+        )
+
+    def test_can_set_race_size_with_unchanged_values(self):
+        self.Test(
+            self.Given(
+                RaceCreated(
+                    Id=self.RaceId,
+                    BaseRaceId=None
+                ),
+                RaceSizeCategorySet(
+                    Id=self.RaceId,
+                    SizeCategory=self.MediumSize
+                ),
+                RaceBaseHeightSet(
+                    Id=self.RaceId,
+                    BaseHeight=self.FourFootEight
+                ),
+                RaceHeightModifierSet(
+                    Id=self.RaceId,
+                    HeightModifier=self.TwoTenSidedDie
+                ),
+                RaceBaseWeightSet(
+                    Id=self.RaceId,
+                    BaseWeight=self.HundredAndTenPounds
+                ),
+                RaceWeightModifierSet(
+                    Id=self.RaceId,
+                    WeightModifier=self.ThreeFourSidedDie
+                )
+            ),
+            self.When(
+                SetRaceSize(
+                    Id=self.RaceId,
+                    SizeCategory=self.MediumSize,
+                    BaseHeight=self.FourFootEight,
+                    HeightModifier=self.TwoTenSidedDie,
+                    BaseWeight=self.HundredAndTenPounds,
+                    WeightModifier=self.ThreeFourSidedDie
+                )
+            ),
+            self.Then()
+        )
+
+        self.Test(
+            self.Given(
+                RaceCreated(
+                    Id=self.RaceId,
+                    BaseRaceId=None
+                ),
+                RaceSizeCategorySet(
+                    Id=self.RaceId,
+                    SizeCategory=self.MediumSize
+                ),
+                RaceBaseHeightSet(
+                    Id=self.RaceId,
+                    BaseHeight=self.FourFootEight
+                ),
+                RaceHeightModifierSet(
+                    Id=self.RaceId,
+                    HeightModifier=self.TwoTenSidedDie
+                ),
+                RaceBaseWeightSet(
+                    Id=self.RaceId,
+                    BaseWeight=self.HundredAndTenPounds
+                ),
+                RaceWeightModifierSet(
+                    Id=self.RaceId,
+                    WeightModifier=self.ThreeFourSidedDie
+                )
+            ),
+            self.When(
+                SetRaceSize(
+                    Id=self.RaceId,
+                    SizeCategory=self.LargeSize,
+                    BaseHeight=self.FourFootEight,
+                    HeightModifier=self.TwoTenSidedDie,
+                    BaseWeight=self.HundredAndTenPounds,
+                    WeightModifier=self.ThreeFourSidedDie
+                )
+            ),
+            self.Then(
+                RaceSizeCategorySet(
+                    Id=self.RaceId,
+                    SizeCategory=self.LargeSize
+                )
+            )
+        )
+
+        self.Test(
+            self.Given(
+                RaceCreated(
+                    Id=self.RaceId,
+                    BaseRaceId=None
+                ),
+                RaceSizeCategorySet(
+                    Id=self.RaceId,
+                    SizeCategory=self.MediumSize
+                ),
+                RaceBaseHeightSet(
+                    Id=self.RaceId,
+                    BaseHeight=self.FourFootEight
+                ),
+                RaceHeightModifierSet(
+                    Id=self.RaceId,
+                    HeightModifier=self.TwoTenSidedDie
+                ),
+                RaceBaseWeightSet(
+                    Id=self.RaceId,
+                    BaseWeight=self.HundredAndTenPounds
+                ),
+                RaceWeightModifierSet(
+                    Id=self.RaceId,
+                    WeightModifier=self.ThreeFourSidedDie
+                )
+            ),
+            self.When(
+                SetRaceSize(
+                    Id=self.RaceId,
+                    SizeCategory=self.MediumSize,
+                    BaseHeight=self.ThreeFootSeven,
+                    HeightModifier=self.TwoTenSidedDie,
+                    BaseWeight=self.HundredAndTenPounds,
+                    WeightModifier=self.ThreeFourSidedDie
+                )
+            ),
+            self.Then(
+                RaceBaseHeightSet(
+                    Id=self.RaceId,
+                    BaseHeight=self.ThreeFootSeven
+                )
+            )
+        )
+
+        self.Test(
+            self.Given(
+                RaceCreated(
+                    Id=self.RaceId,
+                    BaseRaceId=None
+                ),
+                RaceSizeCategorySet(
+                    Id=self.RaceId,
+                    SizeCategory=self.MediumSize
+                ),
+                RaceBaseHeightSet(
+                    Id=self.RaceId,
+                    BaseHeight=self.FourFootEight
+                ),
+                RaceHeightModifierSet(
+                    Id=self.RaceId,
+                    HeightModifier=self.TwoTenSidedDie
+                ),
+                RaceBaseWeightSet(
+                    Id=self.RaceId,
+                    BaseWeight=self.HundredAndTenPounds
+                ),
+                RaceWeightModifierSet(
+                    Id=self.RaceId,
+                    WeightModifier=self.ThreeFourSidedDie
+                )
+            ),
+            self.When(
+                SetRaceSize(
+                    Id=self.RaceId,
+                    SizeCategory=self.MediumSize,
+                    BaseHeight=self.FourFootEight,
+                    HeightModifier=self.ThreeFourSidedDie,
+                    BaseWeight=self.HundredAndTenPounds,
+                    WeightModifier=self.ThreeFourSidedDie
+                )
+            ),
+            self.Then(
+                RaceHeightModifierSet(
+                    Id=self.RaceId,
+                    HeightModifier=self.ThreeFourSidedDie
+                )
+            )
+        )
+
+        self.Test(
+            self.Given(
+                RaceCreated(
+                    Id=self.RaceId,
+                    BaseRaceId=None
+                ),
+                RaceSizeCategorySet(
+                    Id=self.RaceId,
+                    SizeCategory=self.MediumSize
+                ),
+                RaceBaseHeightSet(
+                    Id=self.RaceId,
+                    BaseHeight=self.FourFootEight
+                ),
+                RaceHeightModifierSet(
+                    Id=self.RaceId,
+                    HeightModifier=self.TwoTenSidedDie
+                ),
+                RaceBaseWeightSet(
+                    Id=self.RaceId,
+                    BaseWeight=self.HundredAndTenPounds
+                ),
+                RaceWeightModifierSet(
+                    Id=self.RaceId,
+                    WeightModifier=self.ThreeFourSidedDie
+                )
+            ),
+            self.When(
+                SetRaceSize(
+                    Id=self.RaceId,
+                    SizeCategory=self.MediumSize,
+                    BaseHeight=self.FourFootEight,
+                    HeightModifier=self.TwoTenSidedDie,
+                    BaseWeight=self.SeventyFivePounds,
+                    WeightModifier=self.ThreeFourSidedDie
+                )
+            ),
+            self.Then(
+                RaceBaseWeightSet(
+                    Id=self.RaceId,
+                    BaseWeight=self.SeventyFivePounds
+                )
+            )
+        )
+
+        self.Test(
+            self.Given(
+                RaceCreated(
+                    Id=self.RaceId,
+                    BaseRaceId=None
+                ),
+                RaceSizeCategorySet(
+                    Id=self.RaceId,
+                    SizeCategory=self.MediumSize
+                ),
+                RaceBaseHeightSet(
+                    Id=self.RaceId,
+                    BaseHeight=self.FourFootEight
+                ),
+                RaceHeightModifierSet(
+                    Id=self.RaceId,
+                    HeightModifier=self.TwoTenSidedDie
+                ),
+                RaceBaseWeightSet(
+                    Id=self.RaceId,
+                    BaseWeight=self.HundredAndTenPounds
+                ),
+                RaceWeightModifierSet(
+                    Id=self.RaceId,
+                    WeightModifier=self.ThreeFourSidedDie
+                )
+            ),
+            self.When(
+                SetRaceSize(
+                    Id=self.RaceId,
+                    SizeCategory=self.MediumSize,
+                    BaseHeight=self.FourFootEight,
+                    HeightModifier=self.TwoTenSidedDie,
+                    BaseWeight=self.HundredAndTenPounds,
+                    WeightModifier=self.TwoTenSidedDie
+                )
+            ),
+            self.Then(
+                RaceWeightModifierSet(
+                    Id=self.RaceId,
+                    WeightModifier=self.TwoTenSidedDie
+                )
+            )
+        )
+
+    def test_cannot_set_uncreated_race_size(self):
+        self.Test(
+            self.Given(),
+            self.When(
+                SetRaceSize(
+                    Id=self.RaceId,
+                    SizeCategory=self.MediumSize,
+                    BaseHeight=self.FourFootEight,
+                    HeightModifier=self.TwoTenSidedDie,
+                    BaseWeight=self.HundredAndTenPounds,
+                    WeightModifier=self.ThreeFourSidedDie
                 )
             ),
             self.ThenFailWith(RaceDoesNotExist)

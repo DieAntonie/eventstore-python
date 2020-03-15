@@ -1,4 +1,7 @@
 from dataclasses import dataclass
+from ..DiceRoll import DiceRoll
+from ..Length import Foot
+from ..SizeCategory import SizeCategory
 import uuid
 
 
@@ -48,3 +51,16 @@ class SetRaceAlignment:
     Id: uuid
     Orthodoxy: int
     Morality: int
+
+
+@dataclass
+class SetRaceSize:
+    """
+    An `ICommand` to set the `SizeCategory` and `Weight` of the `RaceAggregte`.
+    """
+    Id: uuid
+    SizeCategory: SizeCategory
+    BaseHeight: Foot
+    HeightModifier: DiceRoll
+    BaseWeight: int
+    WeightModifier: DiceRoll

@@ -9,6 +9,7 @@ A suite of tests verifies the behavioural functionality of the [`RaceAggregate`]
 4. [Race Ability Score Increase](#race-ability-score-increase)
 5. [Race Age](#race-age)
 6. [Race Alignment](#race-alignment)
+6. [Race Size](#race-size)
 
 ## Setup
 ### The set of values used in determining whether expected outcomes are achieved.
@@ -38,6 +39,11 @@ Alias                                           |   Value                       
 **`OverlyGood`**                                | '_1.1_'                                                           |
 **`OverlyChaotic`**                             | '_-1.1_'                                                          |
 **`OverlyEvil`**                                | '_-1.1_'                                                          |
+**`MediumSize`**                                | '_SizeCategory.Medium_'                                           |
+**`FourFootEight`**                             | '_4' 8"_'                                                         |
+**`TwoTenSidedDie`**                            | '_2d10_'                                                          |
+**`HundredAndTenPounds`**                       | '_110 lb_'                                                        |
+**`ThreeFourSidedDie`**                         | '_3d4_'                                                           |
 
 ## Race Creation
 ### Can create Race
@@ -509,5 +515,241 @@ Alias                                           |   Value                       
         - `Id = RaceId`
         - `Orthodoxy = Lawful`
         - `Morality = Good`
+3. Then expect exception:
+    - `RaceDoesNotExist`
+
+## Race Size
+### Can set Race size
+1. Given event(s):
+    - `RaceCreated` with 
+        - `Id = RaceId`
+        - `BaseRaceId = None`
+2. When command:
+    - `SetRaceSize` is issued with
+        - `Id = RaceId`
+        - `SizeCategory = MediumSize`
+        - `BaseWeight = HundredAndTenPounds`
+        - `WeightModifier = TwoTenSidedDie`
+        - `BaseHeight = FourFootEight`
+        - `HeightModifier = ThreeFourSidedDie`
+3. Then expect event(s):
+    - `RaceSizeCategorySet` with
+        - `Id = RaceId`
+        - `SizeCategory = MediumSize`
+    - `RaceBaseWeightSet` with
+        - `Id = RaceId`
+        - `BaseWeight = HundredAndTenPounds`
+    - `RaceWeightModifiertSet` with
+        - `Id = RaceId`
+        - `WeightModifier = TwoTenSidedDie`
+    - `RaceBaseHeightSet` with
+        - `Id = RaceId`
+        - `BaseHeight = FourFootEight`
+    - `RaceHeightModifierSet` with
+        - `Id = RaceId`
+        - `HeightModifier = ThreeFourSidedDie`
+
+### Can set Race size with unchanged values
+1. Given event(s):
+    - `RaceCreated` with 
+        - `Id = RaceId`
+        - `BaseRaceId = None`
+    - `RaceSizeCategorySet` with
+        - `Id = RaceId`
+        - `SizeCategory = MediumSize`
+    - `RaceBaseWeightSet` with
+        - `Id = RaceId`
+        - `BaseWeight = HundredAndTenPounds`
+    - `RaceWeightModifiertSet` with
+        - `Id = RaceId`
+        - `WeightModifier = TwoTenSidedDie`
+    - `RaceBaseHeightSet` with
+        - `Id = RaceId`
+        - `BaseHeight = FourFootEight`
+    - `RaceHeightModifierSet` with
+        - `Id = RaceId`
+        - `HeightModifier = ThreeFourSidedDie`
+2. When command:
+    - `SetRaceSize` is issued with
+        - `Id = RaceId`
+        - `SizeCategory = MediumSize`
+        - `BaseWeight = HundredAndTenPounds`
+        - `WeightModifier = TwoTenSidedDie`
+        - `BaseHeight = FourFootEight`
+        - `HeightModifier = ThreeFourSidedDie`
+3. Then expect event(s):
+    - None
+
+1. Given event(s):
+    - `RaceCreated` with 
+        - `Id = RaceId`
+        - `BaseRaceId = None`
+    - `RaceSizeCategorySet` with
+        - `Id = RaceId`
+        - `SizeCategory = MediumSize`
+    - `RaceBaseWeightSet` with
+        - `Id = RaceId`
+        - `BaseWeight = HundredAndTenPounds`
+    - `RaceWeightModifiertSet` with
+        - `Id = RaceId`
+        - `WeightModifier = TwoTenSidedDie`
+    - `RaceBaseHeightSet` with
+        - `Id = RaceId`
+        - `BaseHeight = FourFootEight`
+    - `RaceHeightModifierSet` with
+        - `Id = RaceId`
+        - `HeightModifier = ThreeFourSidedDie`
+2. When command:
+    - `SetRaceSize` is issued with
+        - `Id = RaceId`
+        - `SizeCategory = LargeSize`
+        - `BaseWeight = HundredAndTenPounds`
+        - `WeightModifier = TwoTenSidedDie`
+        - `BaseHeight = FourFootEight`
+        - `HeightModifier = ThreeFourSidedDie`
+3. Then expect event(s):
+    - `RaceSizeCategorySet` with
+        - `Id = RaceId`
+        - `SizeCategory = LargeSize`
+
+1. Given event(s):
+    - `RaceCreated` with 
+        - `Id = RaceId`
+        - `BaseRaceId = None`
+    - `RaceSizeCategorySet` with
+        - `Id = RaceId`
+        - `SizeCategory = MediumSize`
+    - `RaceBaseWeightSet` with
+        - `Id = RaceId`
+        - `BaseWeight = HundredAndTenPounds`
+    - `RaceWeightModifiertSet` with
+        - `Id = RaceId`
+        - `WeightModifier = TwoTenSidedDie`
+    - `RaceBaseHeightSet` with
+        - `Id = RaceId`
+        - `BaseHeight = FourFootEight`
+    - `RaceHeightModifierSet` with
+        - `Id = RaceId`
+        - `HeightModifier = ThreeFourSidedDie`
+2. When command:
+    - `SetRaceSize` is issued with
+        - `Id = RaceId`
+        - `SizeCategory = MediumSize`
+        - `BaseWeight = SeventyFivePounds`
+        - `WeightModifier = TwoTenSidedDie`
+        - `BaseHeight = FourFootEight`
+        - `HeightModifier = ThreeFourSidedDie`
+3. Then expect event(s):
+    - `RaceBaseWeightSet` with
+        - `Id = RaceId`
+        - `BaseWeight = SeventyFivePounds`
+
+1. Given event(s):
+    - `RaceCreated` with 
+        - `Id = RaceId`
+        - `BaseRaceId = None`
+    - `RaceSizeCategorySet` with
+        - `Id = RaceId`
+        - `SizeCategory = MediumSize`
+    - `RaceBaseWeightSet` with
+        - `Id = RaceId`
+        - `BaseWeight = HundredAndTenPounds`
+    - `RaceWeightModifiertSet` with
+        - `Id = RaceId`
+        - `WeightModifier = TwoTenSidedDie`
+    - `RaceBaseHeightSet` with
+        - `Id = RaceId`
+        - `BaseHeight = FourFootEight`
+    - `RaceHeightModifierSet` with
+        - `Id = RaceId`
+        - `HeightModifier = ThreeFourSidedDie`
+2. When command:
+    - `SetRaceSize` is issued with
+        - `Id = RaceId`
+        - `SizeCategory = MediumSize`
+        - `BaseWeight = HundredAndTenPounds`
+        - `WeightModifier = ThreeFourSidedDie`
+        - `BaseHeight = FourFootEight`
+        - `HeightModifier = ThreeFourSidedDie`
+3. Then expect event(s):
+    - `RaceWeightModifiertSet` with
+        - `Id = RaceId`
+        - `WeightModifier = ThreeFourSidedDie`
+
+1. Given event(s):
+    - `RaceCreated` with 
+        - `Id = RaceId`
+        - `BaseRaceId = None`
+    - `RaceSizeCategorySet` with
+        - `Id = RaceId`
+        - `SizeCategory = MediumSize`
+    - `RaceBaseWeightSet` with
+        - `Id = RaceId`
+        - `BaseWeight = HundredAndTenPounds`
+    - `RaceWeightModifiertSet` with
+        - `Id = RaceId`
+        - `WeightModifier = TwoTenSidedDie`
+    - `RaceBaseHeightSet` with
+        - `Id = RaceId`
+        - `BaseHeight = FourFootEight`
+    - `RaceHeightModifierSet` with
+        - `Id = RaceId`
+        - `HeightModifier = ThreeFourSidedDie`
+2. When command:
+    - `SetRaceSize` is issued with
+        - `Id = RaceId`
+        - `SizeCategory = MediumSize`
+        - `BaseWeight = HundredAndTenPounds`
+        - `WeightModifier = TwoTenSidedDie`
+        - `BaseHeight = ThreeFootSeven`
+        - `HeightModifier = ThreeFourSidedDie`
+3. Then expect event(s):
+    - `RaceBaseHeightSet` with
+        - `Id = RaceId`
+        - `BaseHeight = ThreeFootSeven`
+
+1. Given event(s):
+    - `RaceCreated` with 
+        - `Id = RaceId`
+        - `BaseRaceId = None`
+    - `RaceSizeCategorySet` with
+        - `Id = RaceId`
+        - `SizeCategory = MediumSize`
+    - `RaceBaseWeightSet` with
+        - `Id = RaceId`
+        - `BaseWeight = HundredAndTenPounds`
+    - `RaceWeightModifiertSet` with
+        - `Id = RaceId`
+        - `WeightModifier = TwoTenSidedDie`
+    - `RaceBaseHeightSet` with
+        - `Id = RaceId`
+        - `BaseHeight = FourFootEight`
+    - `RaceHeightModifierSet` with
+        - `Id = RaceId`
+        - `HeightModifier = ThreeFourSidedDie`
+2. When command:
+    - `SetRaceSize` is issued with
+        - `Id = RaceId`
+        - `SizeCategory = MediumSize`
+        - `BaseWeight = HundredAndTenPounds`
+        - `WeightModifier = TwoTenSidedDie`
+        - `BaseHeight = FourFootEight`
+        - `HeightModifier = TwoTenSidedDie`
+3. Then expect event(s):
+    - `RaceHeightModifierSet` with
+        - `Id = RaceId`
+        - `HeightModifier = TwoTenSidedDie`
+
+### Cannot set uncreated Race size
+1. Given event(s):
+    - None
+2. When command:
+    - `SetRaceSize` is issued with
+        - `Id = RaceId`
+        - `SizeCategory = MediumSize`
+        - `BaseWeight = HundredAndTenPounds`
+        - `WeightModifier = TwoTenSidedDie`
+        - `BaseHeight = FourFootEight`
+        - `HeightModifier = ThreeFourSidedDie`
 3. Then expect exception:
     - `RaceDoesNotExist`
