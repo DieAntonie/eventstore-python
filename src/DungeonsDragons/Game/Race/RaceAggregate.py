@@ -150,7 +150,7 @@ class RaceAggregate(Aggregate):
         """
         if not (-1 <= command.Orthodoxy <= 1):
             raise RaceOrthodoxyOutsideAllowedSpectrum
-        
+
         if not (-1 <= command.Morality <= 1):
             raise RaceMoralityOutsideAllowedSpectrum
 
@@ -178,7 +178,7 @@ class RaceAggregate(Aggregate):
                 Id=self.Id,
                 SizeCategory=command.SizeCategory
             )
-        
+
         if self.base_height != command.BaseHeight:
             yield RaceBaseHeightSet(
                 Id=self.Id,
