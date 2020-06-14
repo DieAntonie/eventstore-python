@@ -1,5 +1,12 @@
 from ...Infrastructure.BDDTest import BDDTest
+from ...DungeonsDragons.Game.Ability import Ability
+from ...DungeonsDragons.Game.Length import Foot
 from ...DungeonsDragons.Game.Race.RaceAggregate import RaceAggregate
+from ...DungeonsDragons.Game.SizeCategory import SizeCategory
+from ...DungeonsDragons.Game.DiceRoll import (
+    Dice,
+    DiceRoll
+)
 from ...DungeonsDragons.Game.Race.Commands import (
     CreateRace,
     SetRaceDetails,
@@ -35,13 +42,6 @@ from ...DungeonsDragons.Game.Race.Exceptions import (
     RaceOrthodoxyOutsideAllowedSpectrum,
     RaceMoralityOutsideAllowedSpectrum
 )
-from ...DungeonsDragons.Game.Ability import Ability
-from ...DungeonsDragons.Game.DiceRoll import (
-    Dice,
-    DiceRoll
-)
-from ...DungeonsDragons.Game.Length import Foot
-from ...DungeonsDragons.Game.SizeCategory import SizeCategory
 import uuid
 import unittest
 
@@ -349,7 +349,7 @@ class RaceTests(BDDTest):
             ),
             self.ThenFailWith(TooManyOtherAbilityScoreIncreaseTokens)
         )
-        
+
     def test_cannot_set_race_ability_score_increase_with_invalid_token_structure(self):
         self.Test(
             self.Given(
@@ -366,7 +366,7 @@ class RaceTests(BDDTest):
             ),
             self.ThenFailWith(InvalidAbilityScoreIncreaseTokenStructure)
         )
-        
+
     def test_cannot_set_race_ability_score_increase_with_invalid_token(self):
         self.Test(
             self.Given(
