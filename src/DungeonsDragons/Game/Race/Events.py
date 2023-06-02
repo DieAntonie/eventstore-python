@@ -11,7 +11,7 @@ class RaceCreated:
     """
     Request to assign a `Race` of a certain `Age` and `Alignment` to a `CharacterAggregate`.
     """
-    Id: uuid
+    Id: uuid.UUID
     BaseRaceId: str
 
 
@@ -20,7 +20,7 @@ class RaceNameSet:
     """
     Request to assign a `Race` of a certain `Age` and `Alignment` to a `CharacterAggregate`.
     """
-    Id: uuid
+    Id: uuid.UUID
     Name: str
 
 
@@ -29,7 +29,7 @@ class RaceDescriptionSet:
     """
     Request to assign a `Race` of a certain `Age` and `Alignment` to a `CharacterAggregate`.
     """
-    Id: uuid
+    Id: uuid.UUID
     Description: str
 
 
@@ -38,7 +38,7 @@ class RaceAbilityScoreIncreaseSet:
     """
     An `IEvent` assigning `AbilityScoreIncrease` to `RaceAggregate`.
     """
-    Id: uuid
+    Id: uuid.UUID
     AbilityScoreIncrease: list[dict[str, int]]
 
 
@@ -47,7 +47,7 @@ class RaceMaturityAgeSet:
     """
     An `IEvent` assigning `MaturityAg` to `RaceAggregate`.
     """
-    Id: uuid
+    Id: uuid.UUID
     MaturityAge: int
 
 
@@ -56,7 +56,7 @@ class RaceLifeExpectancySet:
     """
     An `IEvent` assigning `LifeExpectency` to `RaceAggregate`.
     """
-    Id: uuid
+    Id: uuid.UUID
     LifeExpectency: int
 
 
@@ -65,7 +65,7 @@ class RaceOrthodoxySet:
     """
     An `IEvent` assigning `Orthodoxy` to `RaceAggregate`.
     """
-    Id: uuid
+    Id: uuid.UUID
     Orthodoxy: int
 
 
@@ -74,7 +74,7 @@ class RaceMoralitySet:
     """
     An `IEvent` assigning `Morality` to `RaceAggregate`.
     """
-    Id: uuid
+    Id: uuid.UUID
     Morality: int
 
 
@@ -83,7 +83,7 @@ class RaceSizeCategorySet:
     """
     An `IEvent` assigning `SizeCategory` to `RaceAggregate`.
     """
-    Id: uuid
+    Id: uuid.UUID
     SizeCategory: SizeCategory
 
 
@@ -92,7 +92,7 @@ class RaceBaseWeightSet:
     """
     An `IEvent` assigning `BaseWeight` to `RaceAggregate`.
     """
-    Id: uuid
+    Id: uuid.UUID
     BaseWeight: int
 
 
@@ -101,7 +101,7 @@ class RaceWeightModifierSet:
     """
     An `IEvent` assigning `WeightModifier` to `RaceAggregate`.
     """
-    Id: uuid
+    Id: uuid.UUID
     WeightModifier: DiceRoll
 
 
@@ -110,7 +110,7 @@ class RaceBaseHeightSet:
     """
     An `IEvent` assigning `BaseHeight` to `RaceAggregate`.
     """
-    Id: uuid
+    Id: uuid.UUID
     BaseHeight: Foot
 
 
@@ -119,7 +119,7 @@ class RaceHeightModifierSet:
     """
     An `IEvent` assigning `HeightModifier` to `RaceAggregate`.
     """
-    Id: uuid
+    Id: uuid.UUID
     HeightModifier: DiceRoll
 
 
@@ -128,7 +128,7 @@ class RaceBaseWalkSpeedSet:
     """
     An `IEvent` assigning `BaseWalkSpeed` to `RaceAggregate`.
     """
-    Id: uuid
+    Id: uuid.UUID
     BaseWalkSpeed: Foot
 
 
@@ -137,5 +137,14 @@ class RaceLanguagesSet:
     """
     An `IEvent` assigning `Languages` to `RaceAggregate`.
     """
-    Id: uuid
+    Id: uuid.UUID
     Languages: list[Language]
+
+
+@dataclass
+class RaceSubRacesSet:
+    """
+    An `IEvent` assigning `Subraces` to `RaceAggregate`.
+    """
+    Id: uuid.UUID
+    Subraces: list[uuid.UUID]

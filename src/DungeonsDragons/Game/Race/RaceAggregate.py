@@ -6,7 +6,8 @@ from .Commands import (
     SetRaceAlignment,
     SetRaceSize,
     SetRaceSpeed,
-    SetRaceLanguages
+    SetRaceLanguages,
+    SetRaceSubRaces
 )
 from .Events import (
     RaceCreated,
@@ -23,7 +24,8 @@ from .Events import (
     RaceBaseWeightSet,
     RaceWeightModifierSet,
     RaceBaseWalkSpeedSet,
-    RaceLanguagesSet
+    RaceLanguagesSet,
+    RaceSubRacesSet
 )
 from .Exceptions import (
     RaceAlreadyCreated,
@@ -234,6 +236,18 @@ class RaceAggregate(Aggregate):
                 Languages=command.Languages
             )
 
+    @Aggregate.Handle.register(SetRaceSubRaces)
+    @RaceMustExist
+    def Handle_SetRaceSubRaces(self, command: SetRaceSubRaces):
+        """
+        `SetRaceSpeed` command handler that emits `RaceLanguagesSet` upon successful validation.
+        """
+        if self.sub_races != command.Subraces:
+            yield RaceSubRacesSet(
+                Id=self.Id,
+                Subraces=command.Subraces
+            )
+
     @staticmethod
     def ValidAbilityScoreIncrease(ability_score_increase: Sequence[dict]):
         abilities = {
@@ -365,3 +379,10 @@ class RaceAggregate(Aggregate):
         `RaceLanguagesSet` event handler that sets this `RaceAggregate.base_walk_speed`.
         """
         self.languages = event.Languages
+
+    @Aggregate.Apply.register(RaceSubRacesSet)
+    def Apply_RaceLanguagesSet(self, event: RaceSubRacesSet):
+        """
+        `RaceSubRacesSet` event handler that sets this `RaceAggregate.base_walk_speed`.
+        """
+        self.sub_races = event.Subraces

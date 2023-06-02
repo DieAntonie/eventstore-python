@@ -11,8 +11,8 @@ class CreateRace:
     """
     Request to assign a `Race` of a certain `Age` and `Alignment` to a `CharacterAggregate`.
     """
-    Id: uuid
-    BaseRaceId: uuid
+    Id: uuid.UUID
+    BaseRaceId: uuid.UUID
 
 
 @dataclass
@@ -20,7 +20,7 @@ class SetRaceDetails:
     """
     Request to assign a `Race` of a certain `Age` and `Alignment` to a `CharacterAggregate`.
     """
-    Id: uuid
+    Id: uuid.UUID
     Name: str
     Description: str
 
@@ -30,7 +30,7 @@ class SetRaceAbilityScoreIncrease:
     """
     An `ICommand` to assign `AbilityScoreIncrease` to the `RaceAggregte`.
     """
-    Id: uuid
+    Id: uuid.UUID
     AbilityScoreIncrease: list[dict[str, int]]
 
 
@@ -39,7 +39,7 @@ class SetRaceAge:
     """
     An `ICommand` to assign the `MaturityAge` and `LifeExpectency` to the `RaceAggregte`.
     """
-    Id: uuid
+    Id: uuid.UUID
     MaturityAge: int
     LifeExpectency: int
 
@@ -49,7 +49,7 @@ class SetRaceAlignment:
     """
     An `ICommand` to set the `Orthodoxy` and `Morality` of the `RaceAggregte`.
     """
-    Id: uuid
+    Id: uuid.UUID
     Orthodoxy: int
     Morality: int
 
@@ -60,7 +60,7 @@ class SetRaceSize:
     An `ICommand` to set the `SizeCategory`, `BaseHeight`, `HeightModifier`, `BaseWeight`,
     and `WeightModifier` of the `RaceAggregte`.
     """
-    Id: uuid
+    Id: uuid.UUID
     SizeCategory: SizeCategory
     BaseHeight: Foot
     HeightModifier: DiceRoll
@@ -73,7 +73,7 @@ class SetRaceSpeed:
     """
     An `ICommand` to set the `BaseWalkSpeed` of the `RaceAggregte`.
     """
-    Id: uuid
+    Id: uuid.UUID
     BaseWalkSpeed: Foot
 
 
@@ -82,5 +82,14 @@ class SetRaceLanguages:
     """
     An `ICommand` to set the `Languages` of the `RaceAggregte`.
     """
-    Id: uuid
+    Id: uuid.UUID
     Languages: list[Language]
+
+
+@dataclass
+class SetRaceSubRaces:
+    """
+    An `ICommand` to set the `Subraces` of the `RaceAggregte`.
+    """
+    Id: uuid.UUID
+    Subraces: list[uuid.UUID]

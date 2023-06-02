@@ -15,7 +15,8 @@ from ...DungeonsDragons.Game.Race.Commands import (
     SetRaceAlignment,
     SetRaceSize,
     SetRaceSpeed,
-    SetRaceLanguages
+    SetRaceLanguages,
+    SetRaceSubRaces
 )
 from ...DungeonsDragons.Game.Race.Events import (
     RaceCreated,
@@ -32,7 +33,8 @@ from ...DungeonsDragons.Game.Race.Events import (
     RaceBaseWeightSet,
     RaceWeightModifierSet,
     RaceBaseWalkSpeedSet,
-    RaceLanguagesSet
+    RaceLanguagesSet,
+    RaceSubRacesSet
 )
 from ...DungeonsDragons.Game.Race.Exceptions import (
     RaceAlreadyCreated,
@@ -56,7 +58,8 @@ class RaceTests(BDDTest):
     def setUp(self):
         self.sut = RaceAggregate()
         self.RaceId = uuid.uuid1()
-        self.SubraceId = uuid.uuid1()
+        self.Subrace1Id = uuid.uuid1()
+        self.Subrace2Id = uuid.uuid1()
         self.RaceName1 = 'Race 1'
         self.RaceName2 = 'Race 2'
         self.RaceDescription1 = 'Description 1'
@@ -148,13 +151,13 @@ class RaceTests(BDDTest):
             self.Given(),
             self.When(
                 CreateRace(
-                    Id=self.SubraceId,
+                    Id=self.Subrace1Id,
                     BaseRaceId=self.RaceId,
                 )
             ),
             self.Then(
                 RaceCreated(
-                    Id=self.SubraceId,
+                    Id=self.Subrace1Id,
                     BaseRaceId=self.RaceId
                 )
             )
@@ -1245,6 +1248,86 @@ class RaceTests(BDDTest):
                 SetRaceLanguages(
                     Id=self.RaceId,
                     Languages=self.Monoglot
+                )
+            ),
+            self.ThenFailWith(RaceDoesNotExist)
+        )
+
+    def test_can_set_race_sub_races(self):
+        self.Test(
+            self.Given(
+                RaceCreated(
+                    Id=self.RaceId,
+                    BaseRaceId=None
+                )
+            ),
+            self.When(
+                SetRaceSubRaces(
+                    Id=self.RaceId,
+                    Subraces=[self.Subrace1Id]
+                )
+            ),
+            self.Then(
+                RaceSubRacesSet(
+                    Id=self.RaceId,
+                    Subraces=[self.Subrace1Id]
+                )
+            )
+        )
+
+    def test_can_set_race_sub_races_unchanged(self):
+        self.Test(
+            self.Given(
+                RaceCreated(
+                    Id=self.RaceId,
+                    BaseRaceId=None
+                ),
+                RaceSubRacesSet(
+                    Id=self.RaceId,
+                    Subraces=[self.Subrace1Id]
+                )
+            ),
+            self.When(
+                SetRaceSubRaces(
+                    Id=self.RaceId,
+                    Subraces=[self.Subrace1Id]
+                )
+            ),
+            self.Then()
+        )
+
+        self.Test(
+            self.Given(
+                RaceCreated(
+                    Id=self.RaceId,
+                    BaseRaceId=None
+                ),
+                RaceSubRacesSet(
+                    Id=self.RaceId,
+                    Subraces=[self.Subrace1Id]
+                )
+            ),
+            self.When(
+                SetRaceSubRaces(
+                    Id=self.RaceId,
+                    Subraces=[self.Subrace2Id]
+                )
+            ),
+            self.Then(
+                RaceSubRacesSet(
+                    Id=self.RaceId,
+                    Subraces=[self.Subrace2Id]
+                )
+            )
+        )
+
+    def test_cannot_set_uncreated_race_sub_races(self):
+        self.Test(
+            self.Given(),
+            self.When(
+                SetRaceSubRaces(
+                    Id=self.RaceId,
+                    Subraces=[self.Subrace1Id]
                 )
             ),
             self.ThenFailWith(RaceDoesNotExist)
