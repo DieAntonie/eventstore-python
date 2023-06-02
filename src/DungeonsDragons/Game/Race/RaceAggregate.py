@@ -4,7 +4,8 @@ from .Commands import (
     SetRaceAbilityScoreIncrease,
     SetRaceAge,
     SetRaceAlignment,
-    SetRaceSize
+    SetRaceSize,
+    SetRaceSpeed
 )
 from .Events import (
     RaceCreated,
@@ -19,7 +20,8 @@ from .Events import (
     RaceBaseHeightSet,
     RaceHeightModifierSet,
     RaceBaseWeightSet,
-    RaceWeightModifierSet
+    RaceWeightModifierSet,
+    RaceBaseWalkSpeedSet
 )
 from .Exceptions import (
     RaceAlreadyCreated,
@@ -41,7 +43,7 @@ from typing import Sequence
 
 class RaceAggregate(Aggregate):
     """
-    An instance of the Tab domain object.
+    An instance of the Race domain object.
     """
 
     def RaceMustExist(self):
@@ -72,6 +74,7 @@ class RaceAggregate(Aggregate):
         self.height_modifier = None
         self.base_weight = None
         self.weight_modifier = None
+        self.base_walk_speed = None
 
     @Aggregate.Handle.register(CreateRace)
     def Handle_CreateRace(self, command: CreateRace):
@@ -92,7 +95,7 @@ class RaceAggregate(Aggregate):
     @RaceMustExist
     def Handle_SetRaceDetails(self, command: SetRaceDetails):
         """
-        `OpenTab` command handler that emits a `TabOpened` event upon successfully opening a tab.
+        `SetRaceDetails` command handler that emits a `RaceNameSet` event upon successfully opening a tab.
         """
         if command.Name != self.name:
             yield RaceNameSet(
@@ -136,6 +139,7 @@ class RaceAggregate(Aggregate):
                 Id=self.Id,
                 MaturityAge=command.MaturityAge
             )
+
         if command.LifeExpectency != self.life_expectency:
             yield RaceLifeExpectancySet(
                 Id=self.Id,
@@ -201,6 +205,18 @@ class RaceAggregate(Aggregate):
             yield RaceWeightModifierSet(
                 Id=self.Id,
                 WeightModifier=command.WeightModifier
+            )
+
+    @Aggregate.Handle.register(SetRaceSpeed)
+    @RaceMustExist
+    def Handle_SetRaceSpeed(self, command: SetRaceSpeed):
+        """
+        `SetRaceSpeed` command handler that emits `RaceBaseWalkSpeedSet` upon successful validation.
+        """
+        if self.base_walk_speed != command.BaseWalkSpeed:
+            yield RaceBaseWalkSpeedSet(
+                Id=self.Id,
+                BaseWalkSpeed=command.BaseWalkSpeed
             )
 
     @staticmethod
@@ -320,3 +336,10 @@ class RaceAggregate(Aggregate):
         `RaceWeightModifierSet` event handler that sets this `RaceAggregate.weight_modifier`.
         """
         self.weight_modifier = event.WeightModifier
+
+    @Aggregate.Apply.register(RaceBaseWalkSpeedSet)
+    def Apply_RaceWeightModifierSet(self, event: RaceBaseWalkSpeedSet):
+        """
+        `RaceBaseWalkSpeedSet` event handler that sets this `RaceAggregate.base_walk_speed`.
+        """
+        self.base_walk_speed = event.BaseWalkSpeed

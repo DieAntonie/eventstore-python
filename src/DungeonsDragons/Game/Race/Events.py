@@ -89,7 +89,7 @@ class RaceSizeCategorySet:
 @dataclass
 class RaceBaseWeightSet:
     """
-    An `IEvent` assigning `Weight` to `RaceAggregate`.
+    An `IEvent` assigning `BaseWeight` to `RaceAggregate`.
     """
     Id: uuid
     BaseWeight: int
@@ -98,7 +98,7 @@ class RaceBaseWeightSet:
 @dataclass
 class RaceWeightModifierSet:
     """
-    An `IEvent` assigning `Weight` to `RaceAggregate`.
+    An `IEvent` assigning `WeightModifier` to `RaceAggregate`.
     """
     Id: uuid
     WeightModifier: DiceRoll
@@ -107,7 +107,7 @@ class RaceWeightModifierSet:
 @dataclass
 class RaceBaseHeightSet:
     """
-    An `IEvent` assigning `Weight` to `RaceAggregate`.
+    An `IEvent` assigning `BaseHeight` to `RaceAggregate`.
     """
     Id: uuid
     BaseHeight: Foot
@@ -116,7 +116,16 @@ class RaceBaseHeightSet:
 @dataclass
 class RaceHeightModifierSet:
     """
-    An `IEvent` assigning `Weight` to `RaceAggregate`.
+    An `IEvent` assigning `HeightModifier` to `RaceAggregate`.
     """
     Id: uuid
     HeightModifier: DiceRoll
+
+
+@dataclass
+class RaceBaseWalkSpeedSet:
+    """
+    An `IEvent` assigning `BaseWalkSpeed` to `RaceAggregate`.
+    """
+    Id: uuid
+    BaseWalkSpeed: Foot

@@ -13,7 +13,8 @@ from ...DungeonsDragons.Game.Race.Commands import (
     SetRaceAbilityScoreIncrease,
     SetRaceAge,
     SetRaceAlignment,
-    SetRaceSize
+    SetRaceSize,
+    SetRaceSpeed
 )
 from ...DungeonsDragons.Game.Race.Events import (
     RaceCreated,
@@ -28,7 +29,8 @@ from ...DungeonsDragons.Game.Race.Events import (
     RaceBaseHeightSet,
     RaceHeightModifierSet,
     RaceBaseWeightSet,
-    RaceWeightModifierSet
+    RaceWeightModifierSet,
+    RaceBaseWalkSpeedSet
 )
 from ...DungeonsDragons.Game.Race.Exceptions import (
     RaceAlreadyCreated,
@@ -98,6 +100,9 @@ class RaceTests(BDDTest):
         self.ThreeFourSidedDie = DiceRoll(3, Dice.FourSidedDie)
         self.HundredAndTenPounds = 110
         self.SeventyFivePounds = 75
+        self.ThirtyFeet = Foot(30)
+        self.TwentyFiveFeet = Foot(25)
+
 
     def test_can_create_race(self):
         self.Test(
@@ -1075,6 +1080,86 @@ class RaceTests(BDDTest):
                     HeightModifier=self.TwoTenSidedDie,
                     BaseWeight=self.HundredAndTenPounds,
                     WeightModifier=self.ThreeFourSidedDie
+                )
+            ),
+            self.ThenFailWith(RaceDoesNotExist)
+        )
+
+    def test_can_set_race_speed(self):
+        self.Test(
+            self.Given(
+                RaceCreated(
+                    Id=self.RaceId,
+                    BaseRaceId=None
+                )
+            ),
+            self.When(
+                SetRaceSpeed(
+                    Id=self.RaceId,
+                    BaseWalkSpeed=self.ThirtyFeet
+                )
+            ),
+            self.Then(
+                RaceBaseWalkSpeedSet(
+                    Id=self.RaceId,
+                    BaseWalkSpeed=self.ThirtyFeet
+                )
+            )
+        )
+
+    def test_can_set_race_speed_unchanged(self):
+        self.Test(
+            self.Given(
+                RaceCreated(
+                    Id=self.RaceId,
+                    BaseRaceId=None
+                ),
+                RaceBaseWalkSpeedSet(
+                    Id=self.RaceId,
+                    BaseWalkSpeed=self.ThirtyFeet
+                )
+            ),
+            self.When(
+                SetRaceSpeed(
+                    Id=self.RaceId,
+                    BaseWalkSpeed=self.ThirtyFeet
+                )
+            ),
+            self.Then()
+        )
+
+        self.Test(
+            self.Given(
+                RaceCreated(
+                    Id=self.RaceId,
+                    BaseRaceId=None
+                ),
+                RaceBaseWalkSpeedSet(
+                    Id=self.RaceId,
+                    BaseWalkSpeed=self.ThirtyFeet
+                )
+            ),
+            self.When(
+                SetRaceSpeed(
+                    Id=self.RaceId,
+                    BaseWalkSpeed=self.TwentyFiveFeet
+                )
+            ),
+            self.Then(
+                RaceBaseWalkSpeedSet(
+                    Id=self.RaceId,
+                    BaseWalkSpeed=self.TwentyFiveFeet
+                )
+            )
+        )
+
+    def test_cannot_set_uncreated_race_speed(self):
+        self.Test(
+            self.Given(),
+            self.When(
+                SetRaceSpeed(
+                    Id=self.RaceId,
+                    BaseWalkSpeed=self.ThirtyFeet
                 )
             ),
             self.ThenFailWith(RaceDoesNotExist)

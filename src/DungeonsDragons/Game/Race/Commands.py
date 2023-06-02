@@ -56,7 +56,8 @@ class SetRaceAlignment:
 @dataclass
 class SetRaceSize:
     """
-    An `ICommand` to set the `SizeCategory` and `Weight` of the `RaceAggregte`.
+    An `ICommand` to set the `SizeCategory`, `BaseHeight`, `HeightModifier`, `BaseWeight`,
+    and `WeightModifier` of the `RaceAggregte`.
     """
     Id: uuid
     SizeCategory: SizeCategory
@@ -64,3 +65,12 @@ class SetRaceSize:
     HeightModifier: DiceRoll
     BaseWeight: int
     WeightModifier: DiceRoll
+
+
+@dataclass
+class SetRaceSpeed:
+    """
+    An `ICommand` to set the `BaseWalkSpeed` of the `RaceAggregte`.
+    """
+    Id: uuid
+    BaseWalkSpeed: Foot
