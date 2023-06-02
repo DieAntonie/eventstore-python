@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from ..DiceRoll import DiceRoll
+from ..Language import Language
 from ..Length import Foot
 from ..SizeCategory import SizeCategory
 import uuid
@@ -38,7 +39,7 @@ class RaceAbilityScoreIncreaseSet:
     An `IEvent` assigning `AbilityScoreIncrease` to `RaceAggregate`.
     """
     Id: uuid
-    AbilityScoreIncrease: []
+    AbilityScoreIncrease: list[dict[str, int]]
 
 
 @dataclass
@@ -129,3 +130,12 @@ class RaceBaseWalkSpeedSet:
     """
     Id: uuid
     BaseWalkSpeed: Foot
+
+
+@dataclass
+class RaceLanguagesSet:
+    """
+    An `IEvent` assigning `Languages` to `RaceAggregate`.
+    """
+    Id: uuid
+    Languages: list[Language]

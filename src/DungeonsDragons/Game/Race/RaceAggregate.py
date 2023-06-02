@@ -5,7 +5,8 @@ from .Commands import (
     SetRaceAge,
     SetRaceAlignment,
     SetRaceSize,
-    SetRaceSpeed
+    SetRaceSpeed,
+    SetRaceLanguages
 )
 from .Events import (
     RaceCreated,
@@ -21,7 +22,8 @@ from .Events import (
     RaceHeightModifierSet,
     RaceBaseWeightSet,
     RaceWeightModifierSet,
-    RaceBaseWalkSpeedSet
+    RaceBaseWalkSpeedSet,
+    RaceLanguagesSet
 )
 from .Exceptions import (
     RaceAlreadyCreated,
@@ -75,6 +77,7 @@ class RaceAggregate(Aggregate):
         self.base_weight = None
         self.weight_modifier = None
         self.base_walk_speed = None
+        self.languages = []
 
     @Aggregate.Handle.register(CreateRace)
     def Handle_CreateRace(self, command: CreateRace):
@@ -219,6 +222,18 @@ class RaceAggregate(Aggregate):
                 BaseWalkSpeed=command.BaseWalkSpeed
             )
 
+    @Aggregate.Handle.register(SetRaceLanguages)
+    @RaceMustExist
+    def Handle_SetRaceLanguages(self, command: SetRaceLanguages):
+        """
+        `SetRaceSpeed` command handler that emits `RaceLanguagesSet` upon successful validation.
+        """
+        if self.languages != command.Languages:
+            yield RaceLanguagesSet(
+                Id=self.Id,
+                Languages=command.Languages
+            )
+
     @staticmethod
     def ValidAbilityScoreIncrease(ability_score_increase: Sequence[dict]):
         abilities = {
@@ -338,8 +353,15 @@ class RaceAggregate(Aggregate):
         self.weight_modifier = event.WeightModifier
 
     @Aggregate.Apply.register(RaceBaseWalkSpeedSet)
-    def Apply_RaceWeightModifierSet(self, event: RaceBaseWalkSpeedSet):
+    def Apply_RaceBaseWalkSpeedSet(self, event: RaceBaseWalkSpeedSet):
         """
         `RaceBaseWalkSpeedSet` event handler that sets this `RaceAggregate.base_walk_speed`.
         """
         self.base_walk_speed = event.BaseWalkSpeed
+
+    @Aggregate.Apply.register(RaceLanguagesSet)
+    def Apply_RaceLanguagesSet(self, event: RaceLanguagesSet):
+        """
+        `RaceLanguagesSet` event handler that sets this `RaceAggregate.base_walk_speed`.
+        """
+        self.languages = event.Languages

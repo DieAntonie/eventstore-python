@@ -14,7 +14,8 @@ from ...DungeonsDragons.Game.Race.Commands import (
     SetRaceAge,
     SetRaceAlignment,
     SetRaceSize,
-    SetRaceSpeed
+    SetRaceSpeed,
+    SetRaceLanguages
 )
 from ...DungeonsDragons.Game.Race.Events import (
     RaceCreated,
@@ -30,7 +31,8 @@ from ...DungeonsDragons.Game.Race.Events import (
     RaceHeightModifierSet,
     RaceBaseWeightSet,
     RaceWeightModifierSet,
-    RaceBaseWalkSpeedSet
+    RaceBaseWalkSpeedSet,
+    RaceLanguagesSet
 )
 from ...DungeonsDragons.Game.Race.Exceptions import (
     RaceAlreadyCreated,
@@ -44,6 +46,7 @@ from ...DungeonsDragons.Game.Race.Exceptions import (
     RaceOrthodoxyOutsideAllowedSpectrum,
     RaceMoralityOutsideAllowedSpectrum
 )
+from ...DungeonsDragons.Game.Language import Language
 import uuid
 import unittest
 
@@ -102,6 +105,8 @@ class RaceTests(BDDTest):
         self.SeventyFivePounds = 75
         self.ThirtyFeet = Foot(30)
         self.TwentyFiveFeet = Foot(25)
+        self.Monoglot = [Language.Common]
+        self.Polyglot = [Language.Common, Language.Dwarvish]
 
 
     def test_can_create_race(self):
@@ -1160,6 +1165,86 @@ class RaceTests(BDDTest):
                 SetRaceSpeed(
                     Id=self.RaceId,
                     BaseWalkSpeed=self.ThirtyFeet
+                )
+            ),
+            self.ThenFailWith(RaceDoesNotExist)
+        )
+
+    def test_can_set_race_languages(self):
+        self.Test(
+            self.Given(
+                RaceCreated(
+                    Id=self.RaceId,
+                    BaseRaceId=None
+                )
+            ),
+            self.When(
+                SetRaceLanguages(
+                    Id=self.RaceId,
+                    Languages=self.Monoglot
+                )
+            ),
+            self.Then(
+                RaceLanguagesSet(
+                    Id=self.RaceId,
+                    Languages=self.Monoglot
+                )
+            )
+        )
+
+    def test_can_set_race_languages_unchanged(self):
+        self.Test(
+            self.Given(
+                RaceCreated(
+                    Id=self.RaceId,
+                    BaseRaceId=None
+                ),
+                RaceLanguagesSet(
+                    Id=self.RaceId,
+                    Languages=self.Monoglot
+                )
+            ),
+            self.When(
+                SetRaceLanguages(
+                    Id=self.RaceId,
+                    Languages=self.Monoglot
+                )
+            ),
+            self.Then()
+        )
+
+        self.Test(
+            self.Given(
+                RaceCreated(
+                    Id=self.RaceId,
+                    BaseRaceId=None
+                ),
+                RaceLanguagesSet(
+                    Id=self.RaceId,
+                    Languages=self.Monoglot
+                )
+            ),
+            self.When(
+                SetRaceLanguages(
+                    Id=self.RaceId,
+                    Languages=self.Polyglot
+                )
+            ),
+            self.Then(
+                RaceLanguagesSet(
+                    Id=self.RaceId,
+                    Languages=self.Polyglot
+                )
+            )
+        )
+
+    def test_cannot_set_uncreated_race_languages(self):
+        self.Test(
+            self.Given(),
+            self.When(
+                SetRaceLanguages(
+                    Id=self.RaceId,
+                    Languages=self.Monoglot
                 )
             ),
             self.ThenFailWith(RaceDoesNotExist)

@@ -2,6 +2,7 @@ from dataclasses import dataclass
 from ..DiceRoll import DiceRoll
 from ..Length import Foot
 from ..SizeCategory import SizeCategory
+from ..Language import Language
 import uuid
 
 
@@ -30,7 +31,7 @@ class SetRaceAbilityScoreIncrease:
     An `ICommand` to assign `AbilityScoreIncrease` to the `RaceAggregte`.
     """
     Id: uuid
-    AbilityScoreIncrease: []
+    AbilityScoreIncrease: list[dict[str, int]]
 
 
 @dataclass
@@ -74,3 +75,12 @@ class SetRaceSpeed:
     """
     Id: uuid
     BaseWalkSpeed: Foot
+
+
+@dataclass
+class SetRaceLanguages:
+    """
+    An `ICommand` to set the `Languages` of the `RaceAggregte`.
+    """
+    Id: uuid
+    Languages: list[Language]
