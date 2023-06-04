@@ -12,4 +12,4 @@ class IApplyEvent(metaclass=ABCMeta):
         Generic `IApplyEvent` overloaded event handler catch all events that are not registered to be applied.
         """
         raise ValueError(
-            f"{self.__class__.__name__} does not know how to apply event {event.__class__.__name__}")
+            f"{self.__class__.__name__} does not know how to apply event {event.__class__.__name__} : {event}")

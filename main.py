@@ -1,55 +1,32 @@
-# from dataclasses import dataclass
 from src.Infrastructure.MessageDispatcher import MessageDispatcher
 from src.Infrastructure.SqlEventStore import SqlEventStore
-# from src.Cafe.ReadModels.OpenTabs import OpenTabs
-# from src.Cafe.ReadModels.ChefTodoList import ChefTodoList
-# from src.Cafe.Tab.Commands.CloseTab import CloseTab
-# from src.Cafe.Tab.Commands.MarkDrinksServed import MarkDrinksServed
-# from src.Cafe.Tab.Commands.MarkFoodPrepared import MarkFoodPrepared
-# from src.Cafe.Tab.Commands.MarkFoodServed import MarkFoodServed
-from src.DungeonsDragons.Character.Commands.SetCharacterRace import SetCharacterRace
-from src.DungeonsDragons.Game.Race.Race import Dragonborn
-from src.DungeonsDragons.Game.Alignment import Alignment
-# from src.Cafe.Tab.Commands.PlaceOrder import PlaceOrder
-# from src.Cafe.Tab.Shared import OrderedItem
-from src.DungeonsDragons.Character.CharacterAggregate import CharacterAggregate
+from src.DungeonsDragons.Game.Race.RaceAggregate import RaceAggregate
+from src.DungeonsDragons.Game.Race.Commands import (
+    CreateRace,
+    SetRaceDetails,
+    SetRaceAbilityScoreIncrease,
+    SetRaceAlignment
+)
 import uuid
 
-
-# # Create Message dispatcher and set source to PSQL Event store.
+# Create Message dispatcher and set source to PSQL Event store.
 Dispatcher = MessageDispatcher(SqlEventStore())
 
-# # Scan the a Tab Aggregate to register all command handlers.
-Dispatcher.RegisterHandlersOfInstance(CharacterAggregate())
+# Scan the a Race Aggregate to register all command and event handlers.
+Dispatcher.RegisterHandlersOfInstance(RaceAggregate())
 
-# # Scan the OpenTabs read model to register all subscription handlers.
-# OpenTabQueries = OpenTabs()
-# Dispatcher.RegisterHandlersOfInstance(OpenTabQueries)
+# We start by creating a race.
+print("### Part 1: Create a new Race")
+Race_Key = uuid.uuid1()
+create_test_race = CreateRace(Race_Key)
+Dispatcher.SendCommand(create_test_race)
+set_test_race_details = SetRaceDetails(Race_Key, "Test", "A test race")
+Dispatcher.SendCommand(set_test_race_details)
+set_test_ability_score = SetRaceAbilityScoreIncrease(Race_Key, [])
+Dispatcher.SendCommand(set_test_ability_score)
+set_test_race_alignment = SetRaceAlignment(Race_Key, 0, 0)
+Dispatcher.SendCommand(set_test_race_alignment)
 
-# # Scan the ChefTodoList read model to register all subscription handlers.
-# ChefTodoListQueries = ChefTodoList()
-# Dispatcher.RegisterHandlersOfInstance(ChefTodoListQueries)
-
-# #
-Tab_Key = uuid.uuid1()
-
-# # Print State
-# print("### Part 0: Current state")
-# print(f"-->  Active Tables Numbers are: {OpenTabQueries.ActiveTableNumbers()}")
-# todo_list = OpenTabQueries.TodoListForWaiter("Chris")
-# print(f"-->  Todo List For Waiter is: {todo_list}")
-# print(f"-->  Todo List For Chef is: {ChefTodoListQueries.GetTodoList()}")z
-
-# # We start by opening a tab for table 3, served by Chris.
-print("### Part 1: Open a new Tab on table 3 for waiter Chris")
-set_race = SetCharacterRace(
-    Id=Tab_Key,
-    Race=Dragonborn.Green,
-    Age=50,
-    Alignment=Alignment.Neutral
-)
-
-Dispatcher.SendCommand(set_race)
 
 # # Print State
 # print(f"-->  Active Tables Numbers are: {OpenTabQueries.ActiveTableNumbers()}")

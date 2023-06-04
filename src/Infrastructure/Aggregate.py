@@ -34,16 +34,19 @@ class Aggregate(IHandleCommand, IApplyEvent):
         Validate incoming `Command` \ `Event` is addressed to current Aggregate.
         """
         @wraps(func)
-        def test_id_match(self, *arguments, **keyword_arguments):
+        def validate_target_id_match(self, *arguments, **keyword_arguments):
             """
-            Test if `Aggregate.Id` matches incoming `Command.Id` \ `Event.Id` 
+            Validate that `Aggregate.Id` matches incoming `Command.Id` \ `Event.Id` 
             """
+            commandId = getattr(arguments[0], 'Id')
+            if (type(commandId) is str):
+                setattr(arguments[0], 'Id', uuid.UUID(commandId))
             if self.Id is not None and self.Id != getattr(arguments[0], "Id"):
                 raise Exception("Jisiis daar's grooooot kak!!!!")
 
             return func(self, *arguments)
 
-        return test_id_match
+        return validate_target_id_match
 
     def __init__(self, id=None, eventsLoaded=0):
         self.Id = id

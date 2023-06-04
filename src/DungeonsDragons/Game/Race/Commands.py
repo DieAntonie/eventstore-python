@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from typing import Optional
 from ..DiceRoll import DiceRoll
 from ..Length import Foot
 from ..SizeCategory import SizeCategory
@@ -12,7 +13,7 @@ class CreateRace:
     Request to assign a `Race` of a certain `Age` and `Alignment` to a `CharacterAggregate`.
     """
     Id: uuid.UUID
-    BaseRaceId: uuid.UUID
+    BaseRaceId: Optional[uuid.UUID] = None
 
 
 @dataclass

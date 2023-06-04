@@ -7,7 +7,7 @@ from uuid import UUID
 
 
 class SqlEventStore(IEventStore):
-    def __init__(self, host='localhost', user='postgres', password='masterkey', dbname='postgres'):
+    def __init__(self, host='localhost', user='postgres', password='postgres', dbname='postgres'):
         self.host = host
         self.user = user
         self.password = password
@@ -21,10 +21,10 @@ class SqlEventStore(IEventStore):
         with psycopg2.connect(host=self.host, user=self.user, password=self.password, dbname=self.dbname) as connection:
             db_cursor = connection.cursor()
             db_cursor.execute(f"""
-                SELECT "Body"
-                FROM public."Events"
-                WHERE "AggregateId" = '{id}'
-                ORDER BY "SequenceNumber"
+                SELECT body
+                FROM public.events
+                WHERE aggregate_id = '{id}'
+                ORDER BY sequence_number
                 """)
 
             for data in db_cursor.fetchall():
@@ -51,7 +51,7 @@ class SqlEventStore(IEventStore):
                 class_ = getattr(module, class_name)
                 # Use dictionary unpacking to initialize the object
                 model_obj = class_(**json_obj)
-            if "__enum__" in json_obj:
+            elif"__enum__" in json_obj:
                 # Pop ensures we remove metadata from the dict to leave only the instance arguments
                 enum_name = json_obj.pop("__enum__")
                 # Get the module name from the dict and import it
@@ -77,25 +77,25 @@ class SqlEventStore(IEventStore):
         # Query prelude.
         # Add saving of the events.
         index = 0 
+        queryText = "BEGIN TRANSACTION;"
         for event in newEvents:
-            queryText = f"""
-                BEGIN TRANSACTION;
-                INSERT INTO public."Aggregates" ("Id", "Type")
+            queryText += f"""
+                INSERT INTO public.aggregates (id, type)
                 SELECT
                     '{event.Id}',
                     '{aggregateType}'
                 WHERE
                     NOT EXISTS (
-                        SELECT "Id" FROM public."Aggregates" WHERE "Id" = '{event.Id}'
+                        SELECT id FROM public.aggregates WHERE id = '{event.Id}'
                     );
                     
-                INSERT INTO public."Events" ("AggregateId", "SequenceNumber", "Type", "Body", "Timestamp")
+                INSERT INTO public.events (aggregate_id, sequence_number, type, body, timestamp)
                     VALUES(
                         '{event.Id}',
                         {eventsLoaded + index},
                         '{event.__class__.__name__}',
                         '{self.SerializeEvent(event)}',
-                        '{datetime.now()}');
+                        '{datetime.utcnow()}');
                 """
             index += 1
         # Add commit.
