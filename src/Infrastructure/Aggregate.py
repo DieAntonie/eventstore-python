@@ -1,8 +1,9 @@
+from .Overloadable import Overloadable
 from .IApplyEvent import IApplyEvent
 from .ICommand import ICommand
 from .IEvent import IEvent
 from .IHandleCommand import IHandleCommand
-from functools import singledispatch, wraps
+from functools import wraps
 from typing import Sequence
 import uuid
 
@@ -11,23 +12,6 @@ class Aggregate(IHandleCommand, IApplyEvent):
     """
     Aggregate domain object that is composed of sequential application of events.
     """
-
-    def Overload(func):
-        """
-        Extended Single-dispatch generic class method decorator.
-
-        Transforms a class method into a generic function, which can have different behaviours depending upon the type of its first argument. The decorated class method acts as the default implementation, and additional implementations can be registered using the `register()` attribute of the generic function.
-        """
-        dispatcher = singledispatch(func)
-        @wraps(func)
-        def dispatch_wrapper(*args, **kw):
-            """
-            Class method dispatch wrapper.
-            """
-            return dispatcher.dispatch(args[1].__class__)(*args, **kw)
-        dispatch_wrapper.register = dispatcher.register
-        dispatch_wrapper.registry = dispatcher.registry
-        return dispatch_wrapper
 
     def TargetValidation(func):
         """
@@ -53,11 +37,11 @@ class Aggregate(IHandleCommand, IApplyEvent):
         self.EventsLoaded = eventsLoaded
 
     @TargetValidation
-    @Overload
+    @Overloadable
     def Handle(self, command: ICommand) -> Sequence[IEvent]: super().Handle(command)
 
     @TargetValidation
-    @Overload
+    @Overloadable
     def Apply(self, event: IEvent) -> None: super().Apply(event)
 
     def ApplyEvents(self, events: Sequence[IEvent]) -> None:

@@ -1,3 +1,4 @@
+from src.DungeonsDragons.ReadModels.RaceReadModel import RaceReadModel
 from src.Infrastructure.MessageDispatcher import MessageDispatcher
 from src.Infrastructure.SqlEventStore import SqlEventStore
 from src.DungeonsDragons.Game.Race.RaceAggregate import RaceAggregate
@@ -12,8 +13,11 @@ import uuid
 # Create Message dispatcher and set source to PSQL Event store.
 Dispatcher = MessageDispatcher(SqlEventStore())
 
-# Scan the a Race Aggregate to register all command and event handlers.
+# Scan the Race Aggregate to register all command and event handlers.
 Dispatcher.RegisterHandlersOfInstance(RaceAggregate())
+
+# Scan the Races ReadModel to register all event handlers.
+Dispatcher.RegisterHandlersOfInstance(RaceReadModel())
 
 # We start by creating a race.
 print("### Part 1: Create a new Race")

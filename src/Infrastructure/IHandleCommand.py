@@ -14,4 +14,4 @@ class IHandleCommand(metaclass=ABCMeta):
         Generic `IHandleCommand` overloaded command handler catch all commands that are not registered to be handled.
         """
         raise ValueError(
-            f"{self.__class__.__name__} does not know how to handle command {command.__class__.__name__}")
+            f"{self.__class__.__name__} does not know how to handle command {command.__class__.__name__} : {command}")

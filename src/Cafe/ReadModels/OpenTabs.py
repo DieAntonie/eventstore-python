@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from functools import singledispatch, update_wrapper
 from .IOpenTabQueries import IOpenTabQueries
-from ..Infrastructure.IHandleEvent import IHandleEvent
+from ...Infrastructure.IHandleEvent import IHandleEvent
 from ..Events.Tab.DrinksOrdered import DrinksOrdered
 from ..Events.Tab.DrinksServed import DrinksServed
 from ..Events.Tab.FoodOrdered import FoodOrdered
