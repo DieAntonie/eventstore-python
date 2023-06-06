@@ -1,4 +1,5 @@
-from .Aggregate import Aggregate
+from .IReadModel import IReadModel
+from .IAggregate import IAggregate
 from .ICommand import ICommand
 from .IEvent import IEvent
 from .IEventStore import IEventStore
@@ -35,7 +36,7 @@ class MessageDispatcher:
             for subscriber in self.eventHandlers[eventType]:
                 subscriber(event)
 
-    def AddHandlerOnCommand(self, command_handler: Aggregate, command: ICommand) -> None:
+    def AddHandlerOnCommand(self, command_handler: IAggregate, command: ICommand) -> None:
         """
         The `command_handler` is registered to `IHandleCommand.Handle(command)` an unallocated `command`.
 
@@ -54,7 +55,7 @@ class MessageDispatcher:
             The resulting events are then appended to the `command_handler` aggregate and published to all `IHandleEvent` event handlers.
             """
             aggregate = command_handler.__class__()
-            aggregate.ApplyEvents(self.eventStore.LoadEventsFor(command.Id))
+            aggregate.ApplyEvents(self.eventStore.LoadEventsForAggregate(command.Id))
             unpublished_events = []
             for commanded_event in aggregate.Handle(command):
                 unpublished_events.append(commanded_event)
@@ -81,8 +82,18 @@ class MessageDispatcher:
         """
         handler = getattr(instance, 'Handle')
         if handler and callable(handler):
-            for handleable in instance.Handle.registry.keys():
-                if issubclass(instance.__class__, IHandleCommand):
+            handleables = instance.Handle.registry.keys()
+            readEvents = []
+            instanceIsReadModel = issubclass(instance.__class__, IReadModel)
+            instanceIsCommandHandler = issubclass(instance.__class__, IHandleCommand)
+            instanceIsEventHandler = issubclass(instance.__class__, IHandleEvent)
+            for handleable in handleables:
+                if issubclass(handleable, ICommand) and instanceIsCommandHandler:
                     self.AddHandlerOnCommand(instance, handleable)
-                if issubclass(instance.__class__, IHandleEvent):
-                    self.AddHandlerOnEvent(instance, handleable)
+                if issubclass(handleable, IEvent):
+                    if instanceIsEventHandler:
+                        self.AddHandlerOnEvent(instance, handleable)
+                    if instanceIsReadModel:
+                        readEvents.append(handleable.__name__)
+            if instanceIsReadModel:
+                instance.ReadEvents(self.eventStore.LoadEventsByType(readEvents))

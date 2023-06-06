@@ -8,7 +8,7 @@ from typing import Sequence
 import uuid
 
 
-class Aggregate(IHandleCommand, IApplyEvent):
+class IAggregate(IHandleCommand, IApplyEvent):
     """
     Aggregate domain object that is composed of sequential application of events.
     """

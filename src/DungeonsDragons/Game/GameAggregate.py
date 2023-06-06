@@ -1,8 +1,8 @@
 from functools import singledispatch, update_wrapper
-from ...Infrastructure.Aggregate import Aggregate
+from ...Infrastructure.IAggregate import IAggregate
 
 
-class GameAggregate(Aggregate):
+class GameAggregate(IAggregate):
     """
     An instance of the Tab domain object.
     """

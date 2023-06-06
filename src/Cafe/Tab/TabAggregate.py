@@ -12,7 +12,7 @@ from .Commands.MarkFoodPrepared import MarkFoodPrepared
 from .Commands.MarkFoodServed import MarkFoodServed
 from .Commands.OpenTab import OpenTab
 from .Commands.PlaceOrder import PlaceOrder
-from ...Infrastructure.Aggregate import Aggregate
+from ...Infrastructure.IAggregate import IAggregate
 from .Events.DrinksOrdered import DrinksOrdered
 from .Events.DrinksServed import DrinksServed
 from .Events.FoodOrdered import FoodOrdered
@@ -22,7 +22,7 @@ from .Events.TabOpened import TabOpened
 from .Events.TabClosed import TabClosed
 
 
-class TabAggregate(Aggregate):
+class TabAggregate(IAggregate):
     """
     An instance of the Tab domain object.
     """
@@ -35,7 +35,7 @@ class TabAggregate(Aggregate):
         self.open = False
         self.servedItemsValue = 0.0
 
-    @Aggregate.Handle.register(OpenTab)
+    @IAggregate.Handle.register(OpenTab)
     def Handle_OpenTab(self, command: OpenTab):
         """
         `OpenTab` command handler that emits a `TabOpened` event upon successfully opening a tab.
@@ -46,7 +46,7 @@ class TabAggregate(Aggregate):
             command.Waiter
         )
 
-    @Aggregate.Handle.register(PlaceOrder)
+    @IAggregate.Handle.register(PlaceOrder)
     def Handle_PlaceOrder(self, command: PlaceOrder):
         """
         `PlaceOrder` command handler that emits `DrinksOrdered` and `FoodOrdered` events upon successfully placing and order.
@@ -62,7 +62,7 @@ class TabAggregate(Aggregate):
         if food:
             yield FoodOrdered(command.Id, food)
 
-    @Aggregate.Handle.register(MarkDrinksServed)
+    @IAggregate.Handle.register(MarkDrinksServed)
     def Handle_MarkDrinksServed(self, command: MarkDrinksServed):
         """
         `MarkDrinksServed` command handler that emits a `DrinksServed` event upon successfully serving drinks.
@@ -72,7 +72,7 @@ class TabAggregate(Aggregate):
 
         yield DrinksServed(command.Id, command.MenuNumbers)
 
-    @Aggregate.Handle.register(MarkFoodPrepared)
+    @IAggregate.Handle.register(MarkFoodPrepared)
     def Handle_MarkFoodPrepared(self, command: MarkFoodPrepared):
         """
         `MarkFoodPrepared` command handler that emits a `FoodPrepared` event upon successfully preparing food.
@@ -82,7 +82,7 @@ class TabAggregate(Aggregate):
 
         yield FoodPrepared(command.Id, command.MenuNumbers)
 
-    @Aggregate.Handle.register(MarkFoodServed)
+    @IAggregate.Handle.register(MarkFoodServed)
     def Handle_MarkFoodServed(self, command: MarkFoodServed):
         """
         `MarkFoodServed` command handler that emits a `FoodServed` event upon successfully serving food.
@@ -92,7 +92,7 @@ class TabAggregate(Aggregate):
 
         yield FoodServed(command.Id, command.MenuNumbers)
 
-    @Aggregate.Handle.register(CloseTab)
+    @IAggregate.Handle.register(CloseTab)
     def Handle_CloseTab(self, command: CloseTab):
         """
         `CloseTab` command handler that emits a `TabClosed` event upon successfully closing a tab.
@@ -143,28 +143,28 @@ class TabAggregate(Aggregate):
         """
         return self.outstandingDrinks or self.outstandingFood or self.preparedFood
 
-    @Aggregate.Apply.register(TabOpened)
+    @IAggregate.Apply.register(TabOpened)
     def Apply_TabOpened(self, event: TabOpened):
         """
         `TabOpened` event handler that opens this `TabAggregate`.
         """
         self.open = True
 
-    @Aggregate.Apply.register(DrinksOrdered)
+    @IAggregate.Apply.register(DrinksOrdered)
     def Apply_DrinksOrdered(self, event: DrinksOrdered):
         """
         `DrinksOrdered` event handler that orders this `TabAggregate`'s drink items.
         """
         self.outstandingDrinks += event.Items
 
-    @Aggregate.Apply.register(FoodOrdered)
+    @IAggregate.Apply.register(FoodOrdered)
     def Apply_FoodOrdered(self, event: FoodOrdered):
         """
         `FoodOrdered` event handler that orders this `TabAggregate`'s food items.
         """
         self.outstandingFood += event.Items
 
-    @Aggregate.Apply.register(DrinksServed)
+    @IAggregate.Apply.register(DrinksServed)
     def Apply_DrinksServed(self, event: DrinksServed):
         """
         `DrinksServed` event handler that serves this `TabAggregate`'s outstanding drinks.
@@ -178,7 +178,7 @@ class TabAggregate(Aggregate):
             self.outstandingDrinks.remove(item)
             self.servedItemsValue += item.Price
 
-    @Aggregate.Apply.register(FoodPrepared)
+    @IAggregate.Apply.register(FoodPrepared)
     def Apply_FoodPrepared(self, event: FoodPrepared):
         """
         `FoodPrepared` event handler that prepares this `TabAggregate`'s outstanding food.
@@ -191,7 +191,7 @@ class TabAggregate(Aggregate):
             self.outstandingFood.remove(item)
             self.preparedFood.append(item)
 
-    @Aggregate.Apply.register(FoodServed)
+    @IAggregate.Apply.register(FoodServed)
     def Apply_FoodServed(self, event: FoodServed):
         """
         `FoodServed` event handler that serves this `TabAggregate`'s prepared food.
@@ -204,7 +204,7 @@ class TabAggregate(Aggregate):
             self.preparedFood.remove(item)
             self.servedItemsValue += item.Price
 
-    @Aggregate.Apply.register(TabClosed)
+    @IAggregate.Apply.register(TabClosed)
     def Apply_TabClosed(self, event: TabClosed):
         """
         `TabClosed` event handler that closes this `TabAggregate`.

@@ -13,7 +13,24 @@ class SqlEventStore(IEventStore):
         self.password = password
         self.dbname = dbname
 
-    def LoadEventsFor(self, id: UUID) -> Sequence[IEvent]:
+    def LoadEventsByType(self, eventTypes: Sequence[str]) -> Sequence[IEvent]:
+        """
+        Loads all events of the specified types.
+        """
+        import psycopg2
+        with psycopg2.connect(host=self.host, user=self.user, password=self.password, dbname=self.dbname) as connection:
+            db_cursor = connection.cursor()
+            db_cursor.execute(f"""
+                SELECT body
+                FROM public.events
+                WHERE type in ({','.join([f"'{eventType}'" for eventType in eventTypes])})
+                ORDER BY timestamp, sequence_number;
+                """)
+
+            for data in db_cursor.fetchall():
+                yield self.DeserializeEvent(data)
+
+    def LoadEventsForAggregate(self, id: UUID) -> Sequence[IEvent]:
         """
         Loads the collection of events for the specified aggregate key.
         """
@@ -24,7 +41,7 @@ class SqlEventStore(IEventStore):
                 SELECT body
                 FROM public.events
                 WHERE aggregate_id = '{id}'
-                ORDER BY sequence_number
+                ORDER BY sequence_number;
                 """)
 
             for data in db_cursor.fetchall():

@@ -2,7 +2,7 @@ from functools import singledispatch, update_wrapper
 from .Commands.SetCharacterRace import SetCharacterRace
 from .Events.CharacterRaceSet import CharacterRaceSet
 from .Exceptions import CharacterRaceAlreadySet
-from ...Infrastructure.Aggregate import Aggregate
+from ...Infrastructure.IAggregate import IAggregate
 from ...Infrastructure.IApplyEvent import IApplyEvent
 from ...Infrastructure.IHandleCommand import IHandleCommand
 
@@ -26,7 +26,7 @@ def methdispatch(func):
     return wrapper
 
 
-class CharacterAggregate(Aggregate, IHandleCommand, IApplyEvent):
+class CharacterAggregate(IAggregate, IHandleCommand, IApplyEvent):
     """
     An instance of the Tab domain object.
     """

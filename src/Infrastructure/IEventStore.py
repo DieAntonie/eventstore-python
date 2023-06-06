@@ -8,7 +8,10 @@ class IEventStore(metaclass=ABCMeta):
     Event Store interface for loading and storing aggregate event data 
     """
     @abstractmethod
-    def LoadEventsFor(self, id: UUID) -> Sequence[IEvent]: pass
+    def LoadEventsByType(self, eventTypes: Sequence[str]) -> Sequence[IEvent]: pass
+    
+    @abstractmethod
+    def LoadEventsForAggregate(self, id: UUID) -> Sequence[IEvent]: pass
 
     @abstractmethod
     def SaveEvents(self, aggregateType: str, eventsLoaded: int, newEvents: Sequence[IEvent]) -> None: pass

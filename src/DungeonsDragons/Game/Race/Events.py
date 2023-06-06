@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from src.Infrastructure.IEvent import IEvent
 from ..DiceRoll import DiceRoll
 from ..Language import Language
 from ..Length import Foot
@@ -7,7 +8,7 @@ import uuid
 
 
 @dataclass
-class RaceCreated:
+class RaceCreated(IEvent):
     """
     Request to assign a `Race` of a certain `Age` and `Alignment` to a `CharacterAggregate`.
     """
@@ -16,7 +17,7 @@ class RaceCreated:
 
 
 @dataclass
-class RaceNameSet:
+class RaceNameSet(IEvent):
     """
     Request to assign a `Race` of a certain `Age` and `Alignment` to a `CharacterAggregate`.
     """
@@ -25,7 +26,7 @@ class RaceNameSet:
 
 
 @dataclass
-class RaceDescriptionSet:
+class RaceDescriptionSet(IEvent):
     """
     Request to assign a `Race` of a certain `Age` and `Alignment` to a `CharacterAggregate`.
     """
@@ -34,7 +35,7 @@ class RaceDescriptionSet:
 
 
 @dataclass
-class RaceAbilityScoreIncreaseSet:
+class RaceAbilityScoreIncreaseSet(IEvent):
     """
     An `IEvent` assigning `AbilityScoreIncrease` to `RaceAggregate`.
     """
@@ -43,7 +44,7 @@ class RaceAbilityScoreIncreaseSet:
 
 
 @dataclass
-class RaceMaturityAgeSet:
+class RaceMaturityAgeSet(IEvent):
     """
     An `IEvent` assigning `MaturityAg` to `RaceAggregate`.
     """
@@ -52,7 +53,7 @@ class RaceMaturityAgeSet:
 
 
 @dataclass
-class RaceLifeExpectancySet:
+class RaceLifeExpectancySet(IEvent):
     """
     An `IEvent` assigning `LifeExpectency` to `RaceAggregate`.
     """
@@ -61,7 +62,7 @@ class RaceLifeExpectancySet:
 
 
 @dataclass
-class RaceOrthodoxySet:
+class RaceOrthodoxySet(IEvent):
     """
     An `IEvent` assigning `Orthodoxy` to `RaceAggregate`.
     """
@@ -70,7 +71,7 @@ class RaceOrthodoxySet:
 
 
 @dataclass
-class RaceMoralitySet:
+class RaceMoralitySet(IEvent):
     """
     An `IEvent` assigning `Morality` to `RaceAggregate`.
     """
@@ -79,7 +80,7 @@ class RaceMoralitySet:
 
 
 @dataclass
-class RaceSizeCategorySet:
+class RaceSizeCategorySet(IEvent):
     """
     An `IEvent` assigning `SizeCategory` to `RaceAggregate`.
     """
@@ -88,7 +89,7 @@ class RaceSizeCategorySet:
 
 
 @dataclass
-class RaceBaseWeightSet:
+class RaceBaseWeightSet(IEvent):
     """
     An `IEvent` assigning `BaseWeight` to `RaceAggregate`.
     """
@@ -97,7 +98,7 @@ class RaceBaseWeightSet:
 
 
 @dataclass
-class RaceWeightModifierSet:
+class RaceWeightModifierSet(IEvent):
     """
     An `IEvent` assigning `WeightModifier` to `RaceAggregate`.
     """
@@ -106,7 +107,7 @@ class RaceWeightModifierSet:
 
 
 @dataclass
-class RaceBaseHeightSet:
+class RaceBaseHeightSet(IEvent):
     """
     An `IEvent` assigning `BaseHeight` to `RaceAggregate`.
     """
@@ -115,7 +116,7 @@ class RaceBaseHeightSet:
 
 
 @dataclass
-class RaceHeightModifierSet:
+class RaceHeightModifierSet(IEvent):
     """
     An `IEvent` assigning `HeightModifier` to `RaceAggregate`.
     """
@@ -124,7 +125,7 @@ class RaceHeightModifierSet:
 
 
 @dataclass
-class RaceBaseWalkSpeedSet:
+class RaceBaseWalkSpeedSet(IEvent):
     """
     An `IEvent` assigning `BaseWalkSpeed` to `RaceAggregate`.
     """
@@ -133,7 +134,7 @@ class RaceBaseWalkSpeedSet:
 
 
 @dataclass
-class RaceLanguagesSet:
+class RaceLanguagesSet(IEvent):
     """
     An `IEvent` assigning `Languages` to `RaceAggregate`.
     """
@@ -142,7 +143,7 @@ class RaceLanguagesSet:
 
 
 @dataclass
-class RaceSubRacesSet:
+class RaceSubRacesSet(IEvent):
     """
     An `IEvent` assigning `Subraces` to `RaceAggregate`.
     """

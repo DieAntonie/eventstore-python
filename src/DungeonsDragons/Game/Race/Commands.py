@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from typing import Optional
+from ....Infrastructure.ICommand import ICommand
 from ..DiceRoll import DiceRoll
 from ..Length import Foot
 from ..SizeCategory import SizeCategory
@@ -8,7 +9,7 @@ import uuid
 
 
 @dataclass
-class CreateRace:
+class CreateRace(ICommand):
     """
     Request to assign a `Race` of a certain `Age` and `Alignment` to a `CharacterAggregate`.
     """
@@ -17,7 +18,7 @@ class CreateRace:
 
 
 @dataclass
-class SetRaceDetails:
+class SetRaceDetails(ICommand):
     """
     Request to assign a `Race` of a certain `Age` and `Alignment` to a `CharacterAggregate`.
     """
@@ -27,7 +28,7 @@ class SetRaceDetails:
 
 
 @dataclass
-class SetRaceAbilityScoreIncrease:
+class SetRaceAbilityScoreIncrease(ICommand):
     """
     An `ICommand` to assign `AbilityScoreIncrease` to the `RaceAggregte`.
     """
@@ -36,7 +37,7 @@ class SetRaceAbilityScoreIncrease:
 
 
 @dataclass
-class SetRaceAge:
+class SetRaceAge(ICommand):
     """
     An `ICommand` to assign the `MaturityAge` and `LifeExpectency` to the `RaceAggregte`.
     """
@@ -46,7 +47,7 @@ class SetRaceAge:
 
 
 @dataclass
-class SetRaceAlignment:
+class SetRaceAlignment(ICommand):
     """
     An `ICommand` to set the `Orthodoxy` and `Morality` of the `RaceAggregte`.
     """
@@ -56,7 +57,7 @@ class SetRaceAlignment:
 
 
 @dataclass
-class SetRaceSize:
+class SetRaceSize(ICommand):
     """
     An `ICommand` to set the `SizeCategory`, `BaseHeight`, `HeightModifier`, `BaseWeight`,
     and `WeightModifier` of the `RaceAggregte`.
@@ -70,7 +71,7 @@ class SetRaceSize:
 
 
 @dataclass
-class SetRaceSpeed:
+class SetRaceSpeed(ICommand):
     """
     An `ICommand` to set the `BaseWalkSpeed` of the `RaceAggregte`.
     """
@@ -79,7 +80,7 @@ class SetRaceSpeed:
 
 
 @dataclass
-class SetRaceLanguages:
+class SetRaceLanguages(ICommand):
     """
     An `ICommand` to set the `Languages` of the `RaceAggregte`.
     """
@@ -88,7 +89,7 @@ class SetRaceLanguages:
 
 
 @dataclass
-class SetRaceSubRaces:
+class SetRaceSubRaces(ICommand):
     """
     An `ICommand` to set the `Subraces` of the `RaceAggregte`.
     """
