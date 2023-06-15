@@ -381,7 +381,7 @@ class RaceAggregate(IAggregate):
         self.languages = event.Languages
 
     @IAggregate.Apply.register(RaceSubRacesSet)
-    def Apply_RaceLanguagesSet(self, event: RaceSubRacesSet):
+    def Apply_RaceSubRacesSet(self, event: RaceSubRacesSet):
         """
         `RaceSubRacesSet` event handler that sets this `RaceAggregate.base_walk_speed`.
         """
