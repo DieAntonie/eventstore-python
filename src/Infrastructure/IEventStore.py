@@ -15,3 +15,6 @@ class IEventStore(metaclass=ABCMeta):
 
     @abstractmethod
     def SaveEvents(self, aggregateType: str, eventsLoaded: int, newEvents: Sequence[IEvent]) -> None: pass
+
+    @abstractmethod
+    def LoadDomain(self, domain): pass

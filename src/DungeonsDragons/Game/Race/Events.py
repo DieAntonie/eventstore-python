@@ -31,6 +31,7 @@ class RaceDescriptionSet(IEvent):
     Request to assign a `Race` of a certain `Age` and `Alignment` to a `CharacterAggregate`.
     """
     Id: uuid.UUID
+    Name: str
     Description: str
 
 
@@ -149,3 +150,11 @@ class RaceSubRacesSet(IEvent):
     """
     Id: uuid.UUID
     Subraces: list[uuid.UUID]
+
+
+@dataclass
+class RaceUnhandledSet(IEvent):
+    """
+    An `IEvent` assigning `Languages` to `RaceAggregate`.
+    """
+    Id: uuid.UUID

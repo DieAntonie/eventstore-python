@@ -22,6 +22,7 @@ from .Events import (
     RaceBaseHeightSet,
     RaceHeightModifierSet,
     RaceBaseWeightSet,
+    RaceUnhandledSet,
     RaceWeightModifierSet,
     RaceBaseWalkSpeedSet,
     RaceLanguagesSet,
@@ -386,3 +387,10 @@ class RaceAggregate(IAggregate):
         `RaceSubRacesSet` event handler that sets this `RaceAggregate.base_walk_speed`.
         """
         self.sub_races = event.Subraces
+
+    @IAggregate.Apply.register(RaceUnhandledSet)
+    def Apply_RaceUnhandledSet(self, event: RaceSubRacesSet):
+        """
+        `RaceUnhandledSet` event handler that sets this `RaceAggregate.base_walk_speed`.
+        """
+        pass

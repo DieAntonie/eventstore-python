@@ -1,3 +1,5 @@
+from dataclasses import fields, is_dataclass
+import uuid
 from .IEvent import IEvent
 from .IEventStore import IEventStore
 from datetime import datetime
@@ -7,11 +9,11 @@ from uuid import UUID
 
 
 class SqlEventStore(IEventStore):
-    def __init__(self, host='localhost', user='postgres', password='postgres', dbname='postgres'):
-        self.host = host
-        self.user = user
-        self.password = password
-        self.dbname = dbname
+    def __init__(self, configuration: dict = { 'host':'localhost', 'user':'postgres', 'password':'postgres', 'dbname':'postgres'}):
+        self.host = configuration['host']
+        self.user = configuration['user']
+        self.password = configuration['password']
+        self.dbname = configuration['dbname']
 
     def LoadEventsByType(self, eventTypes: Sequence[str]) -> Sequence[IEvent]:
         """
@@ -171,3 +173,116 @@ class SqlEventStore(IEventStore):
             return json_obj
 
         return json.dumps(event, cls=UUIDEncoder)
+
+    def LoadDomain(self, domain) -> Sequence[dict]:
+        appliables = domain.Apply.registry.keys()
+        domainType = domain.__class__.__name__
+        eventTypes = [appliable.__name__ for appliable in appliables]
+        import psycopg2
+        with psycopg2.connect(host=self.host, user=self.user, password=self.password, dbname=self.dbname) as connection:
+            db_cursor = connection.cursor()
+            db_cursor.execute(f"""
+                SELECT d.id, dr.revision, dr.structure
+                FROM public.domain AS d
+                JOIN public.domain_revision AS dr
+                    ON d.id = dr.domain_id
+                WHERE d.name = '{domainType}'
+                ORDER BY dr.revision DESC
+                LIMIT 1;
+                """)
+            domain_revisions = db_cursor.fetchall()
+            if len(domain_revisions) == 0:
+                domainId = uuid.uuid1()
+                queryText = f"""
+                    BEGIN TRANSACTION;
+
+                    INSERT INTO public.domain (id, name)
+                    SELECT
+                        '{domainId}',
+                        '{domainType}'
+                    WHERE
+                        NOT EXISTS (
+                            SELECT id FROM public.domain WHERE id = '{domainId}'
+                        );
+
+                    INSERT INTO public.domain_revision (domain_id, structure)
+                        VALUES(
+                            '{domainId}',
+                            '{{"events":["{'", "'.join(eventTypes)}"]}}');
+
+                    COMMIT;
+                    """
+                db_cursor = connection.cursor()
+                db_cursor.execute(queryText)
+            else:
+                revision = domain_revisions[0]
+                response_revision = {
+                    "id": revision[0],
+                    "name": domainType,
+                    "revision": revision[1],
+                    "structure": revision[2]['events']
+                }
+                request_diff = list(set(eventTypes).difference(set(response_revision["structure"])))
+                structure_diff = list(set(response_revision["structure"]).difference(set(eventTypes)))
+                error_msg = []
+                if (len(request_diff) > 0):
+                    error_msg.append(f"Domain structure differs with {request_diff}")
+                    print(error_msg)
+                if (len(structure_diff) > 0):
+                    error_msg.append(f"Persisted Domain structure differs with {structure_diff}")
+                    print(error_msg)
+            for appliable in appliables:
+                if is_dataclass(appliable):
+                    eventType = appliable.__name__
+                    db_cursor.execute(f"""
+                        SELECT e.id, er.revision, er.structure
+                        FROM public.event AS e
+                        JOIN public.event_revision AS er
+                            ON e.id = er.event_id
+                        WHERE e.name = '{eventType}'
+                        ORDER BY er.revision DESC
+                        LIMIT 1;
+                        """)
+                    event_revisions = db_cursor.fetchall()
+                    if len(event_revisions) == 0:
+                        eventId = uuid.uuid1()
+                        queryText = f"""
+                            BEGIN TRANSACTION;
+
+                            INSERT INTO public.event (id, name)
+                            SELECT
+                                '{eventId}',
+                                '{eventType}'
+                            WHERE
+                                NOT EXISTS (
+                                    SELECT id FROM public.event WHERE id = '{eventId}'
+                                );
+
+                            INSERT INTO public.event_revision (event_id, structure)
+                                VALUES(
+                                    '{eventId}',
+                                    '{{"properties":{{{', '.join([f'"{field.name}": "{field.type}"'.replace("'", "''") for field in fields(appliable)])}}}}}');
+
+                            COMMIT;
+                            """
+                        print("queryText")
+                        print(queryText)
+                        db_cursor = connection.cursor()
+                        db_cursor.execute(queryText)
+                    else:
+                        revision = event_revisions[0]
+                        response_revision = {
+                            "id": revision[0],
+                            "name": eventType,
+                            "revision": revision[1],
+                            "structure": revision[2]['properties']
+                        }
+                        request_diff = list(set([(field.name,f"{field.type}") for field in fields(appliable)]).difference(set(list(response_revision["structure"].items()))))
+                        structure_diff = list(set(list(response_revision["structure"].items())).difference(set([(field.name,f"{field.type}") for field in fields(appliable)])))
+                        error_msg = []
+                        if (len(request_diff) > 0):
+                            error_msg.append(f"Event structure differs with {request_diff}")
+                            print(error_msg)
+                        if (len(structure_diff) > 0):
+                            error_msg.append(f"Persisted Event structure differs with {structure_diff}")
+                            print(error_msg)

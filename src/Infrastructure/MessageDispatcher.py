@@ -1,3 +1,4 @@
+from .IApplyEvent import IApplyEvent
 from .IReadModel import IReadModel
 from .IAggregate import IAggregate
 from .ICommand import ICommand
@@ -80,6 +81,29 @@ class MessageDispatcher:
 
         TODO: `IHandleCommand` command handlers may asof yet only register they handlers on unregistered commands.
         """
+        try:
+            applyOverload = getattr(instance, 'Apply')
+            if applyOverload and callable(applyOverload):
+                appliables = instance.Apply.registry.keys()
+                revissions = self.eventStore.LoadDomain(instance)
+                print('appliables')
+                print([appliable.__name__ for appliable in appliables])
+
+                # if len(domain) == 0:
+
+                # readEvents = []
+                # instanceIsEventApplier = issubclass(instance.__class__, IApplyEvent)
+                # for appliable in appliables:
+                #     if issubclass(appliable, IEvent):
+                #         if instanceIsEventApplier:
+                #             self.AddHandlerOnEvent(instance, handleable)
+                #         if instanceIsReadModel:
+                #             readEvents.append(handleable.__name__)
+                # if instanceIsReadModel:
+                #     instance.ReadEvents(self.eventStore.LoadEventsByType(readEvents))
+        except Exception as ex:
+            print(ex)
+
         handler = getattr(instance, 'Handle')
         if handler and callable(handler):
             handleables = instance.Handle.registry.keys()
