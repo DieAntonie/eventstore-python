@@ -195,84 +195,20 @@ ALTER FUNCTION stored.create_instance_revision() OWNER TO postgres;
 
 --
 -- TOC entry 257 (class 1255 OID 16539)
--- Name: disallow_modifications(); Type: FUNCTION; Schema: stored; Owner: postgres
+-- Name: deny_modifications(); Type: FUNCTION; Schema: stored; Owner: postgres
 --
 
-CREATE FUNCTION stored.disallow_modifications() RETURNS trigger
+CREATE FUNCTION stored.deny_modifications() RETURNS trigger
     LANGUAGE plpgsql
     AS $$
 BEGIN
-    RAISE EXCEPTION 'Updates and deletions are not allowed on this table.';
+    RAISE EXCEPTION 'Modification denied on table "%": This table is immutable and cannot be updated or deleted.', TG_TABLE_NAME;
     RETURN NULL;
 END;
 $$;
 
 
-ALTER FUNCTION stored.disallow_modifications() OWNER TO postgres;
-
---
--- TOC entry 236 (class 1255 OID 16392)
--- Name: disallow_update_delete_aggregate_instance(); Type: FUNCTION; Schema: stored; Owner: postgres
---
-
-CREATE FUNCTION stored.disallow_update_delete_aggregate_instance() RETURNS trigger
-    LANGUAGE plpgsql
-    AS $$
-BEGIN
-    RAISE EXCEPTION 'UPDATE or DELETE operations are not allowed on aggregate_instance';
-END;
-$$;
-
-
-ALTER FUNCTION stored.disallow_update_delete_aggregate_instance() OWNER TO postgres;
-
---
--- TOC entry 237 (class 1255 OID 16393)
--- Name: disallow_update_delete_context_revision(); Type: FUNCTION; Schema: stored; Owner: postgres
---
-
-CREATE FUNCTION stored.disallow_update_delete_context_revision() RETURNS trigger
-    LANGUAGE plpgsql
-    AS $$
-BEGIN
-    RAISE EXCEPTION 'UPDATE or DELETE operations are not allowed on context_revision';
-END;
-$$;
-
-
-ALTER FUNCTION stored.disallow_update_delete_context_revision() OWNER TO postgres;
-
---
--- TOC entry 238 (class 1255 OID 16394)
--- Name: disallow_update_delete_domain_context(); Type: FUNCTION; Schema: stored; Owner: postgres
---
-
-CREATE FUNCTION stored.disallow_update_delete_domain_context() RETURNS trigger
-    LANGUAGE plpgsql
-    AS $$
-BEGIN
-    RAISE EXCEPTION 'UPDATE or DELETE operations are not allowed on domain_context';
-END;
-$$;
-
-
-ALTER FUNCTION stored.disallow_update_delete_domain_context() OWNER TO postgres;
-
---
--- TOC entry 239 (class 1255 OID 16395)
--- Name: disallow_update_delete_instance_revision(); Type: FUNCTION; Schema: stored; Owner: postgres
---
-
-CREATE FUNCTION stored.disallow_update_delete_instance_revision() RETURNS trigger
-    LANGUAGE plpgsql
-    AS $$
-BEGIN
-    RAISE EXCEPTION 'UPDATE or DELETE operations are not allowed on instance_revision';
-END;
-$$;
-
-
-ALTER FUNCTION stored.disallow_update_delete_instance_revision() OWNER TO postgres;
+ALTER FUNCTION stored.deny_modifications() OWNER TO postgres;
 
 --
 -- TOC entry 256 (class 1255 OID 16537)
@@ -970,82 +906,82 @@ CREATE TRIGGER before_insert_validate_instance_revision BEFORE INSERT ON stored.
 
 --
 -- TOC entry 4740 (class 2620 OID 16482)
--- Name: aggregate_instance prevent_update_delete_aggregate_instance; Type: TRIGGER; Schema: stored; Owner: postgres
+-- Name: aggregate_instance deny_modifying_aggregate_instance; Type: TRIGGER; Schema: stored; Owner: postgres
 --
 
-CREATE TRIGGER prevent_update_delete_aggregate_instance BEFORE DELETE OR UPDATE ON stored.aggregate_instance FOR EACH ROW EXECUTE FUNCTION stored.disallow_update_delete_aggregate_instance();
+CREATE TRIGGER deny_modifying_aggregate_instance BEFORE DELETE OR UPDATE ON stored.aggregate_instance FOR EACH ROW EXECUTE FUNCTION stored.deny_modifications();
 
 
 --
 -- TOC entry 4742 (class 2620 OID 16483)
--- Name: bounded_context prevent_update_delete_bounded_context; Type: TRIGGER; Schema: stored; Owner: postgres
+-- Name: bounded_context deny_modifying_bounded_context; Type: TRIGGER; Schema: stored; Owner: postgres
 --
 
-CREATE TRIGGER prevent_update_delete_bounded_context BEFORE DELETE OR UPDATE ON stored.bounded_context FOR EACH ROW EXECUTE FUNCTION stored.disallow_update_delete_domain_context();
+CREATE TRIGGER deny_modifying_bounded_context BEFORE DELETE OR UPDATE ON stored.bounded_context FOR EACH ROW EXECUTE FUNCTION stored.deny_modifications();
 
 
 --
 -- TOC entry 4748 (class 2620 OID 16484)
--- Name: context_revision prevent_update_delete_context_revision; Type: TRIGGER; Schema: stored; Owner: postgres
+-- Name: context_revision deny_modifying_context_revision; Type: TRIGGER; Schema: stored; Owner: postgres
 --
 
-CREATE TRIGGER prevent_update_delete_context_revision BEFORE DELETE OR UPDATE ON stored.context_revision FOR EACH ROW EXECUTE FUNCTION stored.disallow_update_delete_context_revision();
+CREATE TRIGGER deny_modifying_context_revision BEFORE DELETE OR UPDATE ON stored.context_revision FOR EACH ROW EXECUTE FUNCTION stored.deny_modifications();
 
 
 --
 -- TOC entry 4758 (class 2620 OID 16485)
--- Name: instance_revision prevent_update_delete_instance_revision; Type: TRIGGER; Schema: stored; Owner: postgres
+-- Name: instance_revision deny_modifying_instance_revision; Type: TRIGGER; Schema: stored; Owner: postgres
 --
 
-CREATE TRIGGER prevent_update_delete_instance_revision BEFORE DELETE OR UPDATE ON stored.instance_revision FOR EACH ROW EXECUTE FUNCTION stored.disallow_update_delete_instance_revision();
+CREATE TRIGGER deny_modifying_instance_revision BEFORE DELETE OR UPDATE ON stored.instance_revision FOR EACH ROW EXECUTE FUNCTION stored.deny_modifications();
 
 
 --
 -- TOC entry 4744 (class 2620 OID 16542)
--- Name: command_log prevent_updates_deletions_command_log; Type: TRIGGER; Schema: stored; Owner: postgres
+-- Name: command_log deny_modifying_command_log; Type: TRIGGER; Schema: stored; Owner: postgres
 --
 
-CREATE TRIGGER prevent_updates_deletions_command_log BEFORE DELETE OR UPDATE ON stored.command_log FOR EACH ROW EXECUTE FUNCTION stored.disallow_modifications();
+CREATE TRIGGER deny_modifying_command_log BEFORE DELETE OR UPDATE ON stored.command_log FOR EACH ROW EXECUTE FUNCTION stored.deny_modifications();
 
 
 --
 -- TOC entry 4746 (class 2620 OID 16541)
--- Name: command_revision prevent_updates_deletions_command_revision; Type: TRIGGER; Schema: stored; Owner: postgres
+-- Name: command_revision deny_modifying_command_revision; Type: TRIGGER; Schema: stored; Owner: postgres
 --
 
-CREATE TRIGGER prevent_updates_deletions_command_revision BEFORE DELETE OR UPDATE ON stored.command_revision FOR EACH ROW EXECUTE FUNCTION stored.disallow_modifications();
+CREATE TRIGGER deny_modifying_command_revision BEFORE DELETE OR UPDATE ON stored.command_revision FOR EACH ROW EXECUTE FUNCTION stored.deny_modifications();
 
 
 --
 -- TOC entry 4750 (class 2620 OID 16540)
--- Name: domain_command prevent_updates_deletions_domain_command; Type: TRIGGER; Schema: stored; Owner: postgres
+-- Name: domain_command deny_modifying_domain_command; Type: TRIGGER; Schema: stored; Owner: postgres
 --
 
-CREATE TRIGGER prevent_updates_deletions_domain_command BEFORE DELETE OR UPDATE ON stored.domain_command FOR EACH ROW EXECUTE FUNCTION stored.disallow_modifications();
+CREATE TRIGGER deny_modifying_domain_command BEFORE DELETE OR UPDATE ON stored.domain_command FOR EACH ROW EXECUTE FUNCTION stored.deny_modifications();
 
 
 --
 -- TOC entry 4752 (class 2620 OID 16551)
--- Name: domain_event prevent_updates_deletions_domain_event; Type: TRIGGER; Schema: stored; Owner: postgres
+-- Name: domain_event deny_modifying_domain_event; Type: TRIGGER; Schema: stored; Owner: postgres
 --
 
-CREATE TRIGGER prevent_updates_deletions_domain_event BEFORE DELETE OR UPDATE ON stored.domain_event FOR EACH ROW EXECUTE FUNCTION stored.disallow_modifications();
+CREATE TRIGGER deny_modifying_domain_event BEFORE DELETE OR UPDATE ON stored.domain_event FOR EACH ROW EXECUTE FUNCTION stored.deny_modifications();
 
 
 --
 -- TOC entry 4754 (class 2620 OID 16552)
--- Name: event_revision prevent_updates_deletions_event_revision; Type: TRIGGER; Schema: stored; Owner: postgres
+-- Name: event_revision deny_modifying_event_revision; Type: TRIGGER; Schema: stored; Owner: postgres
 --
 
-CREATE TRIGGER prevent_updates_deletions_event_revision BEFORE DELETE OR UPDATE ON stored.event_revision FOR EACH ROW EXECUTE FUNCTION stored.disallow_modifications();
+CREATE TRIGGER deny_modifying_event_revision BEFORE DELETE OR UPDATE ON stored.event_revision FOR EACH ROW EXECUTE FUNCTION stored.deny_modifications();
 
 
 --
 -- TOC entry 4756 (class 2620 OID 16577)
--- Name: event_stream prevent_updates_deletions_event_stream; Type: TRIGGER; Schema: stored; Owner: postgres
+-- Name: event_stream deny_modifying_event_stream; Type: TRIGGER; Schema: stored; Owner: postgres
 --
 
-CREATE TRIGGER prevent_updates_deletions_event_stream BEFORE DELETE OR UPDATE ON stored.event_stream FOR EACH ROW EXECUTE FUNCTION stored.disallow_modifications();
+CREATE TRIGGER deny_modifying_event_stream BEFORE DELETE OR UPDATE ON stored.event_stream FOR EACH ROW EXECUTE FUNCTION stored.deny_modifications();
 
 
 --
